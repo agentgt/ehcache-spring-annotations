@@ -24,7 +24,6 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import edu.wisc.services.cache.CacheableAttribute;
@@ -38,7 +37,7 @@ import edu.wisc.services.cache.key.CacheKeyGenerator;
  * @version $Revision$
  */
 public class CacheableAttributeSourceImpl implements CacheableAttributeSource, BeanFactoryAware {
-    private static final CacheableAttribute NULL_CACHABLE_ATTRIBUTE = new CacheableAttribute() {
+    private static final CacheableAttribute NULL_CACHEABLE_ATTRIBUTE = new CacheableAttribute() {
         @Override
         public Ehcache getCache() {
             return null;
@@ -59,7 +58,7 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource, B
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     /**
-     * Cache of CachableAttributes, keyed by DefaultCacheKey (Method + target Class).
+     * Cache of CacheableAttributes, keyed by DefaultCacheKey (Method + target Class).
      */
     private final Map<Object, CacheableAttribute> attributeCache = new ConcurrentHashMap<Object, CacheableAttribute>();
     
@@ -80,17 +79,17 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource, B
     }
 
     /* (non-Javadoc)
-     * @see org.jasig.spring.cache.CacheableAttributeSource#getCachableAttribute(java.lang.reflect.Method, java.lang.Class)
+     * @see org.jasig.spring.cache.CacheableAttributeSource#getCacheableAttribute(java.lang.reflect.Method, java.lang.Class)
      */
     @Override
-    public CacheableAttribute getCachableAttribute(Method method, Class<?> targetClass) {
+    public CacheableAttribute getCacheableAttribute(Method method, Class<?> targetClass) {
         // First, see if we have a cached value.
         Object cacheKey = getCacheKey(method, targetClass);
         final CacheableAttribute cached = this.attributeCache.get(cacheKey);
         if (cached != null) {
             // Value will either be canonical value indicating there is no transaction attribute,
-            // or an actual transaction attribute.
-            if (cached == NULL_CACHABLE_ATTRIBUTE) {
+            // or an actual cacheable attribute.
+            if (cached == NULL_CACHEABLE_ATTRIBUTE) {
                 return null;
             }
 
@@ -98,13 +97,13 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource, B
         }
         
         // We need to work it out.
-        final CacheableAttribute att = computeCachableAttribute(method, targetClass);
+        final CacheableAttribute att = computeCacheableAttribute(method, targetClass);
         // Put it in the cache.
         if (att == null) {
-            this.attributeCache.put(cacheKey, NULL_CACHABLE_ATTRIBUTE);
+            this.attributeCache.put(cacheKey, NULL_CACHEABLE_ATTRIBUTE);
         }
         else {
-            this.logger.debug("Adding Cachable method '{}' with attribute: {}", method.getName(), att);
+            this.logger.debug("Adding Cacheable method '{}' under key '{}' with attribute: {}", new Object[] { method.getName(), cacheKey, att });
             this.attributeCache.put(cacheKey, att);
         }
         return att;
@@ -123,11 +122,11 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource, B
     }
 
     /**
-     * Same signature as {@link #getCachableAttribute}, but doesn't cache the result.
-     * {@link #getCachableAttribute} is effectively a caching decorator for this method.
-     * @see #getCachableAttribute
+     * Same signature as {@link #getCacheableAttribute}, but doesn't cache the result.
+     * {@link #getCacheableAttribute} is effectively a caching decorator for this method.
+     * @see #getCacheableAttribute
      */
-    private CacheableAttribute computeCachableAttribute(Method method, Class<?> targetClass) {
+    private CacheableAttribute computeCacheableAttribute(Method method, Class<?> targetClass) {
         // Don't allow no-public methods as required.
         if (allowPublicMethodsOnly() && !Modifier.isPublic(method.getModifiers())) {
             return null;
@@ -140,19 +139,19 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource, B
         specificMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
 
         // First try is the method in the target class.
-        CacheableAttribute att = findCachableAttribute(specificMethod);
+        CacheableAttribute att = findCacheableAttribute(specificMethod);
         if (att != null) {
             return att;
         }
 
         if (specificMethod != method) {
             // Fallback is to look at the original method.
-            att = findCachableAttribute(method);
+            att = findCacheableAttribute(method);
             if (att != null) {
                 return att;
             }
             // Last fallback is the class of the original method.
-            return findCachableAttribute(method.getDeclaringClass());
+            return findCacheableAttribute(method.getDeclaringClass());
         }
         
         return null;
@@ -215,7 +214,7 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource, B
      * @return all transaction attribute associated with this method
      * (or <code>null</code> if none)
      */
-    protected CacheableAttribute findCachableAttribute(AnnotatedElement ae) {
+    protected CacheableAttribute findCacheableAttribute(AnnotatedElement ae) {
         Cacheable ann = ae.getAnnotation(Cacheable.class);
         if (ann == null) {
             for (Annotation metaAnn : ae.getAnnotations()) {
@@ -257,7 +256,7 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource, B
 
 
     /**
-     * Should only public methods be allowed to have Cachable semantics?
+     * Should only public methods be allowed to have Cacheable semantics?
      * <p>The default implementation returns <code>false</code>.
      */
     protected boolean allowPublicMethodsOnly() {
@@ -266,12 +265,10 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource, B
 
 
     /**
-     * Default cache key for the CachableAttribute cache.
+     * Default cache key for the CacheableAttribute cache.
      */
     private static class DefaultCacheKey {
-
         private final Method method;
-
         private final Class<?> targetClass;
 
         public DefaultCacheKey(Method method, Class<?> targetClass) {
@@ -280,21 +277,48 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource, B
         }
 
         @Override
-        public boolean equals(Object other) {
-            if (this == other) {
-                return true;
-            }
-            if (!(other instanceof DefaultCacheKey)) {
-                return false;
-            }
-            DefaultCacheKey otherKey = (DefaultCacheKey) other;
-            return (this.method.equals(otherKey.method) &&
-                    ObjectUtils.nullSafeEquals(this.targetClass, otherKey.targetClass));
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((method == null) ? 0 : method.hashCode());
+            result = prime * result + ((targetClass == null) ? 0 : targetClass.hashCode());
+            return result;
         }
 
         @Override
-        public int hashCode() {
-            return this.method.hashCode() * 29 + (this.targetClass != null ? this.targetClass.hashCode() : 0);
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (!(obj instanceof DefaultCacheKey)) {
+                return false;
+            }
+            DefaultCacheKey other = (DefaultCacheKey) obj;
+            if (method == null) {
+                if (other.method != null) {
+                    return false;
+                }
+            }
+            else if (!method.equals(other.method)) {
+                return false;
+            }
+            if (targetClass == null) {
+                if (other.targetClass != null) {
+                    return false;
+                }
+            }
+            else if (!targetClass.equals(other.targetClass)) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "DefaultCacheKey [method=" + method + ", targetClass=" + targetClass + "]";
         }
     }
 }

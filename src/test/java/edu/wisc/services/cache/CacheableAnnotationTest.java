@@ -21,7 +21,7 @@ public class CacheableAnnotationTest extends AbstractJUnit4SpringContextTests {
     private CacheableTestInterface cacheableTestInterface;
 
     @Autowired
-    public void setCachableTestClass(CacheableTestInterface cacheableTestInterface) {
+    public void setCacheableTestClass(CacheableTestInterface cacheableTestInterface) {
         this.cacheableTestInterface = cacheableTestInterface;
     }
 

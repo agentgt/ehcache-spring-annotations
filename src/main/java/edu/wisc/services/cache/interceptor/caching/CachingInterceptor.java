@@ -41,25 +41,25 @@ public class CachingInterceptor implements MethodInterceptor {
      */
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-        final CacheableAttribute cachableAttribute = this.cacheableAttributeSource.getCachableAttribute(methodInvocation.getMethod(), methodInvocation.getClass());
-        if (cachableAttribute == null) {
-            this.logger.trace("Don't need to cache [{}]: This method isn't cachable.", methodInvocation);
+        final CacheableAttribute cacheableAttribute = this.cacheableAttributeSource.getCacheableAttribute(methodInvocation.getMethod(), methodInvocation.getClass());
+        if (cacheableAttribute == null) {
+            this.logger.trace("Don't need to cache [{}]: This method isn't cacheable.", methodInvocation);
             return methodInvocation.proceed();
         }
         
         //Generate the cache key
-        final CacheKeyGenerator cacheKeyGenerator = cachableAttribute.getCacheKeyGenerator();
+        final CacheKeyGenerator cacheKeyGenerator = cacheableAttribute.getCacheKeyGenerator();
         final Serializable key = cacheKeyGenerator.generateKey(methodInvocation);
 
         //See if there is a cached result
-        final Ehcache cache = cachableAttribute.getCache();
+        final Ehcache cache = cacheableAttribute.getCache();
         final Element element = cache.get(key);
         if (element != null) {
             return element.getObjectValue();
         }
 
         //Determine if exception caching is enabled
-        final Ehcache exceptionCache = cachableAttribute.getExceptionCache();
+        final Ehcache exceptionCache = cacheableAttribute.getExceptionCache();
         if (exceptionCache != null) {
             //See if there is a cached exception
             final Element execptionElement = exceptionCache.get(key);

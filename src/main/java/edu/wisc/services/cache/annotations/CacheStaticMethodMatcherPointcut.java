@@ -28,6 +28,6 @@ public class CacheStaticMethodMatcherPointcut extends StaticMethodMatcherPointcu
      */
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
-        return this.cacheableAttributeSource.getCachableAttribute(method, targetClass) != null;
+        return this.cacheableAttributeSource.getCacheableAttribute(method, targetClass) != null;
     }
 }

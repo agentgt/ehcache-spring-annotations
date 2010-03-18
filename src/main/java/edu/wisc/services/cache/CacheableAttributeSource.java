@@ -13,5 +13,5 @@ import java.lang.reflect.Method;
  * @version $Revision$
  */
 public interface CacheableAttributeSource {
-    public CacheableAttribute getCachableAttribute(Method method, Class<?> targetClass);
+    public CacheableAttribute getCacheableAttribute(Method method, Class<?> targetClass);
 }
