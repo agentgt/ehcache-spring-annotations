@@ -25,21 +25,26 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>
- * JDK 1.5+ annotation that identifies the methods that flush the cache when
- * executed.
- * </p>
- * 
- * @author Alex Ruiz
+ * Annotation for methods whos calls trigger removal of data from a cache
  */
 @Target( { ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface CacheFlush {
+public @interface Flushable {
+    /**
+     * The name of the cache to use
+     */
+    String cacheName();
 
-  /**
-   * Ids of the flushing model to be used to flush the cache.
-   */
-  String cacheName();
+    /**
+     * If a call should remove all elements from the cache. Will result in the specified keyGeneratorName 
+     * being ignored.
+     */
+    boolean removeAll() default false;
+    
+    /**
+     * The name of the {@link CacheKeyGenerator} to use. If not specified a default generator will be used.
+     */
+    String keyGeneratorName() default "";
 }

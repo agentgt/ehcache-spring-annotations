@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
+ * Annotation for methods whos return values should be cached.
  */
 @Target( { ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
@@ -38,17 +38,19 @@ public @interface Cacheable {
     String cacheName();
 
     /**
-     * If a EhCache {@link net.sf.ehcache.constructs.blocking.BlockingCache} wrapper should be used
+     * If a EhCache {@link net.sf.ehcache.constructs.blocking.BlockingCache} wrapper should be used to ensure only one
+     * value per key is created.
      */
     boolean blocking() default false;
     
     /**
-     * The name of the {@link CacheKeyGenerator} to use.
+     * The name of the {@link CacheKeyGenerator} to use. If not specified a default generator will be used.
      */
     String keyGeneratorName() default "";
     
     /**
-     * The name of the cache to use for storing exceptions thrown by the advised method
+     * The name of the cache to use for storing exceptions thrown by the advised method. If not specified
+     * exceptions will result in no caching taking place. 
      */
     String exceptionCacheName() default "";
 }

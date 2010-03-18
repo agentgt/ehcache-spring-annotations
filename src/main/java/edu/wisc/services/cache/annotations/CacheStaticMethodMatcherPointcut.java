@@ -13,6 +13,8 @@ import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import edu.wisc.services.cache.CacheableAttributeSource;
 
 /**
+ * Pointcut that delegates matching checks to a {@link CacheableAttributeSource}.
+ * 
  * @author Eric Dalquist
  * @version $Revision$
  */
