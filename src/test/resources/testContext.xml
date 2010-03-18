@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean class="org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor">
+        <property name="adviceBeanName"  value="cachingInterceptor"/>
+        <property name="pointcut" ref="cachablePointcut" />
+    </bean>
+    
+    <bean id="cacheablePointcut" class="org.jasig.spring.cache.CacheStaticMethodMatcherPointcut">
+        <property name="cachableAttributeSource" ref="cachableAttributeSource" />
+    </bean>
+    
+    <bean id="cacheableAttributeSource" class="org.jasig.spring.cache.CachableAttributeSourceImpl" />
+    
+    <bean id="cachingInterceptor" class="edu.wisc.services.cache.interceptor.caching.CachingInterceptor">
+    	<property name="cacheableAttributeSource" ref="cacheableAttributeSource"/>
+    	<property name="cacheManager" ref="CACHE_MANAGER_NAME_HERE"/>
+    	<property name="createCaches"></property>
+    </bean>
+</beans>
