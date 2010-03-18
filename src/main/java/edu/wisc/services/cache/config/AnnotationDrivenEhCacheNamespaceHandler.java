@@ -17,7 +17,7 @@ public class AnnotationDrivenEhCacheNamespaceHandler extends NamespaceHandlerSup
 	 */
 	@Override
 	public void init() {
-		this.registerBeanDefinitionParser("ehcache", new AnnotationDrivenEhCacheBeanDefinitionParser());
+		this.registerBeanDefinitionParser("config", new AnnotationDrivenEhCacheBeanDefinitionParser());
 	}
 
 }

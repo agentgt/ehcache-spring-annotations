@@ -58,7 +58,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
 			pointcutAdvisorSource.setSource(elementSource);
 			pointcutAdvisorSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 			pointcutAdvisorSource.getPropertyValues().add("adviceBeanName", cachingInterceptorBeanName);
-			pointcutAdvisorSource.getPropertyValues().add("pointcut", cacheablePointcutBeanName);
+			pointcutAdvisorSource.getPropertyValues().add("pointcut", new RuntimeBeanReference(cacheablePointcutBeanName));
 			
 			parserContext.getRegistry().registerBeanDefinition(EHCACHE_ADVISOR_BEAN_NAME, pointcutAdvisorSource);
 		}

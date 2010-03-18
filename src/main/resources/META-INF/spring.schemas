@@ -1,1 +1,1 @@
-http\://services.wisc.edu/schema/spring-ehcache=spring-cache-ehcache-combined.xsd
+http\://services.wisc.edu/schema/spring-ehcache/spring-ehcache-1.0.xsd=edu/wisc/services/cache/spring-ehcache-1.0.xsd

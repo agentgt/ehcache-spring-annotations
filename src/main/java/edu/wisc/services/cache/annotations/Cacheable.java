@@ -25,12 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>
- * JDK 1.5+ annotation that identifies the methods which return value should be
- * stored in the cache.
- * </p>
  *
- * @author Alex Ruiz
  */
 @Target( { ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

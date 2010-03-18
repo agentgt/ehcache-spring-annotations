@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xsd:schema xmlns="http://services.wisc.edu/schema/spring-ehcache"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:beans="http://www.springframework.org/schema/beans"
+        targetNamespace="http://services.wisc.edu/schema/spring-ehcache"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"/>
+    
+    <xsd:element name="config">
+        <xsd:complexType>
+            <xsd:attribute name="cache-manager" type="xsd:string" default="cacheManager" />
+            <xsd:attribute name="create-missing-caches" default="false">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:enumeration value="true" />
+                        <xsd:enumeration value="false" />
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    
+</xsd:schema>
