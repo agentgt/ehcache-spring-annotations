@@ -17,9 +17,23 @@ public class CacheableTestClass implements CacheableTestInterface {
     public int getCallCount() {
         return callCount;
     }
-    
+
+    @Override
     public String getCachedResource(String argument) {
         callCount++;
         return "resource-" + argument;
     }
+
+    @Override
+    public String getCachedResourceTwo(String argument) {
+        callCount++;
+        return "resourceTwo-" + argument;
+    }
+
+    @Override
+    public String getCachedSingleResource() {
+        callCount++;
+        return "resource";
+    }
+    
 }

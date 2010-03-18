@@ -6,8 +6,11 @@
 
 package edu.wisc.services.cache.impl;
 
+import org.springframework.util.StringUtils;
+
 import edu.wisc.services.cache.CacheableAttribute;
 import edu.wisc.services.cache.annotations.Cacheable;
+import edu.wisc.services.cache.config.AnnotationDrivenEhCacheBeanDefinitionParser;
 
 /**
  * @author Eric Dalquist
@@ -22,9 +25,20 @@ class CacheableAttributeImpl implements CacheableAttribute {
     public CacheableAttributeImpl(Cacheable cacheable) {
         this.cacheName = cacheable.cacheName();
         this.blocking = cacheable.blocking();
-        this.keyGeneratorName = cacheable.keyGeneratorName();
-        final String exceptionCacheName2 = cacheable.exceptionCacheName().trim();
-        this.exceptionCacheName = exceptionCacheName2.length() > 0 ? exceptionCacheName2 : null;
+        
+        if (StringUtils.hasLength(cacheable.keyGeneratorName())) {
+            this.keyGeneratorName = cacheable.keyGeneratorName();
+        }
+        else {
+            this.keyGeneratorName = AnnotationDrivenEhCacheBeanDefinitionParser.DEFAULT_CACHE_KEY_GENERATOR;
+        }
+        
+        if (StringUtils.hasLength(cacheable.exceptionCacheName())) {
+            this.exceptionCacheName = cacheable.exceptionCacheName(); 
+        }
+        else {
+            this.exceptionCacheName = null;
+        }
     }
 
     

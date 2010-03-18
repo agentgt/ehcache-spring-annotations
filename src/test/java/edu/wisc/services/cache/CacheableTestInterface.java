@@ -19,4 +19,9 @@ public interface CacheableTestInterface {
     @Cacheable(cacheName="cachedResource")
     public String getCachedResource(String argument);
     
+    @Cacheable(cacheName="cachedResource")
+    public String getCachedSingleResource();
+    
+    @Cacheable(cacheName="cachedResourceTwo")
+    public String getCachedResourceTwo(String argument);
 }

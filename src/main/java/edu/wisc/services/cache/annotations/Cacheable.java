@@ -45,7 +45,7 @@ public @interface Cacheable {
     /**
      * The name of the {@link CacheKeyGenerator} to use.
      */
-    String keyGeneratorName() default "cacheKeyGenerator";
+    String keyGeneratorName() default "";
     
     /**
      * The name of the cache to use for storing exceptions thrown by the advised method

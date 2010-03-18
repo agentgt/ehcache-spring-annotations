@@ -37,6 +37,18 @@ public class CacheableAnnotationTest extends AbstractJUnit4SpringContextTests {
         
         Assert.assertEquals("resource-bar", cacheableTestInterface.getCachedResource("bar"));
         Assert.assertEquals(2, cacheableTestInterface.getCallCount());
+        
+        Assert.assertEquals("resourceTwo-bar", cacheableTestInterface.getCachedResourceTwo("bar"));
+        Assert.assertEquals(3, cacheableTestInterface.getCallCount());
+        
+        Assert.assertEquals("resourceTwo-bar", cacheableTestInterface.getCachedResourceTwo("bar"));
+        Assert.assertEquals(3, cacheableTestInterface.getCallCount());
+        
+        Assert.assertEquals("resource", cacheableTestInterface.getCachedSingleResource());
+        Assert.assertEquals(4, cacheableTestInterface.getCallCount());
+        
+        Assert.assertEquals("resource", cacheableTestInterface.getCachedSingleResource());
+        Assert.assertEquals(4, cacheableTestInterface.getCallCount());
     }
 }
 
