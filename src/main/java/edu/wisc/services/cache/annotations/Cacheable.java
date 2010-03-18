@@ -37,10 +37,13 @@ import java.lang.annotation.Target;
 @Inherited
 @Documented
 public @interface Cacheable {
+    /**
+     * The name of the cache to use
+     */
+    String value() ;
 
-  /**
-   * The id of the caching model to use.
-   * @return caching model id
-   */
-  String modelId();
+    /**
+     * If a EhCache {@link net.sf.ehcache.constructs.blocking.BlockingCache} wrapper should be used
+     */
+    boolean blocking() default false;
 }
