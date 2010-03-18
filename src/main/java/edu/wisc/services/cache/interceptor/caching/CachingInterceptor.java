@@ -26,6 +26,8 @@ import edu.wisc.services.cache.CacheableAttributeSource;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
+ * TODO object versus serializable caching
+ * 
  * @author Eric Dalquist
  * @version $Revision$
  */
@@ -81,11 +83,34 @@ public class CachingInterceptor implements MethodInterceptor, BeanFactoryAware {
             return element.getObjectValue();
         }
         
-        //TODO handle caching of exceptions?
-        final Object value = methodInvocation.proceed();
+        //See if there is a cached exception
+        final String exceptionCacheName = cachableAttribute.getExceptionCacheName();
+        final Cache exceptionCache;
+        if (exceptionCacheName != null) {
+            exceptionCache = this.getCache(exceptionCacheName);
+            final Element execptionElement = exceptionCache.get(key);
+            if (execptionElement != null) {
+                throw (Throwable)execptionElement.getObjectValue();
+            }
+        }
+        else {
+            exceptionCache = null;
+        }
+
+        //No cached value or exception, proceed
+        final Object value;
+        try {
+            value = methodInvocation.proceed();
+        }
+        catch (Throwable t) {
+            if (exceptionCache != null) {
+                exceptionCache.put(new Element(key, t));
+            }
+            
+            throw t;
+        }
         
         cache.put(new Element(key, value));
-        
         return value;
     }
 
