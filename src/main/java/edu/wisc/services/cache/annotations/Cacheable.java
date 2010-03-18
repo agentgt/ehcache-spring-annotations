@@ -46,4 +46,10 @@ public @interface Cacheable {
      * If a EhCache {@link net.sf.ehcache.constructs.blocking.BlockingCache} wrapper should be used
      */
     boolean blocking() default false;
+    
+    /**
+     * The name of the {@link CacheKeyGenerator} to use.
+     * @return
+     */
+    String keyGeneratorName() default "cacheKeyGenerator";
 }
