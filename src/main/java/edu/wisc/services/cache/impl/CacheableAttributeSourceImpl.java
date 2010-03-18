@@ -162,7 +162,7 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource {
 
 
     protected CacheableAttribute parseTransactionAnnotation(Cacheable ann) {
-        return new CacheableAttributeImpl(ann.value(), ann.blocking());
+        return new CacheableAttributeImpl(ann.cacheName(), ann.blocking());
     }
 
 

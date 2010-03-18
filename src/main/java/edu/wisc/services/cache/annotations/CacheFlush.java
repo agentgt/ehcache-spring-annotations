@@ -41,5 +41,5 @@ public @interface CacheFlush {
   /**
    * Ids of the flushing model to be used to flush the cache.
    */
-  String modelId();
+  String cacheName();
 }

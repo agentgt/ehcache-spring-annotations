@@ -40,7 +40,7 @@ public @interface Cacheable {
     /**
      * The name of the cache to use
      */
-    String value() ;
+    String cacheName() ;
 
     /**
      * If a EhCache {@link net.sf.ehcache.constructs.blocking.BlockingCache} wrapper should be used
