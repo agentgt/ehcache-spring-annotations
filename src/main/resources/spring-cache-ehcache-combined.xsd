@@ -1,7 +1,7 @@
-<xsd:schema xmlns="http://services.wisc.edu/schema/spring-cache-ehcache"
+<xsd:schema xmlns="http://services.wisc.edu/schema/spring-ehcache"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:beans="http://www.springframework.org/schema/beans"
-  targetNamespace="http://services.wisc.edu/schema/spring-cache-ehcache"
+  targetNamespace="http://services.wisc.edu/schema/spring-ehcache"
   elementFormDefault="qualified" attributeFormDefault="unqualified">
 
   <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -198,9 +198,7 @@
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
-
- 
-
+  
   <xsd:complexType name="cachingModel">
     <xsd:attribute name="cacheName" type="xsd:string" use="required" />
   </xsd:complexType>
