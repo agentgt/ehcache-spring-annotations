@@ -1,0 +1,78 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>edu.wisc.services</groupId>
+	<artifactId>spring-ehcache</artifactId>
+	<name>spring-ehcache</name>
+	<version>0.0.1-SNAPSHOT</version>
+	<description>Provides a simple model for integrating ehcache in a spring project via annotations.</description>
+
+	<developers>
+		<developer>
+			<name>Nicholas Blair</name>
+			<email>nblair@doit.wisc.edu</email>
+			<organization>University of Wisconsin-Madison, Division of Information Technology</organization>
+		</developer>
+	</developers>
+
+	<organization>
+		<name>University of Wisconsin-Madison</name>
+	</organization>
+
+	<properties>
+		<ehcache.version>2.0.0</ehcache.version>
+		<org.springframework.version>3.0.1.RELEASE</org.springframework.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${org.springframework.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>${org.springframework.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>${org.springframework.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache-core</artifactId>
+			<version>${ehcache.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>oro</groupId>
+			<artifactId>oro</artifactId>
+			<version>2.0.8</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
