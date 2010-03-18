@@ -6,16 +6,17 @@
 
 package edu.wisc.services.cache;
 
+import edu.wisc.services.cache.key.CacheKeyGenerator;
+import net.sf.ehcache.Ehcache;
+
 /**
  * @author Eric Dalquist
  * @version $Revision$
  */
 public interface CacheableAttribute {
-    public String getCacheName();
+    public Ehcache getCache();
     
-    public boolean isBlocking();
+    public CacheKeyGenerator getCacheKeyGenerator();
     
-    public String getKeyGeneratorName();
-    
-    public String getExceptionCacheName();
+    public Ehcache getExceptionCache();
 }

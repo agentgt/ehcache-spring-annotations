@@ -13,36 +13,42 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.ObjectExistsException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import edu.wisc.services.cache.CacheableAttribute;
 import edu.wisc.services.cache.CacheableAttributeSource;
 import edu.wisc.services.cache.annotations.Cacheable;
+import edu.wisc.services.cache.config.AnnotationDrivenEhCacheBeanDefinitionParser;
+import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class CacheableAttributeSourceImpl implements CacheableAttributeSource {
+public class CacheableAttributeSourceImpl implements CacheableAttributeSource, BeanFactoryAware {
     private static final CacheableAttribute NULL_CACHABLE_ATTRIBUTE = new CacheableAttribute() {
         @Override
-        public boolean isBlocking() {
-            return false;
-        }
-        @Override
-        public String getCacheName() {
+        public Ehcache getCache() {
             return null;
         }
-		@Override
-		public String getKeyGeneratorName() {
-			return null;
-		}
         @Override
-        public String getExceptionCacheName() {
+        public CacheKeyGenerator getCacheKeyGenerator() {
+            return null;
+        }
+        @Override
+        public Ehcache getExceptionCache() {
             return null;
         }
     };
@@ -56,7 +62,22 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource {
      * Cache of CachableAttributes, keyed by DefaultCacheKey (Method + target Class).
      */
     private final Map<Object, CacheableAttribute> attributeCache = new ConcurrentHashMap<Object, CacheableAttribute>();
+    
+    private CacheManager cacheManager;
+    private BeanFactory beanFactory;
+    private String cacheManagerBeanName;
+    private boolean createCaches = false;
 
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
+    public void setCacheManagerBeanName(String cacheManagerBeanName) {
+        this.cacheManagerBeanName = cacheManagerBeanName;
+    }
+    public void setCreateCaches(boolean createCaches) {
+        this.createCaches = createCaches;
+    }
 
     /* (non-Javadoc)
      * @see org.jasig.spring.cache.CacheableAttributeSource#getCachableAttribute(java.lang.reflect.Method, java.lang.Class)
@@ -136,6 +157,55 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource {
         
         return null;
     }
+    
+    /**
+     * Looks up the CacheManager by the configured cacheManagerBeanName if set. If not set calls
+     * {@link BeanFactory#getBean(Class)} to locate a CacheManager.
+     * 
+     * @return The lazy-loaded CacheManager.
+     */
+    protected CacheManager getCacheManager() {
+        if (this.cacheManager == null) {
+            if (this.cacheManagerBeanName != null) {
+                this.cacheManager = this.beanFactory.getBean(this.cacheManagerBeanName, CacheManager.class);
+            }
+            else {
+                this.cacheManager = this.beanFactory.getBean(CacheManager.class);
+            }
+        }
+        
+        return this.cacheManager;
+    }
+
+    /**
+     * Get or create the specified cache if it does not exist and createCaches is set to true. 
+     * 
+     * @param cacheName The name of the cache to retrieve
+     * @return The cache
+     * @throws RuntimeException if the cache does not exist and createCaches is false.
+     */
+    protected Ehcache getCache(final String cacheName) {
+        final CacheManager cacheManager = this.getCacheManager();
+        
+        Ehcache cache = cacheManager.getCache(cacheName);
+        if (cache == null) {
+            if (this.createCaches) {
+                this.logger.warn("No cache named '{}' exists, it will be created from the defaultCache", cacheName);
+                try {
+                    cacheManager.addCache(cacheName);
+                }
+                catch (ObjectExistsException oee) {
+                    this.logger.trace("Race condition creating missing cache '{}', ignoring and retrieving existing cache", cacheName);
+                }
+                cache = cacheManager.getCache(cacheName);
+            }
+            else {
+                //TODO better exception type
+                throw new RuntimeException("Cache '" + cacheName + "' does not exist");
+            }
+        }
+        return cache;
+    }
 
 
     /**
@@ -164,7 +234,25 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource {
 
 
     protected CacheableAttribute parseCacheableAnnotation(Cacheable ann) {
-        return new CacheableAttributeImpl(ann);
+        final Ehcache cache = this.getCache(ann.cacheName());
+        
+        final Ehcache exceptionCache;
+        if (StringUtils.hasLength(ann.exceptionCacheName())) {
+            exceptionCache = this.getCache(ann.exceptionCacheName());
+        }
+        else {
+            exceptionCache = null;
+        }
+        
+        final CacheKeyGenerator cacheKeyGenerator;
+        if (StringUtils.hasLength(ann.keyGeneratorName())) {
+            cacheKeyGenerator = this.beanFactory.getBean(ann.keyGeneratorName(), CacheKeyGenerator.class);
+        }
+        else {
+            cacheKeyGenerator = this.beanFactory.getBean(AnnotationDrivenEhCacheBeanDefinitionParser.DEFAULT_CACHE_KEY_GENERATOR, CacheKeyGenerator.class);
+        }
+        
+        return new CacheableAttributeImpl(cache, exceptionCache, cacheKeyGenerator);
     }
 
 
