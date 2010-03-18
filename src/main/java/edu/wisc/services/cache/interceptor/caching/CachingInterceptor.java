@@ -118,6 +118,7 @@ public class CachingInterceptor implements MethodInterceptor, BeanFactoryAware {
         Cache cache = this.cacheManager.getCache(cacheName);
         if (cache == null) {
             if (this.createCaches) {
+                this.logger.warn("No cache named '" + cacheName + "' exists, it will be created from the defaultCache");
                 try {
                     this.cacheManager.addCache(cacheName);
                 }
