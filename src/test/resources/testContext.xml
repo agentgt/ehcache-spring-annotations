@@ -11,5 +11,5 @@
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     </bean>
     
-    <bean id="cachableTestClass" class="edu.wisc.services.cache.CacheableTestClass" />
+    <bean id="cachableTestClass" class="edu.wisc.services.cache.CacheableTestImpl" />
 </beans>

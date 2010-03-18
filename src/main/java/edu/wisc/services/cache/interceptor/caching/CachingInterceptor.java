@@ -15,8 +15,8 @@ import net.sf.ehcache.ObjectExistsException;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -32,7 +32,7 @@ import edu.wisc.services.cache.key.CacheKeyGenerator;
  * @version $Revision$
  */
 public class CachingInterceptor implements MethodInterceptor, BeanFactoryAware {
-    protected final Log logger = LogFactory.getLog(this.getClass());
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     private CacheManager cacheManager;
     
@@ -66,10 +66,7 @@ public class CachingInterceptor implements MethodInterceptor, BeanFactoryAware {
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
         final CacheableAttribute cachableAttribute = this.cacheableAttributeSource.getCachableAttribute(methodInvocation.getMethod(), methodInvocation.getClass());
         if (cachableAttribute == null) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Don't need to create transaction for [" + methodInvocation + "]: This method isn't transactional.");
-            }
-            
+            this.logger.trace("Don't need to cache [{}]: This method isn't cachable.", methodInvocation);
             return methodInvocation.proceed();
         }
         
@@ -155,14 +152,12 @@ public class CachingInterceptor implements MethodInterceptor, BeanFactoryAware {
         Ehcache cache = cacheManager.getCache(cacheName);
         if (cache == null) {
             if (this.createCaches) {
-                this.logger.warn("No cache named '" + cacheName + "' exists, it will be created from the defaultCache");
+                this.logger.warn("No cache named '{}' exists, it will be created from the defaultCache", cacheName);
                 try {
                     cacheManager.addCache(cacheName);
                 }
                 catch (ObjectExistsException oee) {
-                    if (this.logger.isTraceEnabled()) {
-                        this.logger.trace("Race condition creating non-existant cache '" + cacheName + "', ignoring and retrieving existing cache");
-                    }
+                    this.logger.trace("Race condition creating non-existant cache '{}', ignoring and retrieving existing cache", cacheName);
                 }
                 cache = cacheManager.getCache(cacheName);
             }

@@ -13,8 +13,8 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
@@ -49,10 +49,8 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource {
     
     /**
      * Logger available to subclasses.
-     * <p>As this base class is not marked Serializable, the logger will be recreated
-     * after serialization - provided that the concrete subclass is Serializable.
      */
-    protected final Log logger = LogFactory.getLog(getClass());
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     /**
      * Cache of CachableAttributes, keyed by DefaultCacheKey (Method + target Class).
@@ -85,9 +83,7 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource {
             this.attributeCache.put(cacheKey, NULL_CACHABLE_ATTRIBUTE);
         }
         else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Adding Cachable method '" + method.getName() + "' with attribute: " + att);
-            }
+            this.logger.debug("Adding Cachable method '{}' with attribute: {}", method.getName(), att);
             this.attributeCache.put(cacheKey, att);
         }
         return att;

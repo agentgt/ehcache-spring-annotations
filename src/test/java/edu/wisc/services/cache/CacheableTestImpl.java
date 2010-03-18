@@ -11,7 +11,7 @@ package edu.wisc.services.cache;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class CacheableTestClass implements CacheableTestInterface {
+public class CacheableTestImpl implements CacheableTestInterface {
     private int callCount = 0;
     
     public int getCallCount() {
