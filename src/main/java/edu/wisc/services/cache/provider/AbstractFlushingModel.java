@@ -18,7 +18,7 @@
 package edu.wisc.services.cache.provider;
 
 import edu.wisc.services.cache.FlushingModel;
-import edu.wisc.services.util.Objects;
+import edu.wisc.services.utils.Objects;
 
 /**
  * <p>
