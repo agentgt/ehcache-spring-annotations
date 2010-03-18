@@ -19,7 +19,7 @@ import edu.wisc.services.cache.CacheableAttributeSource;
 public class CacheStaticMethodMatcherPointcut extends StaticMethodMatcherPointcut {
     private CacheableAttributeSource cacheableAttributeSource;
     
-    public void setCachableAttributeSource(CacheableAttributeSource cacheableAttributeSource) {
+    public void setCacheableAttributeSource(CacheableAttributeSource cacheableAttributeSource) {
         this.cacheableAttributeSource = cacheableAttributeSource;
     }
 
