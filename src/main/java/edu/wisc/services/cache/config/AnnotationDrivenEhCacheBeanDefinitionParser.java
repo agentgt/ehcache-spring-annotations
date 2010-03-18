@@ -50,6 +50,8 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
 			cachingInterceptorSource.setSource(elementSource);
 			cachingInterceptorSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 			cachingInterceptorSource.getPropertyValues().add("cacheableAttributeSource", cacheableAttributeSourceRuntimeReference);
+			cachingInterceptorSource.getPropertyValues().add("cacheManagerBeanName", element.getAttribute("cache-manager"));
+			cachingInterceptorSource.getPropertyValues().add("createCaches", Boolean.parseBoolean(element.getAttribute("create-missing-caches")));
 			String cachingInterceptorBeanName = parserContext.getReaderContext().registerWithGeneratedName(cachingInterceptorSource);
 			
 			RootBeanDefinition pointcutAdvisorSource = new RootBeanDefinition(DefaultBeanFactoryPointcutAdvisor.class);

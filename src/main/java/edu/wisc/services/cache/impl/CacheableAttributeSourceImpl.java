@@ -56,8 +56,6 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource {
     
     /**
      * Cache of CachableAttributes, keyed by DefaultCacheKey (Method + target Class).
-     * <p>As this base class is not marked Serializable, the cache will be recreated
-     * after serialization - provided that the concrete subclass is Serializable.
      */
     private final Map<Object, CacheableAttribute> attributeCache = new ConcurrentHashMap<Object, CacheableAttribute>();
 

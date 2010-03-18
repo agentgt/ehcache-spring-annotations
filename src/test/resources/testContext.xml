@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
-
+    xmlns:ehcache="http://services.wisc.edu/schema/spring-ehcache"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://services.wisc.edu/schema/spring-ehcache  http://services.wisc.edu/schema/spring-ehcache/spring-ehcache-1.0.xsd">
+    
+    <ehcache:config create-missing-caches="true"/>
+    
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    </bean>
+    
+    <!-- 
 	<bean class="org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor">
         <property name="adviceBeanName"  value="cachingInterceptor"/>
         <property name="pointcut" ref="cachablePointcut" />
@@ -19,4 +27,5 @@
     	<property name="cacheManager" ref="CACHE_MANAGER_NAME_HERE"/>
     	<property name="createCaches"></property>
     </bean>
+     -->
 </beans>
