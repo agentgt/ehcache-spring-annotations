@@ -23,11 +23,64 @@
 		<ehcache.version>2.0.0</ehcache.version>
 		<org.springframework.version>3.0.1.RELEASE</org.springframework.version>
         <slf4j.version>1.5.11</slf4j.version>
+        
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
     
     
     <dependencyManagement>    
     	<dependencies>
+            <dependency>
+                <groupId>aopalliance</groupId>
+                <artifactId>aopalliance</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.transaction</groupId>
+                <artifactId>jta</artifactId>
+                <version>1.0.1B</version>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.6</version>
+            </dependency>
+           <dependency>
+              <groupId>org.slf4j</groupId>
+              <artifactId>jcl-over-slf4j</artifactId>
+              <version>${slf4j.version}</version>
+           </dependency>
+           <dependency>
+              <groupId>org.slf4j</groupId>
+              <artifactId>slf4j-api</artifactId>
+              <version>${slf4j.version}</version>
+           </dependency>
+           <dependency>
+              <groupId>org.slf4j</groupId>
+              <artifactId>slf4j-log4j12</artifactId>
+              <version>${slf4j.version}</version>
+           </dependency>
+           <dependency>
+              <groupId>log4j</groupId>
+              <artifactId>log4j</artifactId>
+              <version>1.2.14</version>
+           </dependency>
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache-core</artifactId>
+                <version>${ehcache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${org.springframework.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
     		<dependency>
     			<groupId>org.springframework</groupId>
     			<artifactId>spring-core</artifactId>
@@ -61,45 +114,6 @@
                     </exclusion>
                 </exclusions>
     		</dependency>
-    		<dependency>
-    			<groupId>net.sf.ehcache</groupId>
-    			<artifactId>ehcache-core</artifactId>
-                <version>${ehcache.version}</version>
-    		</dependency>
-            
-            
-            <dependency>
-                <groupId>javax.transaction</groupId>
-                <artifactId>jta</artifactId>
-                <version>1.0.1B</version>
-            </dependency>
-           <dependency>
-              <groupId>org.slf4j</groupId>
-              <artifactId>jcl-over-slf4j</artifactId>
-              <version>${slf4j.version}</version>
-           </dependency>
-           <dependency>
-              <groupId>org.slf4j</groupId>
-              <artifactId>slf4j-api</artifactId>
-              <version>${slf4j.version}</version>
-           </dependency>
-           <dependency>
-              <groupId>org.slf4j</groupId>
-              <artifactId>slf4j-log4j12</artifactId>
-              <version>${slf4j.version}</version>
-           </dependency>
-           <dependency>
-              <groupId>log4j</groupId>
-              <artifactId>log4j</artifactId>
-              <version>1.2.14</version>
-           </dependency>
-
-            
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.6</version>
-            </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
@@ -110,12 +124,20 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
+            <groupId>aopalliance</groupId>
+            <artifactId>aopalliance</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -128,34 +150,35 @@
         
         
         <dependency>
-            <groupId>javax.transaction</groupId>
-            <artifactId>jta</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
             <scope>runtime</scope>
         </dependency>
-       <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>jcl-over-slf4j</artifactId>
-            <scope>runtime</scope>
-       </dependency>
-       <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-            <scope>runtime</scope>
-       </dependency>
-       <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
-            <scope>runtime</scope>
-       </dependency>
-       <dependency>
-          <groupId>log4j</groupId>
-          <artifactId>log4j</artifactId>
-            <scope>runtime</scope>
-       </dependency>
         
+        
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>jta</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
