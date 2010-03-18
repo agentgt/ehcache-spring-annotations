@@ -198,6 +198,44 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
-		</plugins>
-	</build>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.5.1</version>
+                <configuration>
+                    <basedir>${basedir}</basedir>
+                    <header>${basedir}/src/etc/header.txt</header>
+                    <aggregate>true</aggregate>
+                    <excludes>
+                        <exclude>LICENSE</exclude>
+                        <exclude>NOTICE</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
