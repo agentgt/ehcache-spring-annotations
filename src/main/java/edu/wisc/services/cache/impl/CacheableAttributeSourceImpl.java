@@ -41,6 +41,10 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource {
 		public String getKeyGeneratorName() {
 			return null;
 		}
+        @Override
+        public String getExceptionCacheName() {
+            return null;
+        }
     };
     
     /**
@@ -166,7 +170,7 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource {
 
 
     protected CacheableAttribute parseCacheableAnnotation(Cacheable ann) {
-        return new CacheableAttributeImpl(ann.cacheName(), ann.blocking(), ann.keyGeneratorName());
+        return new CacheableAttributeImpl(ann);
     }
 
 

@@ -89,10 +89,6 @@ public class CachingInterceptor implements MethodInterceptor, BeanFactoryAware {
         return value;
     }
 
-    /**
-     * @param cacheName
-     * @return
-     */
     protected Cache getCache(final String cacheName) {
         Cache cache = this.cacheManager.getCache(cacheName);
         if (cache == null) {

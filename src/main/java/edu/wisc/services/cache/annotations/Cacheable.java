@@ -40,7 +40,7 @@ public @interface Cacheable {
     /**
      * The name of the cache to use
      */
-    String cacheName() ;
+    String cacheName();
 
     /**
      * If a EhCache {@link net.sf.ehcache.constructs.blocking.BlockingCache} wrapper should be used
@@ -49,7 +49,11 @@ public @interface Cacheable {
     
     /**
      * The name of the {@link CacheKeyGenerator} to use.
-     * @return
      */
     String keyGeneratorName() default "cacheKeyGenerator";
+    
+    /**
+     * The name of the cache to use for storing exceptions thrown by the advised method
+     */
+    String exceptionCacheName() default "";
 }
