@@ -14,4 +14,6 @@ public interface CacheableAttribute {
     public String getCacheName();
     
     public boolean isBlocking();
+    
+    public String getKeyGeneratorName();
 }

@@ -37,6 +37,10 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource {
         public String getCacheName() {
             return null;
         }
+		@Override
+		public String getKeyGeneratorName() {
+			return null;
+		}
     };
     
     /**
@@ -162,7 +166,7 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource {
 
 
     protected CacheableAttribute parseTransactionAnnotation(Cacheable ann) {
-        return new CacheableAttributeImpl(ann.cacheName(), ann.blocking());
+        return new CacheableAttributeImpl(ann.cacheName(), ann.blocking(), ann.keyGeneratorName());
     }
 
 
