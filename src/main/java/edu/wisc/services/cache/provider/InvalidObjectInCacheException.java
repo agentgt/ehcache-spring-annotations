@@ -29,6 +29,11 @@ import edu.wisc.services.cache.CacheException;
 public class InvalidObjectInCacheException extends CacheException {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3686847813364769426L;
+
+	/**
 	 * Construct a <code>InvalidObjectInCacheException</code> with the specified
 	 * detail message.
 	 *
@@ -37,5 +42,14 @@ public class InvalidObjectInCacheException extends CacheException {
 	public InvalidObjectInCacheException(String msg) {
 		super(msg);
 	}
+
+	/**
+	 * @param msg
+	 * @param cause
+	 */
+	public InvalidObjectInCacheException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
+	
 
 }

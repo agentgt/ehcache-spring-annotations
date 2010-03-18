@@ -26,12 +26,18 @@ import org.springframework.core.NestedRuntimeException;
  */
 public abstract class CacheException extends NestedRuntimeException {
 
-  public CacheException(String msg) {
-    super(msg);
-  }
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 53706L;
 
-  public CacheException(String msg, Throwable cause) {
-    super(msg, cause);
-  }
+	public CacheException(String msg) {
+		super(msg);
+	}
 
+	public CacheException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
+
+	
 }
