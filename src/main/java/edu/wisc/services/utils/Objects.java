@@ -46,10 +46,10 @@ public abstract class Objects {
 
   private static final String NULL_ARRAY = "null";
 
-  private static final Set primitivesAndWrappers;
+  private static final Set<Class<?>> primitivesAndWrappers;
 
   static {
-    primitivesAndWrappers = new HashSet();
+    primitivesAndWrappers = new HashSet<Class<?>>();
     primitivesAndWrappers.add(boolean.class);
     primitivesAndWrappers.add(Boolean.class);
     primitivesAndWrappers.add(byte.class);
@@ -157,7 +157,7 @@ public abstract class Objects {
     boolean primitiveArray = false;
 
     if (array != null) {
-      Class clazz = array.getClass();
+      Class<? extends Object> clazz = array.getClass();
 
       primitiveArray = clazz.isArray()
           && clazz.getComponentType().isPrimitive();
@@ -192,7 +192,7 @@ public abstract class Objects {
    * @return <code>true</code> if the given class represents a primitive or a
    *         wrapper, <code>false</code> otherwise.
    */
-  public static boolean isPrimitiveOrWrapper(Class clazz) {
+  public static boolean isPrimitiveOrWrapper(Class<?> clazz) {
     return primitivesAndWrappers.contains(clazz);
   }
 

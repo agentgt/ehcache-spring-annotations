@@ -73,7 +73,7 @@ public abstract class Reflections {
     if (obj == null)
       return 0;
 
-    Class targetClass = obj.getClass();
+    Class<?> targetClass = obj.getClass();
     if (Objects.isArrayOfPrimitives(obj)
         || Objects.isPrimitiveOrWrapper(targetClass)) {
       return Objects.nullSafeHashCode(obj);
@@ -83,17 +83,17 @@ public abstract class Reflections {
       return reflectionHashCode((Object[]) obj);
     }
 
-    if (obj instanceof Collection) {
-      return reflectionHashCode((Collection) obj);
+    if (obj instanceof Collection<?>) {
+      return reflectionHashCode((Collection<?>) obj);
     }
 
-    if (obj instanceof Map) {
-      return reflectionHashCode((Map) obj);
+    if (obj instanceof Map<?, ?>) {
+      return reflectionHashCode((Map<?, ?>) obj);
     }
 
 		// determine whether the object's class declares hashCode() or has a
 		// superClass other than java.lang.Object that declares hashCode()
-		Class clazz = (obj instanceof Class)? (Class) obj : obj.getClass();
+		Class<?> clazz = (obj instanceof Class<?>)? (Class<?>) obj : obj.getClass();
 		Method hashCodeMethod = ReflectionUtils.findMethod(clazz,
 				"hashCode", new Class[0]);
 
@@ -128,28 +128,28 @@ public abstract class Reflections {
     return hash;
   }
 
-  private static int reflectionHashCode(Collection collection) {
+  private static int reflectionHashCode(Collection<?> collection) {
     int hash = INITIAL_HASH;
 
-    for (Iterator i = collection.iterator(); i.hasNext();) {
+    for (Iterator<?> i = collection.iterator(); i.hasNext();) {
       hash = MULTIPLIER * hash + reflectionHashCode(i.next());
     }
 
     return hash;
   }
 
-  private static int reflectionHashCode(Map map) {
+  private static int reflectionHashCode(Map<?, ?> map) {
     int hash = INITIAL_HASH;
 
-    for (Iterator i = map.entrySet().iterator(); i.hasNext();) {
-      Map.Entry entry = (Map.Entry) i.next();
+    for (Iterator<?> i = map.entrySet().iterator(); i.hasNext();) {
+      Map.Entry<?, ?> entry = (Map.Entry<?, ?>) i.next();
       hash = MULTIPLIER * hash + reflectionHashCode(entry);
     }
 
     return hash;
   }
 
-  private static int reflectionHashCode(Map.Entry entry) {
+  private static int reflectionHashCode(Map.Entry<?, ?> entry) {
     int hash = INITIAL_HASH;
     hash = MULTIPLIER * hash + reflectionHashCode(entry.getKey());
     hash = MULTIPLIER * hash + reflectionHashCode(entry.getValue());
