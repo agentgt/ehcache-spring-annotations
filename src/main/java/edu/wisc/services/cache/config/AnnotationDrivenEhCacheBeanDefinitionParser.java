@@ -58,7 +58,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
 			pointcutAdvisorSource.getPropertyValues().add("adviceBeanName", cachingInterceptorBeanName);
 			pointcutAdvisorSource.getPropertyValues().add("pointcut", cacheablePointcutBeanName);
 			
-			parserContext.getReaderContext().registerWithGeneratedName(pointcutAdvisorSource);
+			parserContext.getRegistry().registerBeanDefinition(EHCACHE_ADVISOR_BEAN_NAME, pointcutAdvisorSource);
 		}
 		return null;
 	}
