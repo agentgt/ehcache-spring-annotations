@@ -65,7 +65,8 @@ public final class HashCodeCacheKey implements Serializable {
   /**
    * @see Object#equals(Object)
    */
-  public boolean equals(Object obj) {
+  @Override
+public boolean equals(Object obj) {
     if (this == obj) return true;
     if (!(obj instanceof HashCodeCacheKey)) return false;
 
@@ -93,6 +94,7 @@ public final class HashCodeCacheKey implements Serializable {
   /**
    * @see Object#hashCode()
    */
+  @Override
   public int hashCode() {
     return getHashCode();
   }
@@ -120,6 +122,7 @@ public final class HashCodeCacheKey implements Serializable {
   /**
    * @see Object#toString()
    */
+  @Override
   public String toString() {
     return getHashCode() + "|" + getCheckSum();
   }
