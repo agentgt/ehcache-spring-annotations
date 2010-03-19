@@ -29,8 +29,11 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.wisc.services.cache.annotations.CacheStaticMethodMatcherPointcut;
+import edu.wisc.services.cache.annotations.FlushableStaticMethodMatcherPointcut;
 import edu.wisc.services.cache.impl.CacheableAttributeSourceImpl;
+import edu.wisc.services.cache.impl.FlushableAttributeSourceImpl;
 import edu.wisc.services.cache.interceptor.caching.CachingInterceptor;
+import edu.wisc.services.cache.interceptor.caching.FlushingInterceptor;
 import edu.wisc.services.cache.key.HashCodeCacheKeyGenerator;
 
 /**
@@ -64,7 +67,6 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
             RootBeanDefinition cacheablePointcutSource = new RootBeanDefinition(CacheStaticMethodMatcherPointcut.class);
             cacheablePointcutSource.setSource(elementSource);
             cacheablePointcutSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            
             cacheablePointcutSource.getPropertyValues().add("cacheableAttributeSource", cacheableAttributeSourceRuntimeReference);
             String cacheablePointcutBeanName = parserContext.getReaderContext().registerWithGeneratedName(cacheablePointcutSource);
             
@@ -73,6 +75,26 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
             cachingInterceptorSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
             cachingInterceptorSource.getPropertyValues().add("cacheableAttributeSource", cacheableAttributeSourceRuntimeReference);
             String cachingInterceptorBeanName = parserContext.getReaderContext().registerWithGeneratedName(cachingInterceptorSource);
+            
+            
+            RootBeanDefinition flushableAttributeSource = new RootBeanDefinition(FlushableAttributeSourceImpl.class);
+            flushableAttributeSource.setSource(elementSource);
+            flushableAttributeSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            String flushableAttributeSourceBeanName = parserContext.getReaderContext().registerWithGeneratedName(flushableAttributeSource);
+            RuntimeBeanReference flushableAttributeSourceRuntimeReference = new RuntimeBeanReference(flushableAttributeSourceBeanName);
+            
+            RootBeanDefinition flushablePointcutSource = new RootBeanDefinition(FlushableStaticMethodMatcherPointcut.class);
+            flushablePointcutSource.setSource(elementSource);
+            flushablePointcutSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            flushablePointcutSource.getPropertyValues().add("flushableAttributeSource", flushableAttributeSourceRuntimeReference);
+            String flushablePointcutBeanName = parserContext.getReaderContext().registerWithGeneratedName(flushablePointcutSource);
+            
+            RootBeanDefinition flushingInterceptorSource = new RootBeanDefinition(FlushingInterceptor.class);
+            flushingInterceptorSource.setSource(elementSource);
+            flushingInterceptorSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            flushingInterceptorSource.getPropertyValues().add("flushableAttributeSource", flushableAttributeSourceRuntimeReference);
+            String flushingInterceptorBeanName = parserContext.getReaderContext().registerWithGeneratedName(flushingInterceptorSource);
+            
             
             RootBeanDefinition pointcutAdvisorSource = new RootBeanDefinition(DefaultBeanFactoryPointcutAdvisor.class);
             pointcutAdvisorSource.setSource(elementSource);
