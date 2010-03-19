@@ -13,9 +13,9 @@ public interface FlushableTestInterface {
 
 	public void notFlushableMethod();
 	
-	@Flushable(cacheName=TestFlushAndRemoveAllCountingEhcache.FLUSH_REMOVE_COUNT_CACHE_NAME)
+	@Flushable(cacheName="flushRemoveCountingCache")
 	public void methodTriggersFlush();
 	
-	@Flushable(cacheName=TestFlushAndRemoveAllCountingEhcache.FLUSH_REMOVE_COUNT_CACHE_NAME, removeAll=true)
+	@Flushable(cacheName="flushRemoveCountingCache", removeAll=true)
 	public void methodTriggersFlushAndRemoveAll();
 }
