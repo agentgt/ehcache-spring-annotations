@@ -17,29 +17,27 @@
  * under the License.
  */
 
-package edu.wisc.services.cache.provider;
+package edu.wisc.services.cache;
 
-import edu.wisc.services.cache.CacheException;
 
 /**
- * <p>
- * Exception thrown when an object cannot be stored in the cache.
- * </p>
+ * Raised when no cache can be found with the specified name.
  * 
- * @author Alex Ruiz
+ * @author Nicholas Blair, npblair@wisc.edu
+ * @author Eric Dalquist
  */
-public class ObjectCannotBeCachedException extends CacheException {
+public class CacheNotFoundException extends CacheException {
 
-  private static final long serialVersionUID = -9124262814399202014L;
+	private static final long serialVersionUID = 6601590278654078802L;
 
-  /**
-   * Construct a <code>ObjectCannotBeCachedException</code> with the specified
-   * detail message.
-   * 
-   * @param msg
-   *          the detail message
-   */
-  public ObjectCannotBeCachedException(String msg) {
-    super(msg);
-  }
+	/**
+	 * Creates a <code>CacheNotFoundException</code>.
+	 * 
+	 * @param cacheName
+	 *          the name of the cache that could be found
+	 */
+	public CacheNotFoundException(String cacheName) {
+		super("Unable to find cache '" + cacheName + "'");
+	}
+
 }

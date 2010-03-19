@@ -19,26 +19,49 @@
 
 package edu.wisc.services.cache;
 
-import org.springframework.core.NestedRuntimeException;
 
 /**
- * Understands an unexpected error that ocurred while accessing a cache.
+ * Base runtime exception for this project.
  * 
- * @author Alex Ruiz
+ * @author Nicholas Blair, npblair@wisc.edu
+ * @version 
  */
-public abstract class CacheException extends NestedRuntimeException {
+public abstract class CacheException extends RuntimeException {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 53706L;
 
+	/**
+	 * 
+	 * @param msg
+	 */
 	public CacheException(String msg) {
 		super(msg);
 	}
 
+	/**
+	 * 
+	 * @param msg
+	 * @param cause
+	 */
 	public CacheException(String msg, Throwable cause) {
 		super(msg, cause);
+	}
+
+	/**
+	 * 
+	 */
+	public CacheException() {
+		super();
+	}
+
+	/**
+	 * @param cause
+	 */
+	public CacheException(Throwable cause) {
+		super(cause);
 	}
 
 	
