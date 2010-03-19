@@ -38,8 +38,6 @@ import edu.wisc.services.cache.TriggersRemoveAttribute;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
- * TODO object versus serializable caching
- * 
  * @author Eric Dalquist
  * @version $Revision$
  */
@@ -91,106 +89,86 @@ public class EhCacheInterceptor implements MethodInterceptor {
         }
     }
     
-    private Object invokeCacheable(final MethodInvocation methodInvocation, final CacheableAttribute cacheableAttribute) throws Throwable {
+    protected Object invokeCacheable(final MethodInvocation methodInvocation, final CacheableAttribute cacheableAttribute) throws Throwable {
         //Generate the cache key
         final CacheKeyGenerator cacheKeyGenerator = cacheableAttribute.getCacheKeyGenerator();
         final Serializable key = cacheKeyGenerator.generateKey(methodInvocation);
         
-        final ThreadLocal<Callable<?>> entryFactory = cacheableAttribute.getEntryFactory();
-        if (entryFactory != null) {
-            //Determine if exception caching is enabled
-            final Ehcache exceptionCache = cacheableAttribute.getExceptionCache();
-            if (exceptionCache != null) {
-                //See if there is a cached exception
-                final Element execptionElement = exceptionCache.get(key);
-                if (execptionElement != null) {
-                    throw (Throwable)execptionElement.getObjectValue();
-                }
-            }
-            
-            //Setup the Callable
-            entryFactory.set(new Callable<Object>() {
-                @Override
-                public Object call() throws Exception {
-                    try {
-                        return methodInvocation.proceed();
-                    }
-                    catch (Throwable t) {
-                        if (t instanceof Exception) {
-                            throw (Exception)t;
-                        }
-                        else if (t instanceof Error) {
-                            throw (Error)t;
-                        }
-                        
-                        throw new Exception(t);
-                    }
-                }
-            });
+        this.checkForCachedException(cacheableAttribute, key);
+        
+        //See if this is self-populating
+        if (cacheableAttribute.getEntryFactory() != null) {
+            return this.invokeSelfPopulatingCacheable(methodInvocation, cacheableAttribute, key);
+        }
 
-            //SelfPopulating cache, the get should always return an Element
-            final Ehcache cache = cacheableAttribute.getCache();
-            final Element element;
-            try {
-                element = cache.get(key);
-            }
-            catch (Throwable t) {
-                //If exception caching, cache the exception
-                if (exceptionCache != null) {
-                    exceptionCache.put(new Element(key, t));
-                }
-                
-                throw t;
-            }
-            finally {
-                entryFactory.remove();
-            }
-            
-            if (element == null) {
-                throw new RuntimeException("This should not be possible, a self-populating cache should always return an Element");
-            }
-            
+        //See if there is a cached result
+        final Ehcache cache = cacheableAttribute.getCache();
+        final Element element = cache.get(key);
+        if (element != null) {
             return element.getObjectValue();
         }
-        else {
-            //See if there is a cached result
-            final Ehcache cache = cacheableAttribute.getCache();
-            final Element element = cache.get(key);
-            if (element != null) {
-                return element.getObjectValue();
+
+        //No cached value or exception, proceed
+        final Object value;
+        try {
+            value = methodInvocation.proceed();
+        }
+        catch (Throwable t) {
+            this.cacheException(cacheableAttribute, key, t);
+            throw t;
+        }
+        
+        //Cache and return the value
+        cache.put(new Element(key, value));
+        return value;
+    }
+
+    protected void cacheException(final CacheableAttribute cacheableAttribute, final Serializable key, Throwable t) {
+        //If exception caching, cache the exception
+        final Ehcache exceptionCache = cacheableAttribute.getExceptionCache();
+        if (exceptionCache != null) {
+            exceptionCache.put(new Element(key, t));
+        }
+    }
+
+    protected Object invokeSelfPopulatingCacheable(final MethodInvocation methodInvocation, final CacheableAttribute cacheableAttribute, final Serializable key) throws Throwable {
+        final Ehcache cache = cacheableAttribute.getCache();
+
+        //Setup the Callable in the ThreadLocal
+        final ThreadLocal<Callable<?>> entryFactory = cacheableAttribute.getEntryFactory();
+        entryFactory.set(new MethodInvocationCallable(methodInvocation));
+        final Element element;
+        try {
+            element = cache.get(key);
+        }
+        catch (Throwable t) {
+            this.cacheException(cacheableAttribute, key, t);
+            throw t;
+        }
+        finally {
+            entryFactory.remove();
+        }
+        
+        if (element == null) {
+            throw new RuntimeException("This should not be possible, a self-populating cache should always return an Element");
+        }
+        
+        return element.getObjectValue();
+    }
+
+    protected void checkForCachedException(final CacheableAttribute cacheableAttribute, final Serializable key) throws Throwable {
+        //Determine if exception caching is enabled
+        final Ehcache exceptionCache = cacheableAttribute.getExceptionCache();
+        if (exceptionCache != null) {
+            //See if there is a cached exception
+            final Element execptionElement = exceptionCache.get(key);
+            if (execptionElement != null) {
+                throw (Throwable)execptionElement.getObjectValue();
             }
-    
-            //Determine if exception caching is enabled
-            final Ehcache exceptionCache = cacheableAttribute.getExceptionCache();
-            if (exceptionCache != null) {
-                //See if there is a cached exception
-                final Element execptionElement = exceptionCache.get(key);
-                if (execptionElement != null) {
-                    throw (Throwable)execptionElement.getObjectValue();
-                }
-            }
-    
-            //No cached value or exception, proceed
-            final Object value;
-            try {
-                value = methodInvocation.proceed();
-            }
-            catch (Throwable t) {
-                //If exception caching, cache the exception
-                if (exceptionCache != null) {
-                    exceptionCache.put(new Element(key, t));
-                }
-                
-                throw t;
-            }
-            
-            //Cache and return the value
-            cache.put(new Element(key, value));
-            return value;
         }
     }
     
-    private Object invokeTriggersRemove(final MethodInvocation methodInvocation, final TriggersRemoveAttribute triggersRemoveAttribute) throws Throwable {
+    protected Object invokeTriggersRemove(final MethodInvocation methodInvocation, final TriggersRemoveAttribute triggersRemoveAttribute) throws Throwable {
         Ehcache cache = triggersRemoveAttribute.getCache();
         if (triggersRemoveAttribute.isRemoveAll()) {
             cache.removeAll();
@@ -203,5 +181,30 @@ public class EhCacheInterceptor implements MethodInterceptor {
 
         Object result = methodInvocation.proceed();
         return result;
+    }
+    
+    private static final class MethodInvocationCallable implements Callable<Object> {
+        private final MethodInvocation methodInvocation;
+
+        private MethodInvocationCallable(MethodInvocation methodInvocation) {
+            this.methodInvocation = methodInvocation;
+        }
+
+        @Override
+        public Object call() throws Exception {
+            try {
+                return methodInvocation.proceed();
+            }
+            catch (Throwable t) {
+                if (t instanceof Exception) {
+                    throw (Exception)t;
+                }
+                else if (t instanceof Error) {
+                    throw (Error)t;
+                }
+                
+                throw new Exception(t);
+            }
+        }
     }
 }
