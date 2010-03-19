@@ -34,15 +34,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = "/testContext.xml")
 public class CacheableAnnotationTest {
     private CacheableTestInterface cacheableTestInterface;
-    private PlainTestInterface plainTestInterface;
     
     @Autowired
     public void setCacheableTestClass(CacheableTestInterface cacheableTestInterface) {
         this.cacheableTestInterface = cacheableTestInterface;
-    }
-    @Autowired
-    public void setPlainTestInterface(PlainTestInterface plainTestInterface) {
-    	this.plainTestInterface = plainTestInterface;
     }
 
     /**
@@ -72,32 +67,6 @@ public class CacheableAnnotationTest {
         
         Assert.assertEquals("resource", cacheableTestInterface.getCachedSingleResource());
         Assert.assertEquals(4, cacheableTestInterface.getCallCount());
-    }
-    
-    /**
-     * Test where Cacheable annotations exist only on the underlying implementation.
-     */
-    @Test
-    public void testCachingOnTheImpl() {
-    	 Assert.assertEquals(0, plainTestInterface.getaCallCount());
-    	 Assert.assertEquals(0, plainTestInterface.getbCallCount());
-    	 
-    	 Assert.assertEquals("methodA says foo", plainTestInterface.methodA("foo"));
-    	 Assert.assertEquals(1, plainTestInterface.getaCallCount());
-    	 Assert.assertEquals(0, plainTestInterface.getbCallCount());
-    	 Assert.assertEquals("methodB says bar", plainTestInterface.methodB("bar"));
-    	 Assert.assertEquals(1, plainTestInterface.getaCallCount());
-    	 Assert.assertEquals(1, plainTestInterface.getbCallCount());
-    	 
-    	 Assert.assertEquals("methodA says foo", plainTestInterface.methodA("foo"));
-    	 Assert.assertEquals(2, plainTestInterface.getaCallCount());
-    	 Assert.assertEquals("methodA says foo", plainTestInterface.methodA("foo"));
-    	 Assert.assertEquals(3, plainTestInterface.getaCallCount());
-    	 
-    	 Assert.assertEquals("methodB says bar", plainTestInterface.methodB("bar"));
-    	 Assert.assertEquals(1, plainTestInterface.getbCallCount());
-    	 Assert.assertEquals("methodB says bar", plainTestInterface.methodB("bar"));
-    	 Assert.assertEquals(1, plainTestInterface.getbCallCount());
     }
 }
 

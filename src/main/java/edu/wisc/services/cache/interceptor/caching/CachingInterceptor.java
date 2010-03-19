@@ -55,7 +55,8 @@ public class CachingInterceptor implements MethodInterceptor {
      */
     @Override
     public Object invoke(final MethodInvocation methodInvocation) throws Throwable {
-        final CacheableAttribute cacheableAttribute = this.cacheableAttributeSource.getCacheableAttribute(methodInvocation.getMethod(), methodInvocation.getClass());
+        final Class<?> targetClass = (methodInvocation.getThis() != null ? methodInvocation.getThis().getClass() : null);
+        final CacheableAttribute cacheableAttribute = this.cacheableAttributeSource.getCacheableAttribute(methodInvocation.getMethod(), targetClass);
         if (cacheableAttribute == null) {
             this.logger.trace("Don't need to cache [{}]: This method isn't cacheable.", methodInvocation);
             return methodInvocation.proceed();
