@@ -1,0 +1,69 @@
+/**
+ * Copyright 2010 The Board of Regents of the University of Wisconsin System.
+ */
+package edu.wisc.services.cache;
+
+import edu.wisc.services.cache.annotations.Cacheable;
+
+/**
+ *
+ * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @version $Id$
+ */
+public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
+
+	private final Object lock = new Object();
+	private volatile int aInvocationCount = 0;
+	private volatile int bInvocationCount = 0;
+	
+	@Override
+	@Cacheable(cacheName="blockingCache", selfPopulating=true)
+	public String methodA(String argument) {
+		synchronized(lock) {
+			try {
+				lock.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		aInvocationCount++;
+		return "methodA says: " + argument;
+	}
+	
+	@Override
+	@Cacheable(cacheName="blockingCache", selfPopulating=false)
+	public String methodB(String argument) {
+		synchronized(lock) {
+			try {
+				lock.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		bInvocationCount++;
+		return "methodB says: " + argument;
+	}
+	
+	@Override
+	public int getAInvocationCount() {
+		return this.aInvocationCount;
+	}
+	@Override
+	public int getBInvocationCount() {
+		return this.bInvocationCount;
+	}
+
+	/* (non-Javadoc)
+	 * @see edu.wisc.services.cache.SelfPopulatingTestInterface#submitNotifyAll()
+	 */
+	@Override
+	public void submitNotifyAll() {
+		synchronized (lock) {
+			lock.notifyAll();
+		}
+	}
+
+
+	
+
+}
