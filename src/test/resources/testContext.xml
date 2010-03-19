@@ -38,16 +38,4 @@
     <bean id="flushableTestClass" class="edu.wisc.services.cache.FlushableTestImpl"/>
     <bean id="plainTestInterface" class="edu.wisc.services.cache.PlainTestImpl"/>
     
-    <bean id="transactionalTestInterface" class="edu.wisc.services.cache.TransactionalTestImpl"/>
-    
-    <bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-    	<property name="driverClass" value="org.hsqldb.jdbcDriver"/>
-    	<property name="url" value="jdbc:hsqldb:mem:aname"/>
-    	<property name="username" value="sa"/>
-    	<property name="password" value=""/>
-    </bean>
-    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-  		<property name="dataSource" ref="dataSource"/>
-	</bean>
-	<tx:annotation-driven transaction-manager="txManager" />
 </beans>
