@@ -19,9 +19,10 @@
 
 package edu.wisc.services.cache.impl;
 
-import java.util.concurrent.Callable;
-
 import net.sf.ehcache.Ehcache;
+
+import org.aopalliance.intercept.MethodInvocation;
+
 import edu.wisc.services.cache.AdviceType;
 import edu.wisc.services.cache.CacheableAttribute;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
@@ -34,9 +35,9 @@ class CacheableAttributeImpl implements CacheableAttribute {
     private final Ehcache cache;
     private final Ehcache exceptionCache;
     private final CacheKeyGenerator cacheKeyGenerator;
-    private final ThreadLocal<Callable<?>> entryFactory;
+    private final ThreadLocal<MethodInvocation> entryFactory;
     
-    public CacheableAttributeImpl(Ehcache cache, Ehcache exceptionCache, CacheKeyGenerator cacheKeyGenerator, ThreadLocal<Callable<?>> entryFactory) {
+    public CacheableAttributeImpl(Ehcache cache, Ehcache exceptionCache, CacheKeyGenerator cacheKeyGenerator, ThreadLocal<MethodInvocation> entryFactory) {
         this.cache = cache;
         this.exceptionCache = exceptionCache;
         this.cacheKeyGenerator = cacheKeyGenerator;
@@ -64,7 +65,7 @@ class CacheableAttributeImpl implements CacheableAttribute {
     }
     
     @Override
-    public ThreadLocal<Callable<?>> getEntryFactory() {
+    public ThreadLocal<MethodInvocation> getEntryFactory() {
         return this.entryFactory;
     }
 

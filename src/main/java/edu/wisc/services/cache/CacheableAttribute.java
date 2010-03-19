@@ -19,9 +19,9 @@
 
 package edu.wisc.services.cache;
 
-import java.util.concurrent.Callable;
-
 import net.sf.ehcache.Ehcache;
+
+import org.aopalliance.intercept.MethodInvocation;
 
 /**
  * Represents the objects needed to intercept calls to methods annotated
@@ -39,5 +39,5 @@ public interface CacheableAttribute extends MethodAttribute {
     /**
      * @return The ThreadLocal to use with a self populating cache. If not null the intercepter must provide a {@link Callable} before calling {@link Ehcache#get(Object)}
      */
-    public ThreadLocal<Callable<?>> getEntryFactory();
+    public ThreadLocal<MethodInvocation> getEntryFactory();
 }

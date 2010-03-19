@@ -21,7 +21,6 @@ package edu.wisc.services.cache.interceptor.caching;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -135,8 +134,8 @@ public class EhCacheInterceptor implements MethodInterceptor {
         final Ehcache cache = cacheableAttribute.getCache();
 
         //Setup the Callable in the ThreadLocal
-        final ThreadLocal<Callable<?>> entryFactory = cacheableAttribute.getEntryFactory();
-        entryFactory.set(new MethodInvocationCallable(methodInvocation));
+        final ThreadLocal<MethodInvocation> entryFactory = cacheableAttribute.getEntryFactory();
+        entryFactory.set(methodInvocation);
         final Element element;
         try {
             element = cache.get(key);
@@ -181,30 +180,5 @@ public class EhCacheInterceptor implements MethodInterceptor {
 
         Object result = methodInvocation.proceed();
         return result;
-    }
-    
-    private static final class MethodInvocationCallable implements Callable<Object> {
-        private final MethodInvocation methodInvocation;
-
-        private MethodInvocationCallable(MethodInvocation methodInvocation) {
-            this.methodInvocation = methodInvocation;
-        }
-
-        @Override
-        public Object call() throws Exception {
-            try {
-                return methodInvocation.proceed();
-            }
-            catch (Throwable t) {
-                if (t instanceof Exception) {
-                    throw (Exception)t;
-                }
-                else if (t instanceof Error) {
-                    throw (Error)t;
-                }
-                
-                throw new Exception(t);
-            }
-        }
     }
 }

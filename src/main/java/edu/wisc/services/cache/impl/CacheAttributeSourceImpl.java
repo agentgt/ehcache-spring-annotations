@@ -11,7 +11,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.sf.ehcache.CacheManager;
@@ -20,6 +19,7 @@ import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -301,7 +301,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      */
     protected CacheableAttribute parseCacheableAnnotation(Cacheable ann) {
         Ehcache cache = this.getCache(ann.cacheName());
-        ThreadLocal<Callable<?>> entryFactory = null;
+        ThreadLocal<MethodInvocation> entryFactory = null;
         if (ann.selfPopulating()) {
             final ThreadLocalCacheEntryFactory cacheEntryFactory = new ThreadLocalCacheEntryFactory();
             entryFactory = cacheEntryFactory.entryFactory;
@@ -347,15 +347,28 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     }
 
     private static class ThreadLocalCacheEntryFactory implements CacheEntryFactory {
-        public final ThreadLocal<Callable<?>> entryFactory = new ThreadLocal<Callable<?>>();
+        public final ThreadLocal<MethodInvocation> entryFactory = new ThreadLocal<MethodInvocation>();
 
         @Override
         public Object createEntry(Object arg0) throws Exception {
-            final Callable<?> callable = entryFactory.get();
-            if (callable == null) {
-                throw new RuntimeException("No Callable<?> specified in the ThreadLocal");
+            final MethodInvocation methodInvocation = entryFactory.get();
+            if (methodInvocation == null) {
+                throw new RuntimeException("No MethodInvocation specified in the ThreadLocal");
             }
-            return callable.call();
+            
+            try {
+                return methodInvocation.proceed();
+            }
+            catch (Throwable t) {
+                if (t instanceof Exception) {
+                    throw (Exception)t;
+                }
+                else if (t instanceof Error) {
+                    throw (Error)t;
+                }
+                
+                throw new Exception(t);
+            }
         }
         
     }
