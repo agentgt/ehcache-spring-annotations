@@ -21,16 +21,18 @@ package edu.wisc.services.cache;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author Eric Dalquist
  * @version $Revision$
  */
+@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/testContext.xml")
-public class CacheableAnnotationTest extends AbstractJUnit4SpringContextTests {
+public class CacheableAnnotationTest {
     private CacheableTestInterface cacheableTestInterface;
 
     @Autowired

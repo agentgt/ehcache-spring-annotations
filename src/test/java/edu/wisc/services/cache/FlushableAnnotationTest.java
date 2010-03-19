@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/testContext.xml")
-public class FlushableAnnotationTest /* extends AbstractJUnit4SpringContextTests */ {
+public class FlushableAnnotationTest  {
 
 	private FlushableTestInterface flushableTestInterface;
 	private CacheManager cacheManager;
