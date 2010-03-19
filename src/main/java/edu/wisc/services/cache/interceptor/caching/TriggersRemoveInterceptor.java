@@ -10,27 +10,27 @@ import net.sf.ehcache.Ehcache;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import edu.wisc.services.cache.FlushableAttribute;
-import edu.wisc.services.cache.FlushableAttributeSource;
+import edu.wisc.services.cache.TriggersRemoveAttribute;
+import edu.wisc.services.cache.TriggersRemoveAttributeSource;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
- * {@link MethodInterceptor} that depends on a {@link FlushableAttributeSource}.
- * If a {@link FlushableAttribute} is associated with the {@link MethodInvocation}, 
+ * {@link MethodInterceptor} that depends on a {@link TriggersRemoveAttributeSource}.
+ * If a {@link TriggersRemoveAttribute} is associated with the {@link MethodInvocation}, 
  * {@link Ehcache#flush()} is called, an optionally {@link Ehcache#removeAll()} if
- * {@link FlushableAttribute#isRemoveAll()} is true.
+ * {@link TriggersRemoveAttribute#isRemoveAll()} is true.
  * 
  * @author Nicholas Blair, npblair@wisc.edu
  */
-public class FlushingInterceptor implements MethodInterceptor {
+public class TriggersRemoveInterceptor implements MethodInterceptor {
 
-	private FlushableAttributeSource flushableAttributeSource;
+	private TriggersRemoveAttributeSource flushableAttributeSource;
 	
 	/**
 	 * @param flushableAttributeSource the flushableAttributeSource to set
 	 */
 	public void setFlushableAttributeSource(
-			FlushableAttributeSource flushableAttributeSource) {
+			TriggersRemoveAttributeSource flushableAttributeSource) {
 		this.flushableAttributeSource = flushableAttributeSource;
 	}
 
@@ -39,7 +39,7 @@ public class FlushingInterceptor implements MethodInterceptor {
 	 */
 	@Override
 	public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-		final FlushableAttribute flushableAttribute = this.flushableAttributeSource.getFlushableAttribute(methodInvocation.getMethod(), methodInvocation.getClass());
+		final TriggersRemoveAttribute flushableAttribute = this.flushableAttributeSource.getFlushableAttribute(methodInvocation.getMethod(), methodInvocation.getClass());
 		if(null == flushableAttribute) {
 			return methodInvocation.proceed();
 		}
@@ -51,7 +51,6 @@ public class FlushingInterceptor implements MethodInterceptor {
 			CacheKeyGenerator cacheKeyGenerator = flushableAttribute.getCacheKeyGenerator();
 			Serializable cacheKey = cacheKeyGenerator.generateKey(methodInvocation);
 			cache.remove(cacheKey);
-			//cache.flush();
 		}
 		
 		Object result = methodInvocation.proceed();

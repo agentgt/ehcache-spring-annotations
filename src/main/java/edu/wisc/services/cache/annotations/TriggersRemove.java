@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface Flushable {
+public @interface TriggersRemove {
     /**
      * The name of the cache to use
      */

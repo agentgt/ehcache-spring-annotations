@@ -4,20 +4,20 @@
 package edu.wisc.services.cache.impl;
 
 import net.sf.ehcache.Ehcache;
-import edu.wisc.services.cache.FlushableAttribute;
+import edu.wisc.services.cache.TriggersRemoveAttribute;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
  * @author Nicholas Blair, npblair@wisc.edu
  *
  */
-class FlushableAttributeImpl implements FlushableAttribute {
+class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
 
 	private final Ehcache cache;
 	private final CacheKeyGenerator cacheKeyGenerator;
 	private final boolean removeAll;
 	
-	FlushableAttributeImpl(Ehcache cache, CacheKeyGenerator cacheKeyGenerator, boolean removeAll) {
+	TriggersRemoveAttributeImpl(Ehcache cache, CacheKeyGenerator cacheKeyGenerator, boolean removeAll) {
 		this.cache = cache;
 		this.cacheKeyGenerator = cacheKeyGenerator;
 		this.removeAll = removeAll;

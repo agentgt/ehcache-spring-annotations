@@ -3,7 +3,7 @@
  */
 package edu.wisc.services.cache;
 
-import edu.wisc.services.cache.annotations.Flushable;
+import edu.wisc.services.cache.annotations.TriggersRemove;
 
 /**
  * @author Nicholas Blair, npblair@wisc.edu
@@ -13,9 +13,9 @@ public interface FlushableTestInterface {
 
 	public void notFlushableMethod();
 	
-	@Flushable(cacheName="flushRemoveCountingCache")
+	@TriggersRemove(cacheName="flushRemoveCountingCache")
 	public void methodTriggersFlush();
 	
-	@Flushable(cacheName="flushRemoveCountingCache", removeAll=true)
+	@TriggersRemove(cacheName="flushRemoveCountingCache", removeAll=true)
 	public void methodTriggersFlushAndRemoveAll();
 }

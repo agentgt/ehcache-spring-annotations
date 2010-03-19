@@ -8,12 +8,12 @@ import net.sf.ehcache.Ehcache;
 
 /**
  * Represents the objects needed to intercept calls to methods annontated
- * with {@link edu.wisc.services.cache.annotations.Flushable}
+ * with {@link edu.wisc.services.cache.annotations.TriggersRemove}
  * 
  * @author Nicholas Blair, npblair@wisc.edu
  *
  */
-public interface FlushableAttribute {
+public interface TriggersRemoveAttribute {
 
 	/**
      * @return The cache to use, will never be null.

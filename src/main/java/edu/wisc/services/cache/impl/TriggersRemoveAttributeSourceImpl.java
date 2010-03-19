@@ -22,9 +22,9 @@ import org.springframework.core.BridgeMethodResolver;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
-import edu.wisc.services.cache.FlushableAttribute;
-import edu.wisc.services.cache.FlushableAttributeSource;
-import edu.wisc.services.cache.annotations.Flushable;
+import edu.wisc.services.cache.TriggersRemoveAttribute;
+import edu.wisc.services.cache.TriggersRemoveAttributeSource;
+import edu.wisc.services.cache.annotations.TriggersRemove;
 import edu.wisc.services.cache.config.AnnotationDrivenEhCacheBeanDefinitionParser;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 import edu.wisc.services.cache.provider.CacheNotFoundException;
@@ -33,8 +33,8 @@ import edu.wisc.services.cache.provider.CacheNotFoundException;
  * @author Nicholas Blair, npblair@wisc.edu
  *
  */
-public class FlushableAttributeSourceImpl implements FlushableAttributeSource, BeanFactoryAware {
-	private static final FlushableAttribute NULL_FLUSHABLE_ATTRIBUTE = new FlushableAttribute() {
+public class TriggersRemoveAttributeSourceImpl implements TriggersRemoveAttributeSource, BeanFactoryAware {
+	private static final TriggersRemoveAttribute NULL_FLUSHABLE_ATTRIBUTE = new TriggersRemoveAttribute() {
 		@Override
 		public boolean isRemoveAll() {
 			return false;
@@ -49,9 +49,9 @@ public class FlushableAttributeSourceImpl implements FlushableAttributeSource, B
 		}
 	};
 	/**
-	 * Cache of {@link Flushable}, keyed by DefaultCacheKey (Method + target Class).
+	 * Cache of {@link TriggersRemove}, keyed by DefaultCacheKey (Method + target Class).
 	 */
-	private final Map<Object, FlushableAttribute> attributeCache = new ConcurrentHashMap<Object, FlushableAttribute>();
+	private final Map<Object, TriggersRemoveAttribute> attributeCache = new ConcurrentHashMap<Object, TriggersRemoveAttribute>();
 
 	private BeanFactory beanFactory;
 	private CacheManager cacheManager;
@@ -62,11 +62,11 @@ public class FlushableAttributeSourceImpl implements FlushableAttributeSource, B
 	 * @see edu.wisc.services.cache.FlushableAttributeSource#getFlushableAttribute(java.lang.reflect.Method, java.lang.Class)
 	 */
 	@Override
-	public FlushableAttribute getFlushableAttribute(Method method,
+	public TriggersRemoveAttribute getFlushableAttribute(Method method,
 			Class<?> targetClass) {
 		 // First, see if we have a cached value.
         Object cacheKey = getCacheKey(method, targetClass);
-        final FlushableAttribute cached = this.attributeCache.get(cacheKey);
+        final TriggersRemoveAttribute cached = this.attributeCache.get(cacheKey);
         if (cached != null) {
             // Value will either be canonical value indicating there is no transaction attribute,
             // or an actual cacheable attribute.
@@ -75,7 +75,7 @@ public class FlushableAttributeSourceImpl implements FlushableAttributeSource, B
             }
             return cached;
         }
-        final FlushableAttribute att = computeFlushableAttribute(method, targetClass);
+        final TriggersRemoveAttribute att = computeFlushableAttribute(method, targetClass);
         // Put it in the cache.
         if (att == null) {
             this.attributeCache.put(cacheKey, NULL_FLUSHABLE_ATTRIBUTE);
@@ -146,11 +146,11 @@ public class FlushableAttributeSourceImpl implements FlushableAttributeSource, B
      * @return all transaction attribute associated with this method
      * (or <code>null</code> if none)
      */
-    protected FlushableAttribute findFlushableAttribute(AnnotatedElement ae) {
-        Flushable ann = ae.getAnnotation(Flushable.class);
+    protected TriggersRemoveAttribute findFlushableAttribute(AnnotatedElement ae) {
+        TriggersRemove ann = ae.getAnnotation(TriggersRemove.class);
         if (ann == null) {
             for (Annotation metaAnn : ae.getAnnotations()) {
-                ann = metaAnn.annotationType().getAnnotation(Flushable.class);
+                ann = metaAnn.annotationType().getAnnotation(TriggersRemove.class);
                 if (ann != null) {
                     break;
                 }
@@ -164,18 +164,8 @@ public class FlushableAttributeSourceImpl implements FlushableAttributeSource, B
     }
 
 
-    protected FlushableAttribute parseFlushableAnnotation(Flushable ann) {
+    protected TriggersRemoveAttribute parseFlushableAnnotation(TriggersRemove ann) {
         final Ehcache cache = this.getCache(ann.cacheName());
-        
-        /*
-        final Ehcache exceptionCache;
-        if (StringUtils.hasLength(ann.exceptionCacheName())) {
-            exceptionCache = this.getCache(ann.exceptionCacheName());
-        }
-        else {
-            exceptionCache = null;
-        }
-        */
 
         final CacheKeyGenerator cacheKeyGenerator;
         if (StringUtils.hasLength(ann.keyGeneratorName())) {
@@ -185,7 +175,7 @@ public class FlushableAttributeSourceImpl implements FlushableAttributeSource, B
             cacheKeyGenerator = this.beanFactory.getBean(AnnotationDrivenEhCacheBeanDefinitionParser.DEFAULT_CACHE_KEY_GENERATOR, CacheKeyGenerator.class);
         }
         
-        return new FlushableAttributeImpl(cache, cacheKeyGenerator, ann.removeAll());
+        return new TriggersRemoveAttributeImpl(cache, cacheKeyGenerator, ann.removeAll());
     }
 
 
@@ -197,7 +187,7 @@ public class FlushableAttributeSourceImpl implements FlushableAttributeSource, B
         return false;
     }
     
-	private FlushableAttribute computeFlushableAttribute(Method method, Class<?> targetClass) {
+	private TriggersRemoveAttribute computeFlushableAttribute(Method method, Class<?> targetClass) {
         // Don't allow no-public methods as required.
         if (allowPublicMethodsOnly() && !Modifier.isPublic(method.getModifiers())) {
             return null;
@@ -210,7 +200,7 @@ public class FlushableAttributeSourceImpl implements FlushableAttributeSource, B
         specificMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
 
         // First try is the method in the target class.
-        FlushableAttribute att = findFlushableAttribute(specificMethod);
+        TriggersRemoveAttribute att = findFlushableAttribute(specificMethod);
         if (att != null) {
             return att;
         }
