@@ -19,23 +19,26 @@
 
 package edu.wisc.services.cache;
 
-import java.lang.reflect.Method;
+import net.sf.ehcache.Ehcache;
+import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
- * Provides {@link edu.wisc.services.cache.annotations.Cacheable} information about a
- * method. 
- * 
  * @author Eric Dalquist
  * @version $Revision$
  */
-public interface CacheableAttributeSource {
+public interface MethodAttribute {
     /**
-     * Gets the runtime caching information for a method. If the method is not eligible for
-     * caching null is returned. 
-     * 
-     * @param method The method to inspect
-     * @param targetClass The class the method exists on
-     * @return Runtime caching configuration for the method, null if the method is not cachable.
+     * @return The type of advice this attribute represents. Will never return {@link AdviceType#NONE}
      */
-    public CacheableAttribute getCacheableAttribute(Method method, Class<?> targetClass);
+    public AdviceType getAdviceType();
+    
+    /**
+     * @return The cache to use, will never be null.
+     */
+    public Ehcache getCache();
+    
+    /**
+     * @return The key generator to use, will never be null.
+     */
+    public CacheKeyGenerator getCacheKeyGenerator();
 }

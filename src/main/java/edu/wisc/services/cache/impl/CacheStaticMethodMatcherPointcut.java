@@ -17,13 +17,14 @@
  * under the License.
  */
 
-package edu.wisc.services.cache.annotations;
+package edu.wisc.services.cache.impl;
 
 import java.lang.reflect.Method;
 
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
 
-import edu.wisc.services.cache.CacheableAttributeSource;
+import edu.wisc.services.cache.AdviceType;
+import edu.wisc.services.cache.CacheAttributeSource;
 
 /**
  * Pointcut that delegates matching checks to a {@link CacheableAttributeSource}.
@@ -32,10 +33,10 @@ import edu.wisc.services.cache.CacheableAttributeSource;
  * @version $Revision$
  */
 public class CacheStaticMethodMatcherPointcut extends StaticMethodMatcherPointcut {
-    private CacheableAttributeSource cacheableAttributeSource;
+    private CacheAttributeSource cacheAttributeSource;
     
-    public void setCacheableAttributeSource(CacheableAttributeSource cacheableAttributeSource) {
-        this.cacheableAttributeSource = cacheableAttributeSource;
+    public void setCacheAttributeSource(CacheAttributeSource cacheAttributeSource) {
+        this.cacheAttributeSource = cacheAttributeSource;
     }
 
     /* (non-Javadoc)
@@ -43,6 +44,6 @@ public class CacheStaticMethodMatcherPointcut extends StaticMethodMatcherPointcu
      */
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
-        return this.cacheableAttributeSource.getCacheableAttribute(method, targetClass) != null;
+        return AdviceType.NONE != this.cacheAttributeSource.getAdviceType(method, targetClass);
     }
 }

@@ -4,6 +4,7 @@
 package edu.wisc.services.cache.impl;
 
 import net.sf.ehcache.Ehcache;
+import edu.wisc.services.cache.AdviceType;
 import edu.wisc.services.cache.TriggersRemoveAttribute;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 
@@ -22,6 +23,11 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
 		this.cacheKeyGenerator = cacheKeyGenerator;
 		this.removeAll = removeAll;
 	}
+    
+    @Override
+    public AdviceType getAdviceType() {
+        return AdviceType.REMOVE;
+    }
 
 	/* (non-Javadoc)
 	 * @see edu.wisc.services.cache.FlushableAttribute#getCache()

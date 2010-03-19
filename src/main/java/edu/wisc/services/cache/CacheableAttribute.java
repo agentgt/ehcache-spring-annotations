@@ -21,7 +21,6 @@ package edu.wisc.services.cache;
 
 import java.util.concurrent.Callable;
 
-import edu.wisc.services.cache.key.CacheKeyGenerator;
 import net.sf.ehcache.Ehcache;
 
 /**
@@ -31,17 +30,7 @@ import net.sf.ehcache.Ehcache;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public interface CacheableAttribute {
-    /**
-     * @return The cache to use, will never be null.
-     */
-    public Ehcache getCache();
-    
-    /**
-     * @return The key generator to use, will never be null.
-     */
-    public CacheKeyGenerator getCacheKeyGenerator();
-    
+public interface CacheableAttribute extends MethodAttribute {
     /**
      * @return The cache to use in case of an exception, may be null if no exception caching should be done.
      */

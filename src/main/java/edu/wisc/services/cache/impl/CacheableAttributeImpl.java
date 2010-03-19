@@ -22,6 +22,7 @@ package edu.wisc.services.cache.impl;
 import java.util.concurrent.Callable;
 
 import net.sf.ehcache.Ehcache;
+import edu.wisc.services.cache.AdviceType;
 import edu.wisc.services.cache.CacheableAttribute;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 
@@ -40,6 +41,11 @@ class CacheableAttributeImpl implements CacheableAttribute {
         this.exceptionCache = exceptionCache;
         this.cacheKeyGenerator = cacheKeyGenerator;
         this.entryFactory = entryFactory;
+    }
+    
+    @Override
+    public AdviceType getAdviceType() {
+        return AdviceType.CACHE;
     }
 
     @Override

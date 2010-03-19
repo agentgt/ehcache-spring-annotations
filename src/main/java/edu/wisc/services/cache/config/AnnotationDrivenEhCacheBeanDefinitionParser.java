@@ -28,13 +28,9 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import edu.wisc.services.cache.annotations.CacheStaticMethodMatcherPointcut;
-import edu.wisc.services.cache.annotations.Cacheable;
-import edu.wisc.services.cache.annotations.TriggersRemoveStaticMethodMatcherPointcut;
-import edu.wisc.services.cache.impl.CacheableAttributeSourceImpl;
-import edu.wisc.services.cache.impl.TriggersRemoveAttributeSourceImpl;
-import edu.wisc.services.cache.interceptor.caching.CachingInterceptor;
-import edu.wisc.services.cache.interceptor.caching.TriggersRemoveInterceptor;
+import edu.wisc.services.cache.impl.CacheAttributeSourceImpl;
+import edu.wisc.services.cache.impl.CacheStaticMethodMatcherPointcut;
+import edu.wisc.services.cache.interceptor.caching.EhCacheInterceptor;
 import edu.wisc.services.cache.key.HashCodeCacheKeyGenerator;
 
 /**
@@ -48,7 +44,6 @@ import edu.wisc.services.cache.key.HashCodeCacheKeyGenerator;
 public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefinitionParser {
 
     public static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = "edu.wisc.services.cache.config.internalEhCacheCachingAdvisor";
-    public static final String EHCACHE_TRIGGERS_REMOVE_ADVISOR_BEAN_NAME = "edu.wisc.services.cache.config.internalEhCacheTriggersRemoveAdvisor";
     
     public static final String DEFAULT_CACHE_KEY_GENERATOR = HashCodeCacheKeyGenerator.class.getName() + "_DEFFAULT";
     
@@ -61,24 +56,24 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME)) {
             Object elementSource = parserContext.extractSource(element);
             
-            RootBeanDefinition cacheableAttributeSource = new RootBeanDefinition(CacheableAttributeSourceImpl.class);
-            cacheableAttributeSource.setSource(elementSource);
-            cacheableAttributeSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            cacheableAttributeSource.getPropertyValues().add("cacheManagerBeanName", element.getAttribute("cache-manager"));
-            cacheableAttributeSource.getPropertyValues().add("createCaches", Boolean.parseBoolean(element.getAttribute("create-missing-caches")));
-            String cacheableAttributeSourceBeanName = parserContext.getReaderContext().registerWithGeneratedName(cacheableAttributeSource);
+            RootBeanDefinition cacheAttributeSource = new RootBeanDefinition(CacheAttributeSourceImpl.class);
+            cacheAttributeSource.setSource(elementSource);
+            cacheAttributeSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            cacheAttributeSource.getPropertyValues().add("cacheManagerBeanName", element.getAttribute("cache-manager"));
+            cacheAttributeSource.getPropertyValues().add("createCaches", Boolean.parseBoolean(element.getAttribute("create-missing-caches")));
+            String cacheableAttributeSourceBeanName = parserContext.getReaderContext().registerWithGeneratedName(cacheAttributeSource);
             RuntimeBeanReference cacheableAttributeSourceRuntimeReference = new RuntimeBeanReference(cacheableAttributeSourceBeanName);
             
             RootBeanDefinition cacheablePointcutSource = new RootBeanDefinition(CacheStaticMethodMatcherPointcut.class);
             cacheablePointcutSource.setSource(elementSource);
             cacheablePointcutSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            cacheablePointcutSource.getPropertyValues().add("cacheableAttributeSource", cacheableAttributeSourceRuntimeReference);
+            cacheablePointcutSource.getPropertyValues().add("cacheAttributeSource", cacheableAttributeSourceRuntimeReference);
             String cacheablePointcutBeanName = parserContext.getReaderContext().registerWithGeneratedName(cacheablePointcutSource);
             
-            RootBeanDefinition cachingInterceptorSource = new RootBeanDefinition(CachingInterceptor.class);
+            RootBeanDefinition cachingInterceptorSource = new RootBeanDefinition(EhCacheInterceptor.class);
             cachingInterceptorSource.setSource(elementSource);
             cachingInterceptorSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            cachingInterceptorSource.getPropertyValues().add("cacheableAttributeSource", cacheableAttributeSourceRuntimeReference);
+            cachingInterceptorSource.getPropertyValues().add("cacheAttributeSource", cacheableAttributeSourceRuntimeReference);
             String cachingInterceptorBeanName = parserContext.getReaderContext().registerWithGeneratedName(cachingInterceptorSource);
             
             
@@ -95,35 +90,6 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
             defaultKeyGenerator.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
             parserContext.getRegistry().registerBeanDefinition(DEFAULT_CACHE_KEY_GENERATOR, defaultKeyGenerator);
            
-        }
-        
-        if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_TRIGGERS_REMOVE_ADVISOR_BEAN_NAME)) {
-        	Object elementSource = parserContext.extractSource(element);
-        	
-        	RootBeanDefinition flushableAttributeSource = new RootBeanDefinition(TriggersRemoveAttributeSourceImpl.class);
-            flushableAttributeSource.setSource(elementSource);
-            flushableAttributeSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            String flushableAttributeSourceBeanName = parserContext.getReaderContext().registerWithGeneratedName(flushableAttributeSource);
-            RuntimeBeanReference flushableAttributeSourceRuntimeReference = new RuntimeBeanReference(flushableAttributeSourceBeanName);
-            
-            RootBeanDefinition flushablePointcutSource = new RootBeanDefinition(TriggersRemoveStaticMethodMatcherPointcut.class);
-            flushablePointcutSource.setSource(elementSource);
-            flushablePointcutSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            flushablePointcutSource.getPropertyValues().add("flushableAttributeSource", flushableAttributeSourceRuntimeReference);
-            String flushablePointcutBeanName = parserContext.getReaderContext().registerWithGeneratedName(flushablePointcutSource);
-            
-            RootBeanDefinition flushingInterceptorSource = new RootBeanDefinition(TriggersRemoveInterceptor.class);
-            flushingInterceptorSource.setSource(elementSource);
-            flushingInterceptorSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            flushingInterceptorSource.getPropertyValues().add("flushableAttributeSource", flushableAttributeSourceRuntimeReference);
-            String flushingInterceptorBeanName = parserContext.getReaderContext().registerWithGeneratedName(flushingInterceptorSource);
-            
-            RootBeanDefinition flushingPointcutAdvisorSource = new RootBeanDefinition(DefaultBeanFactoryPointcutAdvisor.class);
-            flushingPointcutAdvisorSource.setSource(elementSource);
-            flushingPointcutAdvisorSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            flushingPointcutAdvisorSource.getPropertyValues().add("adviceBeanName", flushingInterceptorBeanName);
-            flushingPointcutAdvisorSource.getPropertyValues().add("pointcut", new RuntimeBeanReference(flushablePointcutBeanName));
-            parserContext.getRegistry().registerBeanDefinition(EHCACHE_TRIGGERS_REMOVE_ADVISOR_BEAN_NAME, flushingPointcutAdvisorSource);
         }
         return null;
     }

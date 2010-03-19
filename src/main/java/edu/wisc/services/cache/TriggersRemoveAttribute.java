@@ -3,8 +3,6 @@
  */
 package edu.wisc.services.cache;
 
-import edu.wisc.services.cache.key.CacheKeyGenerator;
-import net.sf.ehcache.Ehcache;
 
 /**
  * Represents the objects needed to intercept calls to methods annontated
@@ -13,18 +11,8 @@ import net.sf.ehcache.Ehcache;
  * @author Nicholas Blair, npblair@wisc.edu
  *
  */
-public interface TriggersRemoveAttribute {
+public interface TriggersRemoveAttribute extends MethodAttribute {
 
-	/**
-     * @return The cache to use, will never be null.
-     */
-    public Ehcache getCache();
-    
-    /**
-     * @return The key generator to use, will never be null.
-     */
-    public CacheKeyGenerator getCacheKeyGenerator();
-    
     /**
      * 
      * @return true if {@link Ehcache#removeAll()} should be called.

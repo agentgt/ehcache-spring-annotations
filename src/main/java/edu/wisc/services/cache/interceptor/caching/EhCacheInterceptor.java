@@ -20,6 +20,7 @@
 package edu.wisc.services.cache.interceptor.caching;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
 import net.sf.ehcache.Ehcache;
@@ -30,8 +31,10 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.wisc.services.cache.AdviceType;
+import edu.wisc.services.cache.CacheAttributeSource;
 import edu.wisc.services.cache.CacheableAttribute;
-import edu.wisc.services.cache.CacheableAttributeSource;
+import edu.wisc.services.cache.TriggersRemoveAttribute;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
@@ -40,14 +43,14 @@ import edu.wisc.services.cache.key.CacheKeyGenerator;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class CachingInterceptor implements MethodInterceptor {
+public class EhCacheInterceptor implements MethodInterceptor {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     
-    private CacheableAttributeSource cacheableAttributeSource;
+    private CacheAttributeSource cacheAttributeSource;
     
 
-    public void setCacheableAttributeSource(CacheableAttributeSource cacheableAttributeSource) {
-        this.cacheableAttributeSource = cacheableAttributeSource;
+    public void setCacheAttributeSource(CacheAttributeSource cacheableAttributeSource) {
+        this.cacheAttributeSource = cacheableAttributeSource;
     }
 
     /* (non-Javadoc)
@@ -55,13 +58,40 @@ public class CachingInterceptor implements MethodInterceptor {
      */
     @Override
     public Object invoke(final MethodInvocation methodInvocation) throws Throwable {
+        final Method method = methodInvocation.getMethod();
         final Class<?> targetClass = (methodInvocation.getThis() != null ? methodInvocation.getThis().getClass() : null);
-        final CacheableAttribute cacheableAttribute = this.cacheableAttributeSource.getCacheableAttribute(methodInvocation.getMethod(), targetClass);
-        if (cacheableAttribute == null) {
-            this.logger.trace("Don't need to cache [{}]: This method isn't cacheable.", methodInvocation);
-            return methodInvocation.proceed();
-        }
+        final AdviceType adviceType = this.cacheAttributeSource.getAdviceType(method, targetClass);
         
+        switch (adviceType) {
+            case CACHE: {
+                final CacheableAttribute cacheableAttribute = this.cacheAttributeSource.getCacheableAttribute(method, targetClass);
+                if (cacheableAttribute == null) {
+                    this.logger.warn("TODO");
+                    return methodInvocation.proceed();
+                }
+                
+                return this.invokeCacheable(methodInvocation, cacheableAttribute);
+
+            }
+
+            case REMOVE: {
+                final TriggersRemoveAttribute triggersRemoveAttribute = this.cacheAttributeSource.getTriggersRemoveAttribute(method, targetClass);
+                if (triggersRemoveAttribute == null) {
+                    this.logger.warn("TODO");
+                    return methodInvocation.proceed();
+                }
+                
+                return this.invokeTriggersRemove(methodInvocation, triggersRemoveAttribute);
+            }
+            
+            default: {
+                this.logger.trace("The method {} is not advised {}.", methodInvocation, adviceType);
+                return methodInvocation.proceed();
+            }
+        }
+    }
+    
+    private Object invokeCacheable(final MethodInvocation methodInvocation, final CacheableAttribute cacheableAttribute) throws Throwable {
         //Generate the cache key
         final CacheKeyGenerator cacheKeyGenerator = cacheableAttribute.getCacheKeyGenerator();
         final Serializable key = cacheKeyGenerator.generateKey(methodInvocation);
@@ -158,5 +188,20 @@ public class CachingInterceptor implements MethodInterceptor {
             cache.put(new Element(key, value));
             return value;
         }
+    }
+    
+    private Object invokeTriggersRemove(final MethodInvocation methodInvocation, final TriggersRemoveAttribute triggersRemoveAttribute) throws Throwable {
+        Ehcache cache = triggersRemoveAttribute.getCache();
+        if (triggersRemoveAttribute.isRemoveAll()) {
+            cache.removeAll();
+        }
+        else {
+            CacheKeyGenerator cacheKeyGenerator = triggersRemoveAttribute.getCacheKeyGenerator();
+            Serializable cacheKey = cacheKeyGenerator.generateKey(methodInvocation);
+            cache.remove(cacheKey);
+        }
+
+        Object result = methodInvocation.proceed();
+        return result;
     }
 }
