@@ -13,6 +13,11 @@
 			<email>nblair@doit.wisc.edu</email>
 			<organization>University of Wisconsin-Madison, Division of Information Technology</organization>
 		</developer>
+		<developer>
+			<name>Eric Dalquist</name>
+			<email>eric.dalquist@doit.wisc.edu</email>
+			<organization>University of Wisconsin-Madison, Division of Information Technology</organization>
+		</developer>
 	</developers>
 
 	<organization>
@@ -23,7 +28,6 @@
 		<ehcache.version>2.0.0</ehcache.version>
 		<org.springframework.version>3.0.1.RELEASE</org.springframework.version>
         <slf4j.version>1.5.11</slf4j.version>
-        
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
     
