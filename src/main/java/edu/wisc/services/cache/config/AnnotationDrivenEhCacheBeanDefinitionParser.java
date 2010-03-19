@@ -29,6 +29,7 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.wisc.services.cache.annotations.CacheStaticMethodMatcherPointcut;
+import edu.wisc.services.cache.annotations.Cacheable;
 import edu.wisc.services.cache.annotations.FlushableStaticMethodMatcherPointcut;
 import edu.wisc.services.cache.impl.CacheableAttributeSourceImpl;
 import edu.wisc.services.cache.impl.FlushableAttributeSourceImpl;
@@ -37,13 +38,17 @@ import edu.wisc.services.cache.interceptor.caching.FlushingInterceptor;
 import edu.wisc.services.cache.key.HashCodeCacheKeyGenerator;
 
 /**
- * {@link BeanDefinitionParser} t
+ * {@link BeanDefinitionParser} that sets up {@link DefaultBeanFactoryPointcutAdvisor}
+ * instances to wrap {@link CachingInterceptor}s around {@link Cacheable}s and
+ * {@link FlushingInterceptor}s around {@link Flushable}s.
+ * 
  * @author Nicholas Blair, nblair@doit.wisc.edu
  * @version $Id$
  */
 public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefinitionParser {
 
-    public static final String EHCACHE_ADVISOR_BEAN_NAME = "edu.wisc.services.cache.config.internalEhCacheAdvisor";
+    public static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = "edu.wisc.services.cache.config.internalEhCacheCachingAdvisor";
+    public static final String EHCACHE_FLUSHING_ADVISOR_BEAN_NAME = "edu.wisc.services.cache.config.internalEhCacheFlushingAdvisor";
     
     public static final String DEFAULT_CACHE_KEY_GENERATOR = HashCodeCacheKeyGenerator.class.getName() + "_DEFFAULT";
     
@@ -53,7 +58,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
     @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
-        if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_ADVISOR_BEAN_NAME)) {
+        if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME)) {
             Object elementSource = parserContext.extractSource(element);
             
             RootBeanDefinition cacheableAttributeSource = new RootBeanDefinition(CacheableAttributeSourceImpl.class);
@@ -77,7 +82,25 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
             String cachingInterceptorBeanName = parserContext.getReaderContext().registerWithGeneratedName(cachingInterceptorSource);
             
             
-            RootBeanDefinition flushableAttributeSource = new RootBeanDefinition(FlushableAttributeSourceImpl.class);
+            RootBeanDefinition cachingPointcutAdvisorSource = new RootBeanDefinition(DefaultBeanFactoryPointcutAdvisor.class);
+            cachingPointcutAdvisorSource.setSource(elementSource);
+            cachingPointcutAdvisorSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            cachingPointcutAdvisorSource.getPropertyValues().add("adviceBeanName", cachingInterceptorBeanName);
+            cachingPointcutAdvisorSource.getPropertyValues().add("pointcut", new RuntimeBeanReference(cacheablePointcutBeanName));
+            parserContext.getRegistry().registerBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME, cachingPointcutAdvisorSource);
+            
+            
+            final RootBeanDefinition defaultKeyGenerator = new RootBeanDefinition(HashCodeCacheKeyGenerator.class);
+            defaultKeyGenerator.setSource(elementSource);
+            defaultKeyGenerator.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            parserContext.getRegistry().registerBeanDefinition(DEFAULT_CACHE_KEY_GENERATOR, defaultKeyGenerator);
+           
+        }
+        
+        if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_FLUSHING_ADVISOR_BEAN_NAME)) {
+        	Object elementSource = parserContext.extractSource(element);
+        	
+        	RootBeanDefinition flushableAttributeSource = new RootBeanDefinition(FlushableAttributeSourceImpl.class);
             flushableAttributeSource.setSource(elementSource);
             flushableAttributeSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
             String flushableAttributeSourceBeanName = parserContext.getReaderContext().registerWithGeneratedName(flushableAttributeSource);
@@ -95,22 +118,12 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
             flushingInterceptorSource.getPropertyValues().add("flushableAttributeSource", flushableAttributeSourceRuntimeReference);
             String flushingInterceptorBeanName = parserContext.getReaderContext().registerWithGeneratedName(flushingInterceptorSource);
             
-            
-            RootBeanDefinition pointcutAdvisorSource = new RootBeanDefinition(DefaultBeanFactoryPointcutAdvisor.class);
-            pointcutAdvisorSource.setSource(elementSource);
-            pointcutAdvisorSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            pointcutAdvisorSource.getPropertyValues().add("adviceBeanName", cachingInterceptorBeanName);
-            pointcutAdvisorSource.getPropertyValues().add("pointcut", new RuntimeBeanReference(cacheablePointcutBeanName));
-            
-            parserContext.getRegistry().registerBeanDefinition(EHCACHE_ADVISOR_BEAN_NAME, pointcutAdvisorSource);
-            
-            
-            final RootBeanDefinition defaultKeyGenerator = new RootBeanDefinition(HashCodeCacheKeyGenerator.class);
-            defaultKeyGenerator.setSource(elementSource);
-            defaultKeyGenerator.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            
-            parserContext.getRegistry().registerBeanDefinition(DEFAULT_CACHE_KEY_GENERATOR, defaultKeyGenerator);
-            
+            RootBeanDefinition flushingPointcutAdvisorSource = new RootBeanDefinition(DefaultBeanFactoryPointcutAdvisor.class);
+            flushingPointcutAdvisorSource.setSource(elementSource);
+            flushingPointcutAdvisorSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            flushingPointcutAdvisorSource.getPropertyValues().add("adviceBeanName", flushingInterceptorBeanName);
+            flushingPointcutAdvisorSource.getPropertyValues().add("pointcut", new RuntimeBeanReference(flushablePointcutBeanName));
+            parserContext.getRegistry().registerBeanDefinition(EHCACHE_FLUSHING_ADVISOR_BEAN_NAME, flushingPointcutAdvisorSource);
         }
         return null;
     }
