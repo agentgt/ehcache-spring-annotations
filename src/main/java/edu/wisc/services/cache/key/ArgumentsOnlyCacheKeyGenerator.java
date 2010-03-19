@@ -5,13 +5,10 @@ package edu.wisc.services.cache.key;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.util.ObjectUtils;
 
-import edu.wisc.services.cache.annotations.Cacheable;
-import edu.wisc.services.cache.annotations.TriggersRemove;
 import edu.wisc.services.cache.util.Reflections;
 
 /**
