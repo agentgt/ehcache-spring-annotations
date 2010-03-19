@@ -62,114 +62,65 @@ public class FlushableAnnotationTest /* extends AbstractJUnit4SpringContextTests
 	}
 	
 	static class CountingListener implements CacheUsageListener {
-
 		private int removeAllCount = 0;
-		
 		/**
 		 * @return the removeAllCount
 		 */
 		public int getRemoveAllCount() {
 			return removeAllCount;
 		}
-
 		@Override
 		public void dispose() {
-			// TODO Auto-generated method stub
-			
 		}
-
 		/* (non-Javadoc)
 		 * @see java.lang.Object#clone()
 		 */
 		@Override
 		public Object clone() throws CloneNotSupportedException {
-			// TODO Auto-generated method stub
 			return super.clone();
 		}
-
 		@Override
 		public void notifyCacheElementEvicted() {
-			// TODO Auto-generated method stub
-			
 		}
-
 		@Override
 		public void notifyCacheElementExpired() {
-			// TODO Auto-generated method stub
-			
 		}
-
 		@Override
 		public void notifyCacheElementPut() {
-			// TODO Auto-generated method stub
-			
 		}
-
 		@Override
 		public void notifyCacheElementRemoved() {
-			// TODO Auto-generated method stub
-			
 		}
-
 		@Override
 		public void notifyCacheElementUpdated() {
-			// TODO Auto-generated method stub
-			
 		}
-
 		@Override
 		public void notifyCacheHitInMemory() {
-			// TODO Auto-generated method stub
-			
 		}
-
 		@Override
 		public void notifyCacheHitOnDisk() {
-			// TODO Auto-generated method stub
-			
 		}
-
 		@Override
 		public void notifyCacheMissedWithExpired() {
-			// TODO Auto-generated method stub
-			
 		}
-
 		@Override
 		public void notifyCacheMissedWithNotFound() {
-			// TODO Auto-generated method stub
-			
 		}
-
 		@Override
 		public void notifyRemoveAll() {
 			this.removeAllCount++;
 		}
-
 		@Override
 		public void notifyStatisticsAccuracyChanged(int arg0) {
-			// TODO Auto-generated method stub
-			
 		}
-
 		@Override
 		public void notifyStatisticsCleared() {
-			// TODO Auto-generated method stub
-			
 		}
-
 		@Override
 		public void notifyStatisticsEnabledChanged(boolean arg0) {
-			// TODO Auto-generated method stub
-			
 		}
-
 		@Override
 		public void notifyTimeTakenForGet(long arg0) {
-			// TODO Auto-generated method stub
-			
 		}
-		
 	}
-	
 }
