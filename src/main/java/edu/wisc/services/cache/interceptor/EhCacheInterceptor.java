@@ -149,7 +149,7 @@ public class EhCacheInterceptor implements MethodInterceptor {
         }
         
         if (element == null) {
-            throw new RuntimeException("This should not be possible, a self-populating cache should always return an Element");
+           throw new IllegalStateException("the supposed SelfPopulatingCache returned null, which violates the contract it should always return an Element; perhaps the cache is not truly a SelfPopulatingCache?");
         }
         
         return element.getObjectValue();
