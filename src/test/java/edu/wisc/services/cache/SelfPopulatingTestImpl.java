@@ -3,6 +3,8 @@
  */
 package edu.wisc.services.cache;
 
+import java.util.concurrent.CountDownLatch;
+
 import edu.wisc.services.cache.annotations.Cacheable;
 
 /**
@@ -15,10 +17,16 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
 	private final Object lock = new Object();
 	private volatile int aInvocationCount = 0;
 	private volatile int bInvocationCount = 0;
+	private CountDownLatch startSignal;
 	
-	@Override
+	public void setStartSignal(CountDownLatch startSignal) {
+        this.startSignal = startSignal;
+    }
+
+    @Override
 	@Cacheable(cacheName="blockingCache", selfPopulating=true)
 	public String methodA(String argument) {
+	    startSignal.countDown();
 		synchronized(lock) {
 			try {
 				lock.wait();
@@ -33,6 +41,7 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
 	@Override
 	@Cacheable(cacheName="blockingCache", selfPopulating=false)
 	public String methodB(String argument) {
+        startSignal.countDown();
 		synchronized(lock) {
 			try {
 				lock.wait();

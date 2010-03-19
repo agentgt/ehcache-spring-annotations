@@ -3,6 +3,8 @@
  */
 package edu.wisc.services.cache;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +39,9 @@ public class SelfPopulatingCacheAnnotationTest {
 	 */
 	@Test
 	public void testSelfPopulatingFalse() throws Exception {
+	    final CountDownLatch startLatch = new CountDownLatch(2);
+        this.selfPopulatingTestInterface.setStartSignal(startLatch);
+	    
 		Assert.assertEquals(0, this.selfPopulatingTestInterface.getBInvocationCount());
 		
 		// set up 2 threads 
@@ -59,8 +64,8 @@ public class SelfPopulatingCacheAnnotationTest {
 		t1.start();
 		t2.start();
 		
-		// pause this thread to make sure both t1 and t2 get blocked
-		Thread.sleep(1000);
+		// wait for both threads to get going
+		startLatch.await();
 		
 		this.selfPopulatingTestInterface.submitNotifyAll();
 		
@@ -78,18 +83,23 @@ public class SelfPopulatingCacheAnnotationTest {
 	 */
 	@Test
 	public void testSelfPopulatingTrue() throws Exception {
+        final CountDownLatch startLatch = new CountDownLatch(3);
+        this.selfPopulatingTestInterface.setStartSignal(startLatch);
+        
 		Assert.assertEquals(0, this.selfPopulatingTestInterface.getAInvocationCount());
 		
 		// set up 2 threads 
 		Thread t1 = new Thread(new Runnable() {	
 			@Override
 			public void run() {
+			    startLatch.countDown();
 				selfPopulatingTestInterface.methodA("foo");
 			}
 		});
 		Thread t2 = new Thread(new Runnable() {	
 			@Override
 			public void run() {
+			    startLatch.countDown();
 				selfPopulatingTestInterface.methodA("foo");
 			}
 		});
@@ -100,8 +110,8 @@ public class SelfPopulatingCacheAnnotationTest {
 		t1.start();
 		t2.start();
 		
-		// pause this thread to make sure both t1 and t2 get blocked
-		Thread.sleep(1000);
+		// wait for both threads to get going
+        startLatch.await();
 		
 		this.selfPopulatingTestInterface.submitNotifyAll();
 		

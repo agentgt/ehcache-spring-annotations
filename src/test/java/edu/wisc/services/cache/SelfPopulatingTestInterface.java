@@ -3,12 +3,16 @@
  */
 package edu.wisc.services.cache;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  *
  * @author Nicholas Blair, nblair@doit.wisc.edu
  * @version $Id$
  */
 public interface SelfPopulatingTestInterface {
+    
+    public void setStartSignal(CountDownLatch startSignal);
 
 	/**
 	 * Will be marked Cacheable with selfPopulating=true
