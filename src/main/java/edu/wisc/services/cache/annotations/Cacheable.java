@@ -26,6 +26,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+import edu.wisc.services.cache.key.CacheKeyGenerator;
+
 /**
  * Annotation for methods whose return values should be cached.
  */
@@ -40,10 +43,10 @@ public @interface Cacheable {
     String cacheName();
 
     /**
-     * If a EhCache {@link net.sf.ehcache.constructs.blocking.BlockingCache} wrapper should be used to ensure only one
+     * If a EhCache {@link SelfPopulatingCache} wrapper should be used to ensure only one
      * value per key is created.
      */
-    boolean blocking() default false;
+    boolean selfPopulating() default false;
     
     /**
      * The name of the {@link CacheKeyGenerator} to use. If not specified a default generator will be used.

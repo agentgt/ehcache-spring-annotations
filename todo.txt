@@ -20,4 +20,3 @@
 javadocs
 strongly typed exceptions
 cache flushing
-blocking cache support

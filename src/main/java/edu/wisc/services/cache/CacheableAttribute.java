@@ -19,11 +19,13 @@
 
 package edu.wisc.services.cache;
 
+import java.util.concurrent.Callable;
+
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 import net.sf.ehcache.Ehcache;
 
 /**
- * Represents the objects needed to intercept calls to methods annontated
+ * Represents the objects needed to intercept calls to methods annotated
  * with {@link edu.wisc.services.cache.annotations.Cacheable}
  * 
  * @author Eric Dalquist
@@ -44,4 +46,9 @@ public interface CacheableAttribute {
      * @return The cache to use in case of an exception, may be null if no exception caching should be done.
      */
     public Ehcache getExceptionCache();
+    
+    /**
+     * @return The ThreadLocal to use with a self populating cache. If not null the intercepter must provide a {@link Callable} before calling {@link Ehcache#get(Object)}
+     */
+    public ThreadLocal<Callable<?>> getEntryFactory();
 }

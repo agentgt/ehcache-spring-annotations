@@ -35,6 +35,6 @@ public interface CacheableTestInterface {
     @Cacheable(cacheName="cachedResource")
     public String getCachedSingleResource();
     
-    @Cacheable(cacheName="cachedResourceTwo")
+    @Cacheable(cacheName="cachedResourceTwo", selfPopulating=true)
     public String getCachedResourceTwo(String argument);
 }

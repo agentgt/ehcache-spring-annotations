@@ -24,11 +24,14 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.ObjectExistsException;
+import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +65,10 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource, B
         }
         @Override
         public Ehcache getExceptionCache() {
+            return null;
+        }
+        @Override
+        public ThreadLocal<Callable<?>> getEntryFactory() {
             return null;
         }
     };
@@ -247,7 +254,13 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource, B
 
 
     protected CacheableAttribute parseCacheableAnnotation(Cacheable ann) {
-        final Ehcache cache = this.getCache(ann.cacheName());
+        Ehcache cache = this.getCache(ann.cacheName());
+        ThreadLocal<Callable<?>> entryFactory = null;
+        if (ann.selfPopulating()) {
+            final ThreadLocalCacheEntryFactory cacheEntryFactory = new ThreadLocalCacheEntryFactory();
+            entryFactory = cacheEntryFactory.entryFactory;
+            cache = new SelfPopulatingCache(cache, cacheEntryFactory);
+        }
         
         final Ehcache exceptionCache;
         if (StringUtils.hasLength(ann.exceptionCacheName())) {
@@ -265,7 +278,7 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource, B
             cacheKeyGenerator = this.beanFactory.getBean(AnnotationDrivenEhCacheBeanDefinitionParser.DEFAULT_CACHE_KEY_GENERATOR, CacheKeyGenerator.class);
         }
         
-        return new CacheableAttributeImpl(cache, exceptionCache, cacheKeyGenerator);
+        return new CacheableAttributeImpl(cache, exceptionCache, cacheKeyGenerator, entryFactory);
     }
 
 
@@ -275,5 +288,19 @@ public class CacheableAttributeSourceImpl implements CacheableAttributeSource, B
      */
     protected boolean allowPublicMethodsOnly() {
         return false;
+    }
+    
+    private static class ThreadLocalCacheEntryFactory implements CacheEntryFactory {
+        public final ThreadLocal<Callable<?>> entryFactory = new ThreadLocal<Callable<?>>();
+
+        @Override
+        public Object createEntry(Object arg0) throws Exception {
+            final Callable<?> callable = entryFactory.get();
+            if (callable == null) {
+                throw new RuntimeException("No Callable<?> specified in the ThreadLocal");
+            }
+            return callable.call();
+        }
+        
     }
 }

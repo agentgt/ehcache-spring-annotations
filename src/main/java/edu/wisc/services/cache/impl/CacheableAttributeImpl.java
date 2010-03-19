@@ -19,6 +19,8 @@
 
 package edu.wisc.services.cache.impl;
 
+import java.util.concurrent.Callable;
+
 import net.sf.ehcache.Ehcache;
 import edu.wisc.services.cache.CacheableAttribute;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
@@ -31,11 +33,13 @@ class CacheableAttributeImpl implements CacheableAttribute {
     private final Ehcache cache;
     private final Ehcache exceptionCache;
     private final CacheKeyGenerator cacheKeyGenerator;
+    private final ThreadLocal<Callable<?>> entryFactory;
     
-    public CacheableAttributeImpl(Ehcache cache, Ehcache exceptionCache, CacheKeyGenerator cacheKeyGenerator) {
+    public CacheableAttributeImpl(Ehcache cache, Ehcache exceptionCache, CacheKeyGenerator cacheKeyGenerator, ThreadLocal<Callable<?>> entryFactory) {
         this.cache = cache;
         this.exceptionCache = exceptionCache;
         this.cacheKeyGenerator = cacheKeyGenerator;
+        this.entryFactory = entryFactory;
     }
 
     @Override
@@ -51,6 +55,11 @@ class CacheableAttributeImpl implements CacheableAttribute {
     @Override
     public Ehcache getExceptionCache() {
         return this.exceptionCache;
+    }
+    
+    @Override
+    public ThreadLocal<Callable<?>> getEntryFactory() {
+        return this.entryFactory;
     }
 
     @Override

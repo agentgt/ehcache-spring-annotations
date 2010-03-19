@@ -20,6 +20,7 @@
 package edu.wisc.services.cache.interceptor.caching;
 
 import java.io.Serializable;
+import java.util.concurrent.Callable;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -53,7 +54,7 @@ public class CachingInterceptor implements MethodInterceptor {
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */
     @Override
-    public Object invoke(MethodInvocation methodInvocation) throws Throwable {
+    public Object invoke(final MethodInvocation methodInvocation) throws Throwable {
         final CacheableAttribute cacheableAttribute = this.cacheableAttributeSource.getCacheableAttribute(methodInvocation.getMethod(), methodInvocation.getClass());
         if (cacheableAttribute == null) {
             this.logger.trace("Don't need to cache [{}]: This method isn't cacheable.", methodInvocation);
@@ -63,40 +64,98 @@ public class CachingInterceptor implements MethodInterceptor {
         //Generate the cache key
         final CacheKeyGenerator cacheKeyGenerator = cacheableAttribute.getCacheKeyGenerator();
         final Serializable key = cacheKeyGenerator.generateKey(methodInvocation);
-
-        //See if there is a cached result
-        final Ehcache cache = cacheableAttribute.getCache();
-        final Element element = cache.get(key);
-        if (element != null) {
-            return element.getObjectValue();
-        }
-
-        //Determine if exception caching is enabled
-        final Ehcache exceptionCache = cacheableAttribute.getExceptionCache();
-        if (exceptionCache != null) {
-            //See if there is a cached exception
-            final Element execptionElement = exceptionCache.get(key);
-            if (execptionElement != null) {
-                throw (Throwable)execptionElement.getObjectValue();
-            }
-        }
-
-        //No cached value or exception, proceed
-        final Object value;
-        try {
-            value = methodInvocation.proceed();
-        }
-        catch (Throwable t) {
-            //If exception caching, cache the exception
+        
+        final ThreadLocal<Callable<?>> entryFactory = cacheableAttribute.getEntryFactory();
+        if (entryFactory != null) {
+            //Determine if exception caching is enabled
+            final Ehcache exceptionCache = cacheableAttribute.getExceptionCache();
             if (exceptionCache != null) {
-                exceptionCache.put(new Element(key, t));
+                //See if there is a cached exception
+                final Element execptionElement = exceptionCache.get(key);
+                if (execptionElement != null) {
+                    throw (Throwable)execptionElement.getObjectValue();
+                }
             }
             
-            throw t;
+            //Setup the Callable
+            entryFactory.set(new Callable<Object>() {
+                @Override
+                public Object call() throws Exception {
+                    try {
+                        return methodInvocation.proceed();
+                    }
+                    catch (Throwable t) {
+                        if (t instanceof Exception) {
+                            throw (Exception)t;
+                        }
+                        else if (t instanceof Error) {
+                            throw (Error)t;
+                        }
+                        
+                        throw new Exception(t);
+                    }
+                }
+            });
+
+            //SelfPopulating cache, the get should always return an Element
+            final Ehcache cache = cacheableAttribute.getCache();
+            final Element element;
+            try {
+                element = cache.get(key);
+            }
+            catch (Throwable t) {
+                //If exception caching, cache the exception
+                if (exceptionCache != null) {
+                    exceptionCache.put(new Element(key, t));
+                }
+                
+                throw t;
+            }
+            finally {
+                entryFactory.remove();
+            }
+            
+            if (element == null) {
+                throw new RuntimeException("This should not be possible, a self-populating cache should always return an Element");
+            }
+            
+            return element.getObjectValue();
         }
-        
-        //Cache and return the value
-        cache.put(new Element(key, value));
-        return value;
+        else {
+            //See if there is a cached result
+            final Ehcache cache = cacheableAttribute.getCache();
+            final Element element = cache.get(key);
+            if (element != null) {
+                return element.getObjectValue();
+            }
+    
+            //Determine if exception caching is enabled
+            final Ehcache exceptionCache = cacheableAttribute.getExceptionCache();
+            if (exceptionCache != null) {
+                //See if there is a cached exception
+                final Element execptionElement = exceptionCache.get(key);
+                if (execptionElement != null) {
+                    throw (Throwable)execptionElement.getObjectValue();
+                }
+            }
+    
+            //No cached value or exception, proceed
+            final Object value;
+            try {
+                value = methodInvocation.proceed();
+            }
+            catch (Throwable t) {
+                //If exception caching, cache the exception
+                if (exceptionCache != null) {
+                    exceptionCache.put(new Element(key, t));
+                }
+                
+                throw t;
+            }
+            
+            //Cache and return the value
+            cache.put(new Element(key, value));
+            return value;
+        }
     }
 }
