@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Spring-EhCache ${project.version}">
+
+	<!--
+    <bannerRight>
+        <name>Spring-EhCache</name>
+        <src>images/wisccal_logo.gif</src>
+        <href>http://www.doit.wisc.edu/calendaring/</href>
+    </bannerRight>
+    -->
+    
+    <publishDate position="left" format="MM-dd-yy hh:mm zz"/>
+
+    <body>
+        <breadcrumbs>
+          <item name="Home" href="${project.url}"/>
+        </breadcrumbs>
+    
+    	<menu name="Spring EhCache ${project.version}">
+      		<item name="Usage" href="usage.html"/>
+      		<item name="FAQ" href="faq.html"/>
+    	</menu>
+    	
+        <menu ref="modules" />
+        <menu ref="reports" />
+    </body>
+</project>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <title>FAQ</title>
+    </properties>
+
+    <body>
+	<section name="Common Questions">
+	<ol>
+	<li><a href="#answer1">Why doesn't my method annotated with @TriggersRemove actually trigger a cache remove/removeAll?</a></li>
+	</ol>
+	</section>
+	
+	<section name="Answers">
+	<ol>
+	<li name="answer1">Make sure your method annotated with @TriggersRemove has the same arguments (type, number, and order) as another @Cacheable method. Don't put
+	@TriggersRemove on your @Cachable method.</li>
+	</ol>
+	</section>
+	</body>
+</document>
