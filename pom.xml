@@ -5,7 +5,7 @@
 	<artifactId>spring-ehcache</artifactId>
 	<name>spring-ehcache</name>
 	<version>0.0.1-SNAPSHOT</version>
-	<description>Provides a simple model for integrating ehcache in a spring project via annotations.</description>
+	<description>Provides a simple model for integrating Ehcache in a Spring project via annotations.</description>
 
 	<developers>
 		<developer>
@@ -20,6 +20,13 @@
 		</developer>
 	</developers>
 
+	<licenses>
+		<license>
+			<name>Apache 2</name>
+    		<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    		<distribution>repo</distribution>
+		</license>
+	</licenses>
 	<organization>
 		<name>University of Wisconsin-Madison</name>
 	</organization>
@@ -240,4 +247,32 @@
 			</plugin>
 		</plugins>
 	</build>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.6.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jxr-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.5</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>2.3</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.3</version>
+			</plugin>
+		</plugins>
+	</reporting>
 </project>
