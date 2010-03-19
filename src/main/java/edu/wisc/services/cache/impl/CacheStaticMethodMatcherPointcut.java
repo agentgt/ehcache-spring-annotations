@@ -27,7 +27,7 @@ import edu.wisc.services.cache.AdviceType;
 import edu.wisc.services.cache.CacheAttributeSource;
 
 /**
- * Pointcut that delegates matching checks to a {@link CacheableAttributeSource}.
+ * Pointcut that delegates matching checks to a {@link CacheAttributeSource}.
  * 
  * @author Eric Dalquist
  * @version $Revision$
@@ -39,7 +39,9 @@ public class CacheStaticMethodMatcherPointcut extends StaticMethodMatcherPointcu
         this.cacheAttributeSource = cacheAttributeSource;
     }
 
-    /* (non-Javadoc)
+    /**
+     * Returns true if the configured {@link CacheAttributeSource#getAdviceType(Method, Class)}
+     * method returns an {@link AdviceType} other than {@link AdviceType#NONE}.
      * @see org.springframework.aop.MethodMatcher#matches(java.lang.reflect.Method, java.lang.Class)
      */
     @Override

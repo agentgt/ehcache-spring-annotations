@@ -31,6 +31,7 @@ import org.springframework.util.StringUtils;
 
 import edu.wisc.services.cache.AdviceType;
 import edu.wisc.services.cache.CacheAttributeSource;
+import edu.wisc.services.cache.CacheNotFoundException;
 import edu.wisc.services.cache.CacheableAttribute;
 import edu.wisc.services.cache.MethodAttribute;
 import edu.wisc.services.cache.TriggersRemoveAttribute;
@@ -38,7 +39,6 @@ import edu.wisc.services.cache.annotations.Cacheable;
 import edu.wisc.services.cache.annotations.TriggersRemove;
 import edu.wisc.services.cache.config.AnnotationDrivenEhCacheBeanDefinitionParser;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
-import edu.wisc.services.cache.provider.CacheNotFoundException;
 
 /**
  * @author Eric Dalquist
@@ -227,7 +227,6 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
                 cache = cacheManager.getCache(cacheName);
             }
             else {
-                //TODO better exception type
                 throw new CacheNotFoundException("Cache '" + cacheName + "' does not exist");
             }
         }
@@ -263,6 +262,11 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         return null;
     }
 
+    /**
+     * 
+     * @param ae
+     * @return
+     */
     protected MethodAttribute findMethodAttribute(AnnotatedElement ae) {
         Cacheable cacheableAnnotation = ae.getAnnotation(Cacheable.class);
         if (cacheableAnnotation != null) {
@@ -290,6 +294,11 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         return null;
     }
 
+    /**
+     * Construct a {@link CacheableAttribute} from a {@link Cacheable} annotation.
+     * @param ann
+     * @return
+     */
     protected CacheableAttribute parseCacheableAnnotation(Cacheable ann) {
         Ehcache cache = this.getCache(ann.cacheName());
         ThreadLocal<Callable<?>> entryFactory = null;
@@ -318,6 +327,11 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         return new CacheableAttributeImpl(cache, exceptionCache, cacheKeyGenerator, entryFactory);
     }
 
+    /**
+     * Construct a {@link TriggersRemoveAttribute} from a {@link TriggersRemove} annotation.
+     * @param ann
+     * @return
+     */
     protected TriggersRemoveAttribute parseTriggersRemoveAnnotation(TriggersRemove ann) {
         final Ehcache cache = this.getCache(ann.cacheName());
 

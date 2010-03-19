@@ -5,7 +5,7 @@ package edu.wisc.services.cache;
 
 
 /**
- * Represents the objects needed to intercept calls to methods annontated
+ * Represents the objects needed to intercept calls to methods annotated
  * with {@link edu.wisc.services.cache.annotations.TriggersRemove}
  * 
  * @author Nicholas Blair, npblair@wisc.edu

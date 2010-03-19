@@ -9,8 +9,9 @@ import edu.wisc.services.cache.TriggersRemoveAttribute;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
+ * 
  * @author Nicholas Blair, npblair@wisc.edu
- *
+ * @version $Revision$
  */
 class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
 

@@ -22,8 +22,9 @@ package edu.wisc.services.cache;
 import java.lang.reflect.Method;
 
 /**
- * Provides {@link edu.wisc.services.cache.annotations.Cacheable} information about a
- * method. 
+ * This interface provides operations to determine if methods/classes
+ * have {@link CacheableAttribute} or {@link TriggersRemoveAttribute}
+ * information.
  * 
  * @author Eric Dalquist
  * @version $Revision$
