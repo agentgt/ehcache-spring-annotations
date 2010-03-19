@@ -3,6 +3,8 @@
  */
 package edu.wisc.services.cache.interceptor.caching;
 
+import java.io.Serializable;
+
 import net.sf.ehcache.Ehcache;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -10,6 +12,7 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import edu.wisc.services.cache.FlushableAttribute;
 import edu.wisc.services.cache.FlushableAttributeSource;
+import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
  * {@link MethodInterceptor} that depends on a {@link FlushableAttributeSource}.
@@ -42,10 +45,13 @@ public class FlushingInterceptor implements MethodInterceptor {
 		}
 		
 		Ehcache cache = flushableAttribute.getCache();
-		cache.flush();
-		
 		if(flushableAttribute.isRemoveAll()) {
 			cache.removeAll();
+		} else {
+			CacheKeyGenerator cacheKeyGenerator = flushableAttribute.getCacheKeyGenerator();
+			Serializable cacheKey = cacheKeyGenerator.generateKey(methodInvocation);
+			cache.remove(cacheKey);
+			//cache.flush();
 		}
 		
 		Object result = methodInvocation.proceed();

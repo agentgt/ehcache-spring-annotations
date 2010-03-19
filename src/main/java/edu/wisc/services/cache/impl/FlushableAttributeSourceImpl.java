@@ -20,10 +20,13 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 import edu.wisc.services.cache.FlushableAttribute;
 import edu.wisc.services.cache.FlushableAttributeSource;
 import edu.wisc.services.cache.annotations.Flushable;
+import edu.wisc.services.cache.config.AnnotationDrivenEhCacheBeanDefinitionParser;
+import edu.wisc.services.cache.key.CacheKeyGenerator;
 import edu.wisc.services.cache.provider.CacheNotFoundException;
 
 /**
@@ -38,6 +41,10 @@ public class FlushableAttributeSourceImpl implements FlushableAttributeSource, B
 		}
 		@Override
 		public Ehcache getCache() {
+			return null;
+		}
+		@Override
+		public CacheKeyGenerator getCacheKeyGenerator() {
 			return null;
 		}
 	};
@@ -169,8 +176,16 @@ public class FlushableAttributeSourceImpl implements FlushableAttributeSource, B
             exceptionCache = null;
         }
         */
+
+        final CacheKeyGenerator cacheKeyGenerator;
+        if (StringUtils.hasLength(ann.keyGeneratorName())) {
+            cacheKeyGenerator = this.beanFactory.getBean(ann.keyGeneratorName(), CacheKeyGenerator.class);
+        }
+        else {
+            cacheKeyGenerator = this.beanFactory.getBean(AnnotationDrivenEhCacheBeanDefinitionParser.DEFAULT_CACHE_KEY_GENERATOR, CacheKeyGenerator.class);
+        }
         
-        return new FlushableAttributeImpl(cache, ann.removeAll());
+        return new FlushableAttributeImpl(cache, cacheKeyGenerator, ann.removeAll());
     }
 
 

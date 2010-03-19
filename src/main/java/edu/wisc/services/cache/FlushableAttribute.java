@@ -3,6 +3,7 @@
  */
 package edu.wisc.services.cache;
 
+import edu.wisc.services.cache.key.CacheKeyGenerator;
 import net.sf.ehcache.Ehcache;
 
 /**
@@ -20,8 +21,15 @@ public interface FlushableAttribute {
     public Ehcache getCache();
     
     /**
+     * @return The key generator to use, will never be null.
+     */
+    public CacheKeyGenerator getCacheKeyGenerator();
+    
+    /**
      * 
      * @return true if {@link Ehcache#removeAll()} should be called.
      */
     public boolean isRemoveAll();
+    
+    
 }
