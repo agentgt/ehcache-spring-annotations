@@ -27,7 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for methods whos return values should be cached.
+ * Annotation for methods whose return values should be cached.
  */
 @Target( { ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
