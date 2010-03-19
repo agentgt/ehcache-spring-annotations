@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package edu.wisc.services.cache.interceptor.caching;
+package edu.wisc.services.cache.interceptor;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;

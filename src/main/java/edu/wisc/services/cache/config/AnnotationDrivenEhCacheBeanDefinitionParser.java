@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
 
 import edu.wisc.services.cache.impl.CacheAttributeSourceImpl;
 import edu.wisc.services.cache.impl.CacheStaticMethodMatcherPointcut;
-import edu.wisc.services.cache.interceptor.caching.EhCacheInterceptor;
+import edu.wisc.services.cache.interceptor.EhCacheInterceptor;
 import edu.wisc.services.cache.key.HashCodeCacheKeyGenerator;
 
 /**
