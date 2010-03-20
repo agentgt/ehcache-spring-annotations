@@ -24,6 +24,8 @@ import java.lang.reflect.Method;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -33,10 +35,15 @@ import org.slf4j.LoggerFactory;
 import edu.wisc.services.cache.AdviceType;
 import edu.wisc.services.cache.CacheAttributeSource;
 import edu.wisc.services.cache.CacheableAttribute;
+import edu.wisc.services.cache.MethodAttribute;
 import edu.wisc.services.cache.TriggersRemoveAttribute;
+import edu.wisc.services.cache.annotations.Cacheable;
+import edu.wisc.services.cache.annotations.TriggersRemove;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
+ * Intercepter that handles invocations on methods annotated with {@link Cacheable} or {@link TriggersRemove}.
+ * 
  * @author Eric Dalquist
  * @version $Revision$
  */
@@ -44,7 +51,6 @@ public class EhCacheInterceptor implements MethodInterceptor {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     private CacheAttributeSource cacheAttributeSource;
-    
 
     public void setCacheAttributeSource(CacheAttributeSource cacheableAttributeSource) {
         this.cacheAttributeSource = cacheableAttributeSource;
@@ -54,7 +60,7 @@ public class EhCacheInterceptor implements MethodInterceptor {
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */
     @Override
-    public Object invoke(final MethodInvocation methodInvocation) throws Throwable {
+    public final Object invoke(final MethodInvocation methodInvocation) throws Throwable {
         final Method method = methodInvocation.getMethod();
         final Class<?> targetClass = (methodInvocation.getThis() != null ? methodInvocation.getThis().getClass() : null);
         final AdviceType adviceType = this.cacheAttributeSource.getAdviceType(method, targetClass);
@@ -63,7 +69,7 @@ public class EhCacheInterceptor implements MethodInterceptor {
             case CACHE: {
                 final CacheableAttribute cacheableAttribute = this.cacheAttributeSource.getCacheableAttribute(method, targetClass);
                 if (cacheableAttribute == null) {
-                    this.logger.warn("TODO");
+                    this.logger.warn("CacheAttributeSource.getAdviceType(Method, Class) returned CACHE but no CacheAttributeSource.getCacheableAttribute(Method, Class) returned null. Method will be invoked directly with no Cachable advice. Method: {}, Class: {}", method, targetClass);
                     return methodInvocation.proceed();
                 }
                 
@@ -74,7 +80,7 @@ public class EhCacheInterceptor implements MethodInterceptor {
             case REMOVE: {
                 final TriggersRemoveAttribute triggersRemoveAttribute = this.cacheAttributeSource.getTriggersRemoveAttribute(method, targetClass);
                 if (triggersRemoveAttribute == null) {
-                    this.logger.warn("TODO");
+                    this.logger.warn("CacheAttributeSource.getAdviceType(Method, Class) returned REMOVE but no CacheAttributeSource.getTriggersRemoveAttribute(Method, Class) returned null. Method will be invoked directly with no TriggersFlush advice. Method: {}, Class: {}", method, targetClass);
                     return methodInvocation.proceed();
                 }
                 
@@ -88,21 +94,28 @@ public class EhCacheInterceptor implements MethodInterceptor {
         }
     }
     
-    protected Object invokeCacheable(final MethodInvocation methodInvocation, final CacheableAttribute cacheableAttribute) throws Throwable {
+    /**
+     * Called if the {@link MethodInvocation} is annotated with {@link Cacheable}.
+     * 
+     * @param methodInvocation Original method invocation
+     * @param cacheableAttribute Information about the {@link Cacheable} annotation
+     * @return The result of the invocation or the cached result
+     * @throws Throwable exception thrown by the invocation or cached exception
+     */
+    private Object invokeCacheable(final MethodInvocation methodInvocation, final CacheableAttribute cacheableAttribute) throws Throwable {
         //Generate the cache key
-        final CacheKeyGenerator cacheKeyGenerator = cacheableAttribute.getCacheKeyGenerator();
-        final Serializable key = cacheKeyGenerator.generateKey(methodInvocation);
+        final Serializable cacheKey = this.generateCacheKey(methodInvocation, cacheableAttribute);
         
-        this.checkForCachedException(cacheableAttribute, key);
+        this.checkForCachedException(cacheableAttribute, cacheKey);
         
         //See if this is self-populating
         if (cacheableAttribute.getEntryFactory() != null) {
-            return this.invokeSelfPopulatingCacheable(methodInvocation, cacheableAttribute, key);
+            return this.invokeSelfPopulatingCacheable(methodInvocation, cacheableAttribute, cacheKey);
         }
 
         //See if there is a cached result
         final Ehcache cache = cacheableAttribute.getCache();
-        final Element element = cache.get(key);
+        final Element element = cache.get(cacheKey);
         if (element != null) {
             return element.getObjectValue();
         }
@@ -113,28 +126,33 @@ public class EhCacheInterceptor implements MethodInterceptor {
             value = methodInvocation.proceed();
         }
         catch (Throwable t) {
-            this.cacheException(cacheableAttribute, key, t);
+            this.cacheException(cacheableAttribute, cacheKey, t);
             throw t;
         }
         
         //Cache and return the value
-        cache.put(new Element(key, value));
+        cache.put(new Element(cacheKey, value));
         return value;
     }
 
-    protected void cacheException(final CacheableAttribute cacheableAttribute, final Serializable key, Throwable t) {
-        //If exception caching, cache the exception
-        final Ehcache exceptionCache = cacheableAttribute.getExceptionCache();
-        if (exceptionCache != null) {
-            exceptionCache.put(new Element(key, t));
-        }
-    }
-
-    protected Object invokeSelfPopulatingCacheable(final MethodInvocation methodInvocation, final CacheableAttribute cacheableAttribute, final Serializable key) throws Throwable {
+    /**
+     * Handles invoking the advised method via a {@link SelfPopulatingCache}. The {@link MethodInvocation} is set into
+     * a {@link ThreadLocal} which is used by the {@link CacheEntryFactory} to create the object if needed.
+     * 
+     * @param methodInvocation The advised invocation
+     * @param cacheableAttribute Configuration for the method invocation
+     * @param key The cache key for the invocation
+     * @return The result of the invocation or the cached result.
+     * @throws Throwable Exception from the invocation
+     */
+    private Object invokeSelfPopulatingCacheable(final MethodInvocation methodInvocation, final CacheableAttribute cacheableAttribute, final Serializable key) throws Throwable {
         final Ehcache cache = cacheableAttribute.getCache();
 
-        //Setup the Callable in the ThreadLocal
         final ThreadLocal<MethodInvocation> entryFactory = cacheableAttribute.getEntryFactory();
+        if (entryFactory == null) {
+            throw new IllegalArgumentException("CacheableAttribute.getEntryFactory() returned null");
+        }
+        
         entryFactory.set(methodInvocation);
         final Element element;
         try {
@@ -148,13 +166,43 @@ public class EhCacheInterceptor implements MethodInterceptor {
             entryFactory.remove();
         }
         
+        //This should not occur, it would have to be from a coding error in this library or EhCache's APIs have changed
         if (element == null) {
            throw new IllegalStateException("the supposed SelfPopulatingCache returned null, which violates the contract it should always return an Element; perhaps the cache is not truly a SelfPopulatingCache?");
         }
         
         return element.getObjectValue();
     }
+    
+    /**
+     * Called if the {@link MethodInvocation} is annotated with {@link TriggersRemove}.
+     * 
+     * 
+     * @param methodInvocation Original method invocation
+     * @param triggersRemoveAttribute Information about the {@link TriggersRemove} annotation
+     * @return The result of the invocation
+     * @throws Throwable exception thrown by the invocation
+     */
+    private Object invokeTriggersRemove(final MethodInvocation methodInvocation, final TriggersRemoveAttribute triggersRemoveAttribute) throws Throwable {
+        final Ehcache cache = triggersRemoveAttribute.getCache();
+        if (triggersRemoveAttribute.isRemoveAll()) {
+            cache.removeAll();
+        }
+        else {
+            final Serializable cacheKey = generateCacheKey(methodInvocation, triggersRemoveAttribute);
+            cache.remove(cacheKey);
+        }
 
+        return methodInvocation.proceed();
+    }
+
+    /**
+     * Check if there is a cached exception for the key. If there is throw it.
+     * 
+     * @param cacheableAttribute Configuration for the method invocation
+     * @param key The cache key for the method invocation
+     * @throws Throwable The cached throwable
+     */
     protected void checkForCachedException(final CacheableAttribute cacheableAttribute, final Serializable key) throws Throwable {
         //Determine if exception caching is enabled
         final Ehcache exceptionCache = cacheableAttribute.getExceptionCache();
@@ -166,19 +214,32 @@ public class EhCacheInterceptor implements MethodInterceptor {
             }
         }
     }
-    
-    protected Object invokeTriggersRemove(final MethodInvocation methodInvocation, final TriggersRemoveAttribute triggersRemoveAttribute) throws Throwable {
-        Ehcache cache = triggersRemoveAttribute.getCache();
-        if (triggersRemoveAttribute.isRemoveAll()) {
-            cache.removeAll();
-        }
-        else {
-            CacheKeyGenerator cacheKeyGenerator = triggersRemoveAttribute.getCacheKeyGenerator();
-            Serializable cacheKey = cacheKeyGenerator.generateKey(methodInvocation);
-            cache.remove(cacheKey);
-        }
 
-        Object result = methodInvocation.proceed();
-        return result;
+    /**
+     * Checks {@link CacheableAttribute#getExceptionCache()}, if not null the exception will be cached.
+     * 
+     * @param cacheableAttribute Configuration for the method invocation
+     * @param key Cache key for the invocation
+     * @param t The exception to cache
+     */
+    protected void cacheException(final CacheableAttribute cacheableAttribute, final Serializable key, final Throwable t) {
+        final Ehcache exceptionCache = cacheableAttribute.getExceptionCache();
+        if (exceptionCache != null) {
+            exceptionCache.put(new Element(key, t));
+        }
+    }
+
+    /**
+     * Creates a {@link Serializable} cache key from the {@link MethodInvocation} and configuration attributes.
+     * 
+     * @param methodInvocation Invocation to build the key for
+     * @param methodAttribute Configuration for the invoked method
+     * @return Generated cache key, must not return null.
+     */
+    protected Serializable generateCacheKey(final MethodInvocation methodInvocation, final MethodAttribute methodAttribute) {
+        final CacheKeyGenerator cacheKeyGenerator = methodAttribute.getCacheKeyGenerator();
+        final Serializable cacheKey = cacheKeyGenerator.generateKey(methodInvocation);
+        this.logger.debug("Generated key '{}' for invocation: {}", cacheKey, methodInvocation);
+        return cacheKey;
     }
 }
