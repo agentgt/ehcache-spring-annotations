@@ -57,8 +57,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      * Caches for advice data
      */
     private final Map<Object, Object> ingoredMethods = new ConcurrentHashMap<Object, Object>();
-    private final Map<Object, CacheableAttribute> cacheableAttributes = new ConcurrentHashMap<Object, CacheableAttribute>();
-    private final Map<Object, TriggersRemoveAttribute> triggersRemoveAttributes = new ConcurrentHashMap<Object, TriggersRemoveAttribute>();
+    private final Map<Object, MethodAttribute> attributesCache = new ConcurrentHashMap<Object, MethodAttribute>();
     
     private CacheManager cacheManager;
     private BeanFactory beanFactory;
@@ -81,13 +80,9 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      */
     @Override
     public AdviceType getAdviceType(Method method, Class<?> targetClass) {
-        final Object cacheKey = this.getCacheKey(method, targetClass);
-        if (this.getCacheableAttribute(cacheKey, method, targetClass) != null) {
-            return AdviceType.CACHE;
-        }
-        
-        if (this.getTriggersRemoveAttribute(cacheKey, method, targetClass) != null) {
-            return AdviceType.REMOVE;
+        final MethodAttribute methodAttribute = this.getMethodAttribute(method, targetClass);
+        if (methodAttribute != null) {
+            return methodAttribute.getAdviceType();
         }
         
         return AdviceType.NONE;
@@ -98,8 +93,12 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      */
     @Override
     public CacheableAttribute getCacheableAttribute(Method method, Class<?> targetClass) {
-        final Object cacheKey = this.getCacheKey(method, targetClass);
-        return this.getCacheableAttribute(cacheKey, method, targetClass);
+        final MethodAttribute methodAttribute = this.getMethodAttribute(method, targetClass);
+        if (methodAttribute != null && AdviceType.CACHE == methodAttribute.getAdviceType()) {
+            return (CacheableAttribute)methodAttribute;
+        }
+        
+        return null;
     }
 
     /* (non-Javadoc)
@@ -107,63 +106,45 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      */
     @Override
     public TriggersRemoveAttribute getTriggersRemoveAttribute(Method method, Class<?> targetClass) {
+        final MethodAttribute methodAttribute = this.getMethodAttribute(method, targetClass);
+        if (methodAttribute != null && AdviceType.REMOVE == methodAttribute.getAdviceType()) {
+            return (TriggersRemoveAttribute)methodAttribute;
+        }
+        
+        return null;
+    }
+    
+    private MethodAttribute getMethodAttribute(final Method method, final Class<?> targetClass) {
         final Object cacheKey = this.getCacheKey(method, targetClass);
-        return this.getTriggersRemoveAttribute(cacheKey, method, targetClass);
-    }
-    
-    private CacheableAttribute getCacheableAttribute(final Object cacheKey, Method method, Class<?> targetClass) {
+        
+        //Check if the method has already been inspected and should be ignored
         if (this.ingoredMethods.containsKey(cacheKey)) {
             return null;
         }
         
-        final CacheableAttribute attributes = this.cacheableAttributes.get(cacheKey);
+        //Check the cache if the method has already had its advise attributes created
+        final MethodAttribute attributes = this.attributesCache.get(cacheKey);
         if (attributes != null) {
             return attributes;
         }
-
-        final MethodAttribute methodAttribute = this.getMethodAttribute(cacheKey, method, targetClass);
-        if (methodAttribute != null && AdviceType.CACHE ==  methodAttribute.getAdviceType()) {
-            return (CacheableAttribute) methodAttribute;
-        }
         
-        return null;
-    }
-
-    private TriggersRemoveAttribute getTriggersRemoveAttribute(final Object cacheKey, Method method, Class<?> targetClass) {
-        if (this.ingoredMethods.containsKey(cacheKey)) {
-            return null;
-        }
-        
-        final TriggersRemoveAttribute attributes = this.triggersRemoveAttributes.get(cacheKey);
-        if (attributes != null) {
-            return attributes;
-        }
-
-        final MethodAttribute methodAttribute = this.getMethodAttribute(cacheKey, method, targetClass);
-        if (methodAttribute != null && AdviceType.REMOVE ==  methodAttribute.getAdviceType()) {
-            return (TriggersRemoveAttribute) methodAttribute;
-        }
-        
-        return null;
-    }
-    
-    
-    private MethodAttribute getMethodAttribute(Object cacheKey, Method method, Class<?> targetClass) {
         // We need to work it out.
         final MethodAttribute att = this.computeMethodAttribute(method, targetClass);
+        
         // Put it in the cache.
         if (att == null) {
             this.ingoredMethods.put(cacheKey, cacheKey);
         }
-        else if (AdviceType.CACHE == att.getAdviceType() ){
-            this.logger.debug("Adding Cacheable method '{}' under key '{}' with attribute: {}", new Object[] { method.getName(), cacheKey, att });
-            this.cacheableAttributes.put(cacheKey, (CacheableAttribute)att);
+        else  {
+            if (AdviceType.CACHE == att.getAdviceType() ){
+                this.logger.debug("Adding Cacheable method '{}' under key '{}' with attribute: {}", new Object[] { method.getName(), cacheKey, att });
+            }
+            else {
+                this.logger.debug("Adding TriggersRemove method '{}' under key '{}' with attribute: {}", new Object[] { method.getName(), cacheKey, att });
+            }
+            this.attributesCache.put(cacheKey, att);
         }
-
-        else if (AdviceType.REMOVE == att.getAdviceType() ){
-            this.logger.debug("Adding TriggersRemove method '{}' under key '{}' with attribute: {}", new Object[] { method.getName(), cacheKey, att });
-            this.triggersRemoveAttributes.put(cacheKey, (TriggersRemoveAttribute)att);
-        }
+        
         return att;
     }
 
