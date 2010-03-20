@@ -37,7 +37,7 @@ public interface CacheableAttribute extends MethodAttribute {
     public Ehcache getExceptionCache();
     
     /**
-     * @return The ThreadLocal to use with a self populating cache. If not null the intercepter must provide a {@link Callable} before calling {@link Ehcache#get(Object)}
+     * @return The ThreadLocal to use with a self populating cache. If not null the intercepter must provide a {@link MethodInvocation} before calling {@link Ehcache#get(Object)}
      */
     public ThreadLocal<MethodInvocation> getEntryFactory();
 }

@@ -6,12 +6,26 @@
 
 package edu.wisc.services.cache;
 
+import edu.wisc.services.cache.annotations.Cacheable;
+import edu.wisc.services.cache.annotations.TriggersRemove;
+
 /**
+ * Possible types of cache related advice
+ * 
  * @author Eric Dalquist
  * @version $Revision$
  */
 public enum AdviceType {
+    /**
+     * No advice
+     */
     NONE,
+    /**
+     * {@link Cacheable} advice
+     */
     CACHE,
+    /**
+     * {@link TriggersRemove} advice
+     */
     REMOVE;
 }

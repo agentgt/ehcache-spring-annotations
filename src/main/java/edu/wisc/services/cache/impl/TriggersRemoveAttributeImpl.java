@@ -9,12 +9,12 @@ import edu.wisc.services.cache.TriggersRemoveAttribute;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
+ * Basic pojo style impl of {@link TriggersRemoveAttribute}
  * 
  * @author Nicholas Blair, npblair@wisc.edu
  * @version $Revision$
  */
 class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
-
 	private final Ehcache cache;
 	private final CacheKeyGenerator cacheKeyGenerator;
 	private final boolean removeAll;
@@ -54,4 +54,9 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
 		return this.cacheKeyGenerator;
 	}
 
+    @Override
+    public String toString() {
+        return "TriggersRemoveAttributeImpl [cache=" + this.cache + ", cacheKeyGenerator=" + this.cacheKeyGenerator
+                + ", removeAll=" + this.removeAll + "]";
+    }
 }

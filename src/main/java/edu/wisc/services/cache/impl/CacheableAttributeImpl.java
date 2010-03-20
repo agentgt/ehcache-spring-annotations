@@ -28,6 +28,8 @@ import edu.wisc.services.cache.CacheableAttribute;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
+ * Basic pojo style impl of {@link CacheableAttribute}
+ * 
  * @author Eric Dalquist
  * @version $Revision$
  */
@@ -71,6 +73,7 @@ class CacheableAttributeImpl implements CacheableAttribute {
 
     @Override
     public String toString() {
-        return "CacheableAttributeImpl [cache=" + cache + ", cacheKeyGenerator=" + cacheKeyGenerator + ", exceptionCache=" + exceptionCache + "]";
+        return "CacheableAttributeImpl [cache=" + this.cache + ", cacheKeyGenerator=" + this.cacheKeyGenerator
+                + ", entryFactory=" + this.entryFactory + ", exceptionCache=" + this.exceptionCache + "]";
     }
 }

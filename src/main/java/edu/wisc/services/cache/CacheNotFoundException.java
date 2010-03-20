@@ -27,7 +27,6 @@ package edu.wisc.services.cache;
  * @author Eric Dalquist
  */
 public class CacheNotFoundException extends CacheException {
-
 	private static final long serialVersionUID = 6601590278654078802L;
 
 	/**

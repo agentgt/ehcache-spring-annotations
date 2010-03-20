@@ -26,10 +26,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+import edu.wisc.services.cache.key.CacheKeyGenerator;
+
 /**
  * Annotation for methods whose return values should be cached.
  */
-@Target( { ElementType.METHOD })
+@Target( { ElementType.METHOD } )
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented

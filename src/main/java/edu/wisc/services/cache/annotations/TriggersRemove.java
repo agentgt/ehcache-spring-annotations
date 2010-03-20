@@ -27,7 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for methods whos calls trigger removal of data from a cache
+ * Annotation for methods who's calls trigger removal of data from a cache
  */
 @Target( { ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

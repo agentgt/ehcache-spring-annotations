@@ -41,6 +41,9 @@ import edu.wisc.services.cache.config.AnnotationDrivenEhCacheBeanDefinitionParse
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
+ * Provides logic for determining if a class + method are advised and to then setup the
+ * data needed for the advice.
+ * 
  * @author Eric Dalquist
  * @version $Revision$
  */
@@ -51,7 +54,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     /**
-     * Cache of CacheableAttributes, keyed by DefaultCacheKey (Method + target Class).
+     * Caches for advice data
      */
     private final Map<Object, Object> ingoredMethods = new ConcurrentHashMap<Object, Object>();
     private final Map<Object, CacheableAttribute> cacheableAttributes = new ConcurrentHashMap<Object, CacheableAttribute>();
@@ -166,7 +169,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
 
 
     /**
-     * Should only public methods be allowed to have Flushable semantics?
+     * Should only public methods be allowed to be advised?
      * <p>The default implementation returns <code>false</code>.
      */
     protected boolean allowPublicMethodsOnly() {
@@ -209,7 +212,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      * 
      * @param cacheName The name of the cache to retrieve
      * @return The cache
-     * @throws RuntimeException if the cache does not exist and createCaches is false.
+     * @throws CacheNotFoundException if the cache does not exist and createCaches is false.
      */
     protected Ehcache getCache(String cacheName) {
         final CacheManager cacheManager = this.getCacheManager();
@@ -263,9 +266,10 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     }
 
     /**
+     * Determine if the specified {@link AnnotatedElement} is annotated with either {@link Cacheable} or {@link TriggersRemove}
      * 
-     * @param ae
-     * @return
+     * @param ae The element to inspect
+     * @return The advice attributes about the element, null if the element is not advised
      */
     protected MethodAttribute findMethodAttribute(AnnotatedElement ae) {
         Cacheable cacheableAnnotation = ae.getAnnotation(Cacheable.class);
@@ -296,8 +300,9 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
 
     /**
      * Construct a {@link CacheableAttribute} from a {@link Cacheable} annotation.
-     * @param ann
-     * @return
+     * 
+     * @param ann The annotation to build the attributes from
+     * @return The constructed cacheable advise attributes
      */
     protected CacheableAttribute parseCacheableAnnotation(Cacheable ann) {
         Ehcache cache = this.getCache(ann.cacheName());
@@ -329,8 +334,9 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
 
     /**
      * Construct a {@link TriggersRemoveAttribute} from a {@link TriggersRemove} annotation.
-     * @param ann
-     * @return
+     * 
+     * @param ann The annotation to build the attributes from
+     * @return The constructed triggers remove advise attributes
      */
     protected TriggersRemoveAttribute parseTriggersRemoveAnnotation(TriggersRemove ann) {
         final Ehcache cache = this.getCache(ann.cacheName());
@@ -346,12 +352,16 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         return new TriggersRemoveAttributeImpl(cache, cacheKeyGenerator, ann.removeAll());
     }
 
+    /**
+     * EhCache entry factory that uses a ThreadLocal to pass a MethodInvocation into the factory
+     * for object creation.
+     */
     private static class ThreadLocalCacheEntryFactory implements CacheEntryFactory {
         public final ThreadLocal<MethodInvocation> entryFactory = new ThreadLocal<MethodInvocation>();
 
         @Override
         public Object createEntry(Object arg0) throws Exception {
-            final MethodInvocation methodInvocation = entryFactory.get();
+            final MethodInvocation methodInvocation = this.entryFactory.get();
             if (methodInvocation == null) {
                 throw new RuntimeException("No MethodInvocation specified in the ThreadLocal");
             }

@@ -27,42 +27,21 @@ package edu.wisc.services.cache;
  * @version 
  */
 public abstract class CacheException extends RuntimeException {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 53706L;
 
-	/**
-	 * 
-	 * @param msg
-	 */
 	public CacheException(String msg) {
 		super(msg);
 	}
 
-	/**
-	 * 
-	 * @param msg
-	 * @param cause
-	 */
 	public CacheException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
 
-	/**
-	 * 
-	 */
 	public CacheException() {
 		super();
 	}
 
-	/**
-	 * @param cause
-	 */
 	public CacheException(Throwable cause) {
 		super(cause);
 	}
-
-	
 }

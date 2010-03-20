@@ -36,7 +36,7 @@ public interface CacheAttributeSource {
      * 
      * @param method The method to inspect
      * @param targetClass The class the method exists on
-     * @return The type of advice on the method, {@link AdviceType#NONE} if the method is not advised.
+     * @return The type of advice on the method, {@link AdviceType#NONE} if the method is not advised. Will never return null.
      */
     public AdviceType getAdviceType(Method method, Class<?> targetClass);
     

@@ -2,6 +2,8 @@ package edu.wisc.services.cache.impl;
 
 import java.lang.reflect.Method;
 
+import org.springframework.util.ObjectUtils;
+
 /**
  * Default cache key for the CacheableAttribute cache.
  */
@@ -15,43 +17,20 @@ class DefaultCacheKey {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((method == null) ? 0 : method.hashCode());
-        result = prime * result + ((targetClass == null) ? 0 : targetClass.hashCode());
-        return result;
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof DefaultCacheKey)) {
+            return false;
+        }
+        final DefaultCacheKey otherKey = (DefaultCacheKey) other;
+        return (this.method.equals(otherKey.method) && ObjectUtils.nullSafeEquals(this.targetClass, otherKey.targetClass));
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof DefaultCacheKey)) {
-            return false;
-        }
-        DefaultCacheKey other = (DefaultCacheKey) obj;
-        if (method == null) {
-            if (other.method != null) {
-                return false;
-            }
-        }
-        else if (!method.equals(other.method)) {
-            return false;
-        }
-        if (targetClass == null) {
-            if (other.targetClass != null) {
-                return false;
-            }
-        }
-        else if (!targetClass.equals(other.targetClass)) {
-            return false;
-        }
-        return true;
+    public int hashCode() {
+        return this.method.hashCode() * 29 + (this.targetClass != null ? this.targetClass.hashCode() : 0);
     }
 
     @Override

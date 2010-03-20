@@ -23,12 +23,14 @@ import net.sf.ehcache.Ehcache;
 import edu.wisc.services.cache.key.CacheKeyGenerator;
 
 /**
+ * Common information about advised methods.
+ * 
  * @author Eric Dalquist
  * @version $Revision$
  */
 public interface MethodAttribute {
     /**
-     * @return The type of advice this attribute represents. Will never return {@link AdviceType#NONE}
+     * @return The type of advice this attribute represents. Will never be null or {@link AdviceType#NONE}
      */
     public AdviceType getAdviceType();
     
