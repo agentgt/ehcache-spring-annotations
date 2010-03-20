@@ -19,34 +19,49 @@
 
 package edu.wisc.services.cache;
 
+import edu.wisc.services.cache.annotations.Cacheable;
+
 
 /**
  * @author Eric Dalquist
  * @version $Revision$
  */
 public class CacheableTestImpl implements CacheableTestInterface {
-    private int callCount = 0;
+    private int interfaceAnnotatedCachedCount = 0;
+    private int interfaceAnnotatedNoArgCachedCount = 0;
+    private int interfaceDefinedCount = 0;
     
-    public int getCallCount() {
-        return callCount;
+    @Override
+    public String interfaceAnnotatedCached(String argument) {
+        this.interfaceAnnotatedCachedCount++;
+        return "interfaceAnnotatedCached(" + argument + ")";
     }
 
     @Override
-    public String getCachedResource(String argument) {
-        callCount++;
-        return "resource-" + argument;
+    public int interfaceAnnotatedCachedCount() {
+        return this.interfaceAnnotatedCachedCount;
     }
 
     @Override
-    public String getCachedResourceTwo(String argument) {
-        callCount++;
-        return "resourceTwo-" + argument;
+    public String interfaceAnnotatedNoArgCached() {
+        this.interfaceAnnotatedNoArgCachedCount++;
+        return "interfaceAnnotatedNoArgCached()";
     }
 
     @Override
-    public String getCachedSingleResource() {
-        callCount++;
-        return "resource";
+    public int interfaceAnnotatedNoArgCachedCount() {
+        return this.interfaceAnnotatedNoArgCachedCount;
     }
-    
+
+    @Override
+    @Cacheable(cacheName="interfaceDefined")
+    public String interfaceDefined(String argument) {
+        this.interfaceDefinedCount++;
+        return "interfaceDefined(" + argument + ")";
+    }
+
+    @Override
+    public int interfaceDefinedCount() {
+        return this.interfaceDefinedCount;
+    }
 }

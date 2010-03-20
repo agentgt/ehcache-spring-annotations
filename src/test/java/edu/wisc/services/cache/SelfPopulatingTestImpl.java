@@ -71,8 +71,4 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
 			lock.notifyAll();
 		}
 	}
-
-
-	
-
 }

@@ -34,8 +34,6 @@
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     </bean>
     
-    <bean id="cacheableTestClass" class="edu.wisc.services.cache.CacheableTestImpl" />
-    <bean id="flushableTestClass" class="edu.wisc.services.cache.FlushableTestImpl"/>
-    <bean id="plainTestInterface" class="edu.wisc.services.cache.PlainTestImpl"/>
+    <bean id="flushableTestClass" class="edu.wisc.services.cache.TriggersRemoveTestImpl"/>
     
 </beans>

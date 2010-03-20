@@ -26,15 +26,15 @@ import edu.wisc.services.cache.annotations.Cacheable;
  * @version $Revision$
  */
 public interface CacheableTestInterface {
-
-    public int getCallCount();
     
-    @Cacheable(cacheName="cachedResource")
-    public String getCachedResource(String argument);
+    @Cacheable(cacheName="interfaceAnnotatedCached")
+    public String interfaceAnnotatedCached(String argument);
+    public int interfaceAnnotatedCachedCount();
     
-    @Cacheable(cacheName="cachedResource")
-    public String getCachedSingleResource();
+    @Cacheable(cacheName="interfaceAnnotatedNoArgCached")
+    public String interfaceAnnotatedNoArgCached();
+    public int interfaceAnnotatedNoArgCachedCount();
     
-    @Cacheable(cacheName="cachedResourceTwo", selfPopulating=true)
-    public String getCachedResourceTwo(String argument);
+    public String interfaceDefined(String argument);
+    public int interfaceDefinedCount();
 }

@@ -19,18 +19,17 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/testContext.xml")
-public class FlushableAnnotationTest  {
+@ContextConfiguration("/triggersRemoveTestContext.xml")
+public class TriggersRemoveTest  {
 
-	private FlushableTestInterface flushableTestInterface;
+	private TriggersRemoveTestInterface triggersRemoveTestInterface;
 	private CacheManager cacheManager;
 	/**
-	 * @param flushableTestInterface the flushableTestInterface to set
+	 * @param triggersRemoveTestInterface the triggersRemoveTestInterface to set
 	 */
 	@Autowired
-	public void setFlushableTestInterface(
-			FlushableTestInterface flushableTestInterface) {
-		this.flushableTestInterface = flushableTestInterface;
+	public void setFlushableTestInterface(TriggersRemoveTestInterface triggersRemoveTestInterface) {
+		this.triggersRemoveTestInterface = triggersRemoveTestInterface;
 	}
 	/**
 	 * @param cacheManager the cacheManager to set
@@ -43,33 +42,55 @@ public class FlushableAnnotationTest  {
 	
 	@Test
 	public void testHarness() {
-		Cache cache = cacheManager.getCache("flushRemoveCountingCache");
+		Cache cache = cacheManager.getCache("triggersRemoveCountingCache");
 		CountingListener listener = new CountingListener();
 		cache.registerCacheUsageListener(listener);
 		
-		this.flushableTestInterface.notFlushableMethod();
+		Assert.assertEquals(0, listener.getRemoveCount());
 		Assert.assertEquals(0, listener.getRemoveAllCount());
-		this.flushableTestInterface.methodTriggersFlush();
+		
+		this.triggersRemoveTestInterface.notTriggersRemoveMethod();
+		Assert.assertEquals(0, listener.getRemoveCount());
+        Assert.assertEquals(0, listener.getRemoveAllCount());
+		
+        this.triggersRemoveTestInterface.methodTriggersRemove();
+        Assert.assertEquals(1, listener.getRemoveCount());
 		Assert.assertEquals(0, listener.getRemoveAllCount());
-		this.flushableTestInterface.methodTriggersFlush();
+		
+		this.triggersRemoveTestInterface.methodTriggersRemove();
+        Assert.assertEquals(2, listener.getRemoveCount());
 		Assert.assertEquals(0, listener.getRemoveAllCount());
-		this.flushableTestInterface.notFlushableMethod();
+		
+		this.triggersRemoveTestInterface.notTriggersRemoveMethod();
+        Assert.assertEquals(2, listener.getRemoveCount());
 		Assert.assertEquals(0, listener.getRemoveAllCount());
-		this.flushableTestInterface.methodTriggersFlushAndRemoveAll();
+		
+		this.triggersRemoveTestInterface.methodTriggersRemoveAll();
+        Assert.assertEquals(2, listener.getRemoveCount());
 		Assert.assertEquals(1, listener.getRemoveAllCount());
-		this.flushableTestInterface.methodTriggersFlushAndRemoveAll();
+		
+		this.triggersRemoveTestInterface.methodTriggersRemoveAll();
+        Assert.assertEquals(2, listener.getRemoveCount());
 		Assert.assertEquals(2, listener.getRemoveAllCount());
+		
+        this.triggersRemoveTestInterface.implMethodTriggersRemove();
+        Assert.assertEquals(3, listener.getRemoveCount());
+        Assert.assertEquals(2, listener.getRemoveAllCount());
 	}
 	
 	static class CountingListener implements CacheUsageListener {
 		private int removeAllCount = 0;
-		/**
-		 * @return the removeAllCount
-		 */
+		private int removeCount = 0;
+
 		public int getRemoveAllCount() {
 			return removeAllCount;
 		}
-		@Override
+		
+		public int getRemoveCount() {
+            return this.removeCount;
+        }
+
+        @Override
 		public void dispose() {
 		}
 		/* (non-Javadoc)
@@ -90,6 +111,7 @@ public class FlushableAnnotationTest  {
 		}
 		@Override
 		public void notifyCacheElementRemoved() {
+            this.removeCount++;
 		}
 		@Override
 		public void notifyCacheElementUpdated() {

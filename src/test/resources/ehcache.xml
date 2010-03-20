@@ -17,7 +17,7 @@
 	<!--
 		timeToIdle = idle setting not used, timeToLive set to 5 minutes
 	-->
-	<cache name="flushRemoveCountingCache" eternal="false"
+	<cache name="triggersRemoveCountingCache" eternal="false"
 		maxElementsInMemory="100" overflowToDisk="false" diskPersistent="false"
 		timeToIdleSeconds="0" timeToLiveSeconds="300"
 		memoryStoreEvictionPolicy="LRU" />
