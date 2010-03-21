@@ -27,6 +27,11 @@ import edu.wisc.services.cache.annotations.Cacheable;
  */
 public interface CacheableTestInterface {
     
+    @Cacheable(cacheName="interfaceAnnotatedCache", exceptionCacheName="interfaceAnnotatedExceptionCache")
+    public String interfaceAnnotatedExceptionCached(boolean throwsException);
+    public int interfaceAnnotatedExceptionCachedCount();
+    public int interfaceAnnotatedExceptionCachedThrowsCount();
+    
     @Cacheable(cacheName="interfaceAnnotatedCached")
     public String interfaceAnnotatedCached(String argument);
     public int interfaceAnnotatedCachedCount();

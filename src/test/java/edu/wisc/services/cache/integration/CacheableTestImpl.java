@@ -27,10 +27,33 @@ import edu.wisc.services.cache.annotations.Cacheable;
  * @version $Revision$
  */
 public class CacheableTestImpl implements CacheableTestInterface {
+    private int interfaceAnnotatedExceptionCachedCount = 0;
+    private int interfaceAnnotatedExceptionCachedThrowsCount = 0;
     private int interfaceAnnotatedCachedCount = 0;
     private int interfaceAnnotatedNoArgCachedCount = 0;
     private int interfaceDefinedCount = 0;
     
+    @Override
+    public String interfaceAnnotatedExceptionCached(boolean throwsException) {
+        if (throwsException) {
+            this.interfaceAnnotatedExceptionCachedThrowsCount++;
+            throw new RuntimeException("throwsException was true");
+        }
+        
+        this.interfaceAnnotatedExceptionCachedCount++;
+        return "interfaceAnnotatedExceptionCached(" + throwsException + ")";
+    }
+
+    @Override
+    public int interfaceAnnotatedExceptionCachedCount() {
+        return this.interfaceAnnotatedExceptionCachedCount;
+    }
+
+    @Override
+    public int interfaceAnnotatedExceptionCachedThrowsCount() {
+        return this.interfaceAnnotatedExceptionCachedThrowsCount;
+    }
+
     @Override
     public String interfaceAnnotatedCached(String argument) {
         this.interfaceAnnotatedCachedCount++;

@@ -84,6 +84,40 @@ public class CacheableTest {
         Assert.assertEquals("interfaceDefined(bar)", cacheableTestInterface.interfaceDefined("bar"));
         Assert.assertEquals(2, cacheableTestInterface.interfaceDefinedCount());
     }
+
+    @Test
+    public void testExceptionCaching() {
+        Assert.assertEquals(0, cacheableTestInterface.interfaceAnnotatedExceptionCachedCount());
+        Assert.assertEquals(0, cacheableTestInterface.interfaceAnnotatedExceptionCachedThrowsCount());
+        
+        Assert.assertEquals("interfaceAnnotatedExceptionCached(false)", cacheableTestInterface.interfaceAnnotatedExceptionCached(false));
+        Assert.assertEquals(1, cacheableTestInterface.interfaceAnnotatedExceptionCachedCount());
+        Assert.assertEquals(0, cacheableTestInterface.interfaceAnnotatedExceptionCachedThrowsCount());
+        
+        Assert.assertEquals("interfaceAnnotatedExceptionCached(false)", cacheableTestInterface.interfaceAnnotatedExceptionCached(false));
+        Assert.assertEquals(1, cacheableTestInterface.interfaceAnnotatedExceptionCachedCount());
+        Assert.assertEquals(0, cacheableTestInterface.interfaceAnnotatedExceptionCachedThrowsCount());
+        
+        try {
+            cacheableTestInterface.interfaceAnnotatedExceptionCached(true);
+            Assert.fail("interfaceAnnotatedExceptionCached(true) should have thrown an exception");
+        }
+        catch (RuntimeException re) {
+            Assert.assertEquals("throwsException was true", re.getMessage());
+        }
+        Assert.assertEquals(1, cacheableTestInterface.interfaceAnnotatedExceptionCachedCount());
+        Assert.assertEquals(1, cacheableTestInterface.interfaceAnnotatedExceptionCachedThrowsCount());
+        
+        try {
+            cacheableTestInterface.interfaceAnnotatedExceptionCached(true);
+            Assert.fail("interfaceAnnotatedExceptionCached(true) should have thrown an exception");
+        }
+        catch (RuntimeException re) {
+            Assert.assertEquals("throwsException was true", re.getMessage());
+        }
+        Assert.assertEquals(1, cacheableTestInterface.interfaceAnnotatedExceptionCachedCount());
+        Assert.assertEquals(1, cacheableTestInterface.interfaceAnnotatedExceptionCachedThrowsCount());
+    }
 }
 
 
