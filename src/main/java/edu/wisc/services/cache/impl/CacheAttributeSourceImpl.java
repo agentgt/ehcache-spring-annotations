@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -57,7 +58,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      * Caches for advice data
      */
     private final Map<Object, Object> ingoredMethods = new ConcurrentHashMap<Object, Object>();
-    private final Map<Object, MethodAttribute> attributesCache = new ConcurrentHashMap<Object, MethodAttribute>();
+    private final ConcurrentMap<Object, MethodAttribute> attributesCache = new ConcurrentHashMap<Object, MethodAttribute>();
     
     private CacheManager cacheManager;
     private BeanFactory beanFactory;
@@ -137,7 +138,10 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         }
         else  {
             this.logger.debug("Adding {} advised method '{}' under key '{}' with attribute: {}", new Object[] { att.getAdviceType(), method.getName(), cacheKey, att });
-            this.attributesCache.put(cacheKey, att);
+            final MethodAttribute existing = this.attributesCache.putIfAbsent(cacheKey, att);
+            if (existing != null) {
+                return existing;
+            }
         }
         
         return att;

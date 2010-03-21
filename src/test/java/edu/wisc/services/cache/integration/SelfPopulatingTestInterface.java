@@ -5,6 +5,8 @@ package edu.wisc.services.cache.integration;
 
 import java.util.concurrent.CountDownLatch;
 
+import edu.wisc.services.cache.annotations.Cacheable;
+
 /**
  *
  * @author Nicholas Blair, nblair@doit.wisc.edu
@@ -12,7 +14,9 @@ import java.util.concurrent.CountDownLatch;
  */
 public interface SelfPopulatingTestInterface {
     
-    public void setStartSignal(CountDownLatch startSignal);
+    public void setThreadRunningLatch(CountDownLatch threadRunningLatch);
+
+    public void setProccedLatch(CountDownLatch proccedLatch);
 
 	/**
 	 * Will be marked Cacheable with selfPopulating=true
@@ -27,5 +31,8 @@ public interface SelfPopulatingTestInterface {
 	public int getAInvocationCount();
 	public int getBInvocationCount();
 	
-	public void submitNotifyAll();
+    @Cacheable(cacheName="interfaceAnnotatedCache", exceptionCacheName="interfaceAnnotatedExceptionCache")
+    public String interfaceAnnotatedExceptionCached(boolean throwsException);
+    public int interfaceAnnotatedExceptionCachedCount();
+    public int interfaceAnnotatedExceptionCachedThrowsCount();
 }

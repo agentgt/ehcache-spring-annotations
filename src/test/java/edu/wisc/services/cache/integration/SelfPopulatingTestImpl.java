@@ -13,42 +13,45 @@ import edu.wisc.services.cache.annotations.Cacheable;
  * @version $Id$
  */
 public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
-
-	private final Object lock = new Object();
+    private volatile int interfaceAnnotatedExceptionCachedCount = 0;
+    private volatile int interfaceAnnotatedExceptionCachedThrowsCount = 0;
 	private volatile int aInvocationCount = 0;
 	private volatile int bInvocationCount = 0;
-	private CountDownLatch startSignal;
+	private CountDownLatch threadRunningLatch;
+	private CountDownLatch proccedLatch;
 	
-	public void setStartSignal(CountDownLatch startSignal) {
-        this.startSignal = startSignal;
+    public void setThreadRunningLatch(CountDownLatch threadRunningLatch) {
+        this.threadRunningLatch = threadRunningLatch;
+    }
+
+    public void setProccedLatch(CountDownLatch proccedLatch) {
+        this.proccedLatch = proccedLatch;
     }
 
     @Override
 	@Cacheable(cacheName="blockingCache", selfPopulating=true)
 	public String methodA(String argument) {
-	    startSignal.countDown();
-		synchronized(lock) {
-			try {
-				lock.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		aInvocationCount++;
+	    threadRunningLatch.countDown();
+	    try {
+            proccedLatch.await();
+        }
+        catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        aInvocationCount++;
 		return "methodA says: " + argument;
 	}
 	
 	@Override
 	@Cacheable(cacheName="blockingCache", selfPopulating=false)
 	public String methodB(String argument) {
-        startSignal.countDown();
-		synchronized(lock) {
-			try {
-				lock.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+	    threadRunningLatch.countDown();
+        try {
+            proccedLatch.await();
+        }
+        catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 		bInvocationCount++;
 		return "methodB says: " + argument;
 	}
@@ -61,14 +64,33 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
 	public int getBInvocationCount() {
 		return this.bInvocationCount;
 	}
+	
+    @Override
+    public String interfaceAnnotatedExceptionCached(boolean throwsException) {
+        threadRunningLatch.countDown();
+        try {
+            proccedLatch.await();
+        }
+        catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        
+        if (throwsException) {
+            this.interfaceAnnotatedExceptionCachedThrowsCount++;
+            throw new RuntimeException("throwsException was true");
+        }
+        
+        this.interfaceAnnotatedExceptionCachedCount++;
+        return "interfaceAnnotatedExceptionCached(" + throwsException + ")";
+    }
 
-	/* (non-Javadoc)
-	 * @see edu.wisc.services.cache.SelfPopulatingTestInterface#submitNotifyAll()
-	 */
-	@Override
-	public void submitNotifyAll() {
-		synchronized (lock) {
-			lock.notifyAll();
-		}
-	}
+    @Override
+    public int interfaceAnnotatedExceptionCachedCount() {
+        return this.interfaceAnnotatedExceptionCachedCount;
+    }
+
+    @Override
+    public int interfaceAnnotatedExceptionCachedThrowsCount() {
+        return this.interfaceAnnotatedExceptionCachedThrowsCount;
+    }
 }
