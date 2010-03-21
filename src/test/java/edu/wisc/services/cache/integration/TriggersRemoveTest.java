@@ -93,13 +93,6 @@ public class TriggersRemoveTest  {
         @Override
 		public void dispose() {
 		}
-		/* (non-Javadoc)
-		 * @see java.lang.Object#clone()
-		 */
-		@Override
-		public Object clone() throws CloneNotSupportedException {
-			return super.clone();
-		}
 		@Override
 		public void notifyCacheElementEvicted() {
 		}
