@@ -26,6 +26,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import edu.wisc.services.cache.key.CacheKeyGenerator;
+
 /**
  * Annotation for methods who's calls trigger removal of data from a cache
  */

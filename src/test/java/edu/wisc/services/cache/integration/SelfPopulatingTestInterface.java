@@ -17,13 +17,11 @@ public interface SelfPopulatingTestInterface {
 	/**
 	 * Will be marked Cacheable with selfPopulating=true
 	 * @param argument
-	 * @return
 	 */
 	public String methodA(String argument);
 	/**
 	 * Will be marked Cacheable with selfPopulating=false
 	 * @param argument
-	 * @return
 	 */
 	public String methodB(String argument);
 	public int getAInvocationCount();

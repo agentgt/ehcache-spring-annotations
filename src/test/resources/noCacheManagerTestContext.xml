@@ -25,12 +25,10 @@
     xmlns:ehcache="http://services.wisc.edu/schema/spring-ehcache"
 	xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-        http://services.wisc.edu/schema/spring-ehcache https://mywebspace.wisc.edu/npblair/web/temp/spring-ehcache-1.0.xsd">
-    
+        http://services.wisc.edu/schema/spring-ehcache http://services.wisc.edu/schema/spring-ehcache/spring-ehcache-1.0.xsd">
+
     <ehcache:config create-missing-caches="true"/>
     
-    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-    </bean>
-    
     <bean id="cacheableTestImpl" class="edu.wisc.services.cache.integration.CacheableTestImpl"/>
+    
 </beans>

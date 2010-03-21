@@ -24,7 +24,7 @@ package edu.wisc.services.cache;
  * Base runtime exception for this project.
  * 
  * @author Nicholas Blair, npblair@wisc.edu
- * @version 
+ * @version $Revision$
  */
 public abstract class CacheException extends RuntimeException {
 	private static final long serialVersionUID = 53706L;

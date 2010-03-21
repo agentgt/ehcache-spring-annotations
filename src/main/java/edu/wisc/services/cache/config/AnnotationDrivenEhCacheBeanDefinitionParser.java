@@ -28,6 +28,8 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
+import edu.wisc.services.cache.annotations.Cacheable;
+import edu.wisc.services.cache.annotations.TriggersRemove;
 import edu.wisc.services.cache.impl.CacheAttributeSourceImpl;
 import edu.wisc.services.cache.impl.CacheStaticMethodMatcherPointcut;
 import edu.wisc.services.cache.interceptor.EhCacheInterceptor;
@@ -35,8 +37,8 @@ import edu.wisc.services.cache.key.HashCodeCacheKeyGenerator;
 
 /**
  * {@link BeanDefinitionParser} that sets up {@link DefaultBeanFactoryPointcutAdvisor}
- * instances to wrap {@link CachingInterceptor}s around {@link Cacheable}s and
- * {@link TriggersRemoveInterceptor}s around {@link TriggersRemove}s.
+ * instances to wrap {@link EhCacheInterceptor}s around {@link Cacheable}s and {@link TriggersRemove}
+ * advised methods.
  * 
  * @author Nicholas Blair, nblair@doit.wisc.edu
  * @version $Id$

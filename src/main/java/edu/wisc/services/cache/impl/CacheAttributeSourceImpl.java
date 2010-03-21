@@ -206,7 +206,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
                 cache = cacheManager.getCache(cacheName);
             }
             else {
-                throw new CacheNotFoundException("Cache '" + cacheName + "' does not exist");
+                throw new CacheNotFoundException(cacheName);
             }
         }
         return cache;

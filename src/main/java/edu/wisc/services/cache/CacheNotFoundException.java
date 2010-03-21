@@ -25,9 +25,12 @@ package edu.wisc.services.cache;
  * 
  * @author Nicholas Blair, npblair@wisc.edu
  * @author Eric Dalquist
+ * @version $Revision$
  */
 public class CacheNotFoundException extends CacheException {
 	private static final long serialVersionUID = 6601590278654078802L;
+	
+	private final String cacheName;
 
 	/**
 	 * Creates a <code>CacheNotFoundException</code>.
@@ -37,6 +40,10 @@ public class CacheNotFoundException extends CacheException {
 	 */
 	public CacheNotFoundException(String cacheName) {
 		super("Unable to find cache '" + cacheName + "'");
+		this.cacheName = cacheName;
 	}
 
+    public String getCacheName() {
+        return this.cacheName;
+    }
 }
