@@ -136,12 +136,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
             this.ingoredMethods.put(cacheKey, cacheKey);
         }
         else  {
-            if (AdviceType.CACHE == att.getAdviceType() ){
-                this.logger.debug("Adding Cacheable method '{}' under key '{}' with attribute: {}", new Object[] { method.getName(), cacheKey, att });
-            }
-            else {
-                this.logger.debug("Adding TriggersRemove method '{}' under key '{}' with attribute: {}", new Object[] { method.getName(), cacheKey, att });
-            }
+            this.logger.debug("Adding {} advised method '{}' under key '{}' with attribute: {}", new Object[] { att.getAdviceType(), method.getName(), cacheKey, att });
             this.attributesCache.put(cacheKey, att);
         }
         
