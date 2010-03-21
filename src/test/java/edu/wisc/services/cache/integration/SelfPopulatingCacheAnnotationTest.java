@@ -1,7 +1,7 @@
 /**
  * Copyright 2010 The Board of Regents of the University of Wisconsin System.
  */
-package edu.wisc.services.cache;
+package edu.wisc.services.cache.integration;
 
 import java.util.concurrent.CountDownLatch;
 

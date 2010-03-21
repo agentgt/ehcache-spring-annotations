@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.wisc.services.cache;
+package edu.wisc.services.cache.integration;
 
 import edu.wisc.services.cache.annotations.TriggersRemove;
 

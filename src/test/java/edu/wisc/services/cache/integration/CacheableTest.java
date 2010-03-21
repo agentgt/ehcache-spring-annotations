@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package edu.wisc.services.cache;
+package edu.wisc.services.cache.integration;
 
 import org.junit.Assert;
 import org.junit.Test;

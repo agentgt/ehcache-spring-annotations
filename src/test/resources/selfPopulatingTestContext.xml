@@ -34,5 +34,5 @@
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     </bean>
     
-    <bean id="selfPopulatingTestInterface" class="edu.wisc.services.cache.SelfPopulatingTestImpl"/>
+    <bean id="selfPopulatingTestInterface" class="edu.wisc.services.cache.integration.SelfPopulatingTestImpl"/>
 </beans>
