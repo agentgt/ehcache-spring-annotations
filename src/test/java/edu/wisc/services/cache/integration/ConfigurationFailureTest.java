@@ -46,6 +46,7 @@ public class ConfigurationFailureTest {
             Assert.assertEquals("cacheManager", nsbd.getBeanName());
         }
     }
+    
     @Test
     public void testNoCache() {
         try {
@@ -56,6 +57,20 @@ public class ConfigurationFailureTest {
             Assert.assertEquals("cacheableTestImpl", bce.getBeanName());
             final CacheNotFoundException cnfe = (CacheNotFoundException)bce.getCause();
             Assert.assertEquals("interfaceDefined", cnfe.getCacheName());
+        }
+    }
+    
+
+    @Test
+    public void testNoCacheKeyGenerator() {
+        try {
+            new ClassPathXmlApplicationContext("/noCacheKeyGeneratorTestContext.xml");
+            Assert.fail("Test should have failed with no CacheKeyGenerator defined");
+        }
+        catch (BeanCreationException bce) {
+            Assert.assertEquals("cacheConfigurationTestImpl", bce.getBeanName());
+            final NoSuchBeanDefinitionException nsbd = (NoSuchBeanDefinitionException)bce.getCause();
+            Assert.assertEquals("customKeyGenerator", nsbd.getBeanName());
         }
     }
 }

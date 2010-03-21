@@ -297,13 +297,8 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
             exceptionCache = null;
         }
         
-        final CacheKeyGenerator cacheKeyGenerator;
-        if (StringUtils.hasLength(ann.keyGeneratorName())) {
-            cacheKeyGenerator = this.beanFactory.getBean(ann.keyGeneratorName(), CacheKeyGenerator.class);
-        }
-        else {
-            cacheKeyGenerator = this.beanFactory.getBean(AnnotationDrivenEhCacheBeanDefinitionParser.DEFAULT_CACHE_KEY_GENERATOR, CacheKeyGenerator.class);
-        }
+        final String keyGeneratorName = ann.keyGeneratorName();
+        final CacheKeyGenerator cacheKeyGenerator = getCacheKeyGenerator(keyGeneratorName);
         
         return new CacheableAttributeImpl(cache, exceptionCache, cacheKeyGenerator, entryFactory);
     }
@@ -317,15 +312,27 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     protected TriggersRemoveAttribute parseTriggersRemoveAnnotation(TriggersRemove ann) {
         final Ehcache cache = this.getCache(ann.cacheName());
 
+        final String keyGeneratorName = ann.keyGeneratorName();
+        final CacheKeyGenerator cacheKeyGenerator = getCacheKeyGenerator(keyGeneratorName);
+        
+        return new TriggersRemoveAttributeImpl(cache, cacheKeyGenerator, ann.removeAll());
+    }
+    
+    /**
+     * Get the {@link CacheKeyGenerator} by name. Returning a default generator if the name is empty or null
+     * 
+     * @param keyGeneratorName Name of the generator to retrieve
+     * @return The named generator or the default generator if the name was empty or null
+     */
+    protected CacheKeyGenerator getCacheKeyGenerator(final String keyGeneratorName) {
         final CacheKeyGenerator cacheKeyGenerator;
-        if (StringUtils.hasLength(ann.keyGeneratorName())) {
-            cacheKeyGenerator = this.beanFactory.getBean(ann.keyGeneratorName(), CacheKeyGenerator.class);
+        if (StringUtils.hasLength(keyGeneratorName)) {
+            cacheKeyGenerator = this.beanFactory.getBean(keyGeneratorName, CacheKeyGenerator.class);
         }
         else {
             cacheKeyGenerator = this.beanFactory.getBean(AnnotationDrivenEhCacheBeanDefinitionParser.DEFAULT_CACHE_KEY_GENERATOR, CacheKeyGenerator.class);
         }
-        
-        return new TriggersRemoveAttributeImpl(cache, cacheKeyGenerator, ann.removeAll());
+        return cacheKeyGenerator;
     }
 
     /**
