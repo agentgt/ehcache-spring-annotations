@@ -17,6 +17,7 @@
         </breadcrumbs>
     
     	<menu name="Spring EhCache ${project.version}">
+    		<item name="Home" href="index.html"/>
       		<item name="Usage" href="usage.html"/>
       		<item name="FAQ" href="faq.html"/>
     	</menu>

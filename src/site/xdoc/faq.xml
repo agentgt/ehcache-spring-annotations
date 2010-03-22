@@ -7,14 +7,14 @@
     <body>
 	<section name="Common Questions">
 	<ol>
-	<li><a href="#answer1">Why doesn't my method annotated with @TriggersRemove actually trigger a cache remove/removeAll?</a></li>
+	<li><a href="#answer1">Why doesn't my method annotated with @TriggersRemove actually trigger a cache remove?</a></li>
 	</ol>
 	</section>
 	
 	<section name="Answers">
 	<ol>
 	<li name="answer1">Make sure your method annotated with @TriggersRemove has the same arguments (type, number, and order) as another @Cacheable method. Don't put
-	@TriggersRemove on your @Cachable method.</li>
+	@TriggersRemove on any method also marked @Cacheable, as it will do exactly that.</li>
 	</ol>
 	</section>
 	</body>
