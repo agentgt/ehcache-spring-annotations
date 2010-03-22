@@ -159,8 +159,9 @@ public class EhCacheInterceptor implements MethodInterceptor {
             element = cache.get(key);
         }
         catch (Throwable t) {
-            this.cacheException(cacheableAttribute, key, t);
-            throw t;
+        	Throwable cause = t.getCause();
+            this.cacheException(cacheableAttribute, key, cause);
+            throw cause;
         }
         finally {
             entryFactory.remove();
