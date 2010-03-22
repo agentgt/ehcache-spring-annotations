@@ -8,9 +8,8 @@
 	<section name="Spring Configuration">
 	<p>In order to use the annotations in this package, you'll need the following elements in your spring configuration,
 	which will trigger the setup of the caching interceptors around your annotated methods:</p>
-	<pre>
-	<!--[CDATA 
-	<beans xmlns="http://www.springframework.org/schema/beans"
+	<source>
+<![CDATA[<beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ehcache="http://services.wisc.edu/schema/spring-ehcache"
     xmlns:tx="http://www.springframework.org/schema/tx"
@@ -24,20 +23,183 @@
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     	<property name="cacheManagerName" value="yourCacheManagerName"/>
     </bean>
-    -->
-	</pre>
+    ....rest of your spring configuration....
+</beans>]]>
+    </source>
+    <h4 name="configoptions">Configuration options</h4>
 	<p>The "config" element in this project's namespace (ehcache in the example above) supports the following attributes:</p>
 	<ul>
 	<li>'createMissingCaches' - This value is a boolean that gets passed into the CacheManager#setCreateCaches method, default value is false.</li>
 	</ul>
-	<p>Be sure to create an ehcache.xml file at the root of the classpath - <a href="http://ehcache.org/documentation/configuration.html" class="external">Ehcache Configuration</a>.</p>
+	<p>Be sure to create an ehcache.xml file at the root of the classpath - see <a href="http://ehcache.org/documentation/configuration.html" class="external">Ehcache Configuration</a>.</p>
 	</section>
 	<section name="Marking methods @Cacheable">
+	<p>The @Cacheable annotation can only be applied at the method level, but you can mark either methods in concrete classes or interfaces.</p>
 	
-	</section>
+	<h4>Example 1</h4>
+	<source>
+	
+public interface CacheableTestInterface {
+	@Cacheable(cacheName="myCache")
+   	public String interfaceAnnotatedCached(String argument);
+}
+
+	</source>
+	<p>Any class that implements this interface will be wrapped by the Ehcache with the name "myCache" defined by your CacheManager. If you set
+	<a name="configOptions">createMissingCaches</a> to true, an Ehcache will be created upon first invocation with the default parameters.</p>
+	
+	<h4>Example 2</h4>
+	<source>
+	
+public interface CacheableTestInterface {
+   	public String interfaceAnnotatedCached(String argument);
+}
+public class CacheableTestImpl implements CacheableTestInterface {
+  	@Cacheable(cacheName="myCache")
+  	public String interfaceAnnotatedCached(String argument) {
+     	return "interfaceAnnotatedCached says: " + argument;
+   	}
+}
+	</source>
+	<p>This example shows a preferable approach to Example 1, with the implementation of the method marked as @Cacheable. This is preferable as you may
+	have alternate implementations of your interface that do not require caching.</p>
+	
+	<h4>Example 3</h4>
+	<source>
+	
+public interface CacheableTestInterface {
+   	public String interfaceAnnotatedCached(String argument);
+}
+public class CacheableTestImpl implements CacheableTestInterface {
+   	@Cacheable(cacheName="myCache")
+   	public String interfaceAnnotatedCached(String argument) {
+      	return "interfaceAnnotatedCached says: " + argument;
+   	}
+}
+	</source>
+	<p>This example shows a preferable approach to Example 1, with the implementation of the method marked as @Cacheable. This is preferable as you may
+	have alternate implementations of your interface that do not require caching.</p>
+	
+	<h4>Example 4</h4>
+	<source>
+	
+public interface CacheableTestInterface {
+   	public String interfaceAnnotatedCached(String argument);
+}
+public class CacheableTestImpl implements CacheableTestInterface {
+   	@Cacheable(cacheName="myCache", selfPopulating=true)
+   	public String interfaceAnnotatedCached(String argument) {
+       	return "interfaceAnnotatedCached says: " + argument;
+  	}
+}
+	</source>
+	<p>In this example, the selfPopulating field for the @Cacheable annotation is set to true. In this case, a net.sf.ehcache.constructs.blocking.SelfPopulatingCache
+	is created to wrap the cache with the name "myCache." Ehcache SelfPopulatingCaches require a net.sf.ehcache.constructs.blocking.CacheEntryFactory - this library
+	will create one for you at runtime.</p>
+	
+	<h4>Example 5</h4>
+	<source>
+	
+public interface CacheableTestInterface {
+   	public String interfaceAnnotatedCached(String argument) throws SomeDaoException;
+}
+public class CacheableTestImpl implements CacheableTestInterface {
+   	@Cacheable(cacheName="myCache", exceptionCacheName="myExceptionCache")
+   	public String interfaceAnnotatedCached(String argument) throws SomeDaoException {
+       	return "interfaceAnnotatedCached says: " + argument;
+   	}
+}
+	</source>
+	<p>The exceptionCacheName attribute allows you to specify a named cache to use for holding Exceptions, useful for implementations that depend on remote
+	services (like a database). This configuration option would allow you to configure a timeToLive cache that prevented your implementation from continuing
+	to invoke remote operations while problems continue.</p>
+	
+	<h4>Example 6</h4>
+	<source>
+	
+public interface CacheableTestInterface {
+   	public String interfaceAnnotatedCached(String argument) throws SomeDaoException;
+}
+public class CacheableTestImpl implements CacheableTestInterface {
+   	@Cacheable(cacheName="myCache", keyGeneratorName="myCustomKeyGenerator")
+  	public String interfaceAnnotatedCached(String argument) throws SomeDaoException {
+      	return "interfaceAnnotatedCached says: " + argument;
+   	}
+}
+	</source>
+	<p>The @Cacheable annotation supplies a default mechanism for generating Cache keys (see edu.wisc.services.cache.key.CacheKeyGenerator) that uses reflection
+	to calculate a hashCode based key from the MethodInvocation (class, method, and arguments). If you need to override this behavior, create an implementation
+	of edu.wisc.services.cache.key.CacheKeyGenerator in your project, specify an instance in your Spring configuration, and pass the bean name into the
+	keyGeneratorName attribute. We generally recommend that you do not override the default CacheKeyGenerator, use this only if you truly understand the consequences.</p>
+	
+	</section> <!-- END Marking methods @Cacheable -->
 	
 	<section name="Marking methods @TriggersRemove">
-		
-	</section>
+	<p>The @TriggersRemove annotation is used to decorate methods that should result in removing elements in the cache. For example, you may want @Cacheable around
+	read methods in a CRUD style DAO, and @TriggersRemove around the update/delete methods to insure changes to objects get reflected in your cache.</p>
+	<h4>Example 1</h4>
+<source>
+
+public interface CRUDInterface {
+	public String create(int id, String newValue);
+   	public String retrieve(int id);
+   	public String update(int id, String newValue);
+   	public String delete(int id);
+}
+public class CRUDImpl implements CRUDInterface {
+   	public String create(int id, String newValue){
+    	...
+    
+   	@Cacheable(cacheName="myCache")
+   	public String retrieve(int id){
+    	...
+    }
+   	public String update(int id, String newValue){
+    	...
+    }
+   	@TriggersRemove(cacheName="myCache")
+   	public String delete(int id){
+    	...
+    }
+}</source>
+    <p>Whenever the delete method is called on this DAO, the @TriggersRemove annotation causes the element with the corresponding id to be removed.</p>
+    <p>This example highlights a limitation of @TriggersRemove: <strong>the method decorated with @TriggersRemove must specify the same cacheName as another method
+    that is marked with @Cacheable AND have the EXACT same types, order, and number of method arguments.</strong> In order to get the right Element to remove from
+    the Ehcache, we depend on the method arguments and a special CacheKeyGenerator used when @TriggersRemove is present.</p>
+    <h4>Example 2</h4>
+	<source>
+
+public interface CRUDInterface {
+	public String create(int id, String newValue);
+   	public String retrieve(int id);
+   	public String update(int id, String newValue);
+   	public String delete(int id);
+   	public void flushCache();
+}
+public class CRUDImpl implements CRUDInterface {
+   	public String create(int id, String newValue) {
+	   	...
+  	}
+   	@Cacheable(cacheName="myCache")
+   	public String retrieve(int id) {
+    	...
+   	}
+   	@TriggersRemove(cacheName="myCache", removeAll=true)
+   	public String update(int id, String newValue){
+    	...
+   	}
+   	@TriggersRemove(cacheName="myCache", removeAll=true)
+   	public String delete(int id) {
+    	...
+   	}
+   	@TriggersRemove(cacheName="myCache", removeAll=true)
+   	public void flushCache(){ }
+    	
+    }
+}</source>
+    <p>The @TriggersRemove annotation also supports an attribute named 'removeAll' that when true, doesn't bother with the CacheKeyGenerator and simply
+    removes ALL elements in the Ehcache (removeAll() method). This example highlights that the method argument restriction shown in Example 1 does not
+    exist when removeAll is true, you can decorate ANY method. Typically, you might only have one method with removeAll=true.</p>
+	</section> <!-- END Marking methods @TriggersRemove -->
     </body>
 </document>
