@@ -31,7 +31,7 @@ public interface SelfPopulatingTestInterface {
 	public int getAInvocationCount();
 	public int getBInvocationCount();
 	
-    @Cacheable(cacheName="interfaceAnnotatedCache", exceptionCacheName="interfaceAnnotatedExceptionCache")
+    @Cacheable(cacheName="interfaceAnnotatedCache", selfPopulating=true, exceptionCacheName="interfaceAnnotatedExceptionCache")
     public String interfaceAnnotatedExceptionCached(boolean throwsException);
     public int interfaceAnnotatedExceptionCachedCount();
     public int interfaceAnnotatedExceptionCachedThrowsCount();
