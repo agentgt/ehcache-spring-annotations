@@ -21,6 +21,8 @@ package edu.wisc.services.cache.integration;
 
 import junit.framework.Assert;
 
+import net.sf.ehcache.CacheManager;
+
 import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -34,6 +36,9 @@ import edu.wisc.services.cache.CacheNotFoundException;
  */
 public class ConfigurationFailureTest {
 
+	/**
+	 * Test verifies behavior when no {@link CacheManager} is defined in the Spring configuration.
+	 */
     @Test
     public void testNoCacheManager() {
         try {
@@ -47,6 +52,11 @@ public class ConfigurationFailureTest {
         }
     }
     
+    /**
+     * Test verifies behavior when no {@link Ehcache} is defined for
+     * the cacheName attribute on the  {@link Cacheable} annotated method AND
+     * 'createMissingCaches' is false.
+     */
     @Test
     public void testNoCache() {
         try {
@@ -54,13 +64,16 @@ public class ConfigurationFailureTest {
             Assert.fail("Test should have failed with no Cache defined");
         }
         catch (BeanCreationException bce) {
-            Assert.assertEquals("cacheableTestImpl", bce.getBeanName());
+            Assert.assertEquals("missingCacheNameImpl", bce.getBeanName());
             final CacheNotFoundException cnfe = (CacheNotFoundException)bce.getCause();
-            Assert.assertEquals("interfaceDefined", cnfe.getCacheName());
+            Assert.assertEquals("nonexistent", cnfe.getCacheName());
         }
     }
     
-
+    /**
+     * Test verifies behavior when no {@link CacheKeyGenerator} is defined for
+     * the cacheKeyGenerator attribute on the {@link Cacheable} annotated method.
+     */
     @Test
     public void testNoCacheKeyGenerator() {
         try {

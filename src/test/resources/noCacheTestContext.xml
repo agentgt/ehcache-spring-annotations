@@ -29,7 +29,7 @@
 
     <ehcache:config/>
     
-    <bean id="cacheableTestImpl" class="edu.wisc.services.cache.integration.CacheableTestImpl"/>
+    <bean id="missingCacheNameImpl" class="edu.wisc.services.cache.integration.MissingCacheNameImpl"/>
     
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     </bean>
