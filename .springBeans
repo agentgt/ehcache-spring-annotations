@@ -10,6 +10,10 @@
 		<config>src/test/resources/cacheableTestContext.xml</config>
 		<config>src/test/resources/selfPopulatingTestContext.xml</config>
 		<config>src/test/resources/triggersRemoveTestContext.xml</config>
+		<config>src/test/resources/cacheKeyGeneratorTestContext.xml</config>
+		<config>src/test/resources/noCacheKeyGeneratorTestContext.xml</config>
+		<config>src/test/resources/noCacheManagerTestContext.xml</config>
+		<config>src/test/resources/noCacheTestContext.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

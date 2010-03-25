@@ -26,7 +26,7 @@
     <p>The inspiration for this project was the apparent demise of the <a href="https://springmodules.dev.java.net/">SpringModules Project</a>. SpringModules' Ehcache
     integration was used for a number of projects contributed to by the authors of Spring Ehcache annotations. When it was discovered that SpringModules no longer
     worked with version 3 of the Spring Framework, Spring Ehcache annotations was born.</p>
-    <p>The <a href="team-list.html">authors</a> would like to give credit to the authors of SpringModules' Ehcache integration. The classes in edu.wisc.services.utils and edu.wisc.services.cache.utils come 
+    <p>The <a href="team-list.html">authors</a> would like to give credit to the authors of SpringModules' Ehcache integration. The classes in com.googlecode.ecache.annotations.utils and com.googlecode.ecache.annotations.utils come 
     directly from the SpringModules project with little or no modification.</p>
     <p>The @Cacheable annotation and it's application is largely modeled after the @Transactional annotation in the Spring Framework.</p>
      <section name="Dependencies">
