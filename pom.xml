@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>edu.wisc.services</groupId>
+	<groupId>com.googlecode.ehcache-spring-annotations</groupId>
 	<artifactId>ehcache-spring-annotations</artifactId>
-	<name>spring-ehcache</name>
+	<name>Ehcache Spring Annotations</name>
 	<version>0.0.1-SNAPSHOT</version>
 	<description>Provides a simple model for integrating Ehcache in a Spring project via annotations.</description>
     <url>http://code.google.com/p/ehcache-spring-annotations/</url>
@@ -30,10 +30,15 @@
 	</licenses>
     
     <scm>
-        <connection>http://ehcache-spring-annotations.googlecode.com/svn/trunk/</connection>
-        <developerConnection>https://ehcache-spring-annotations.googlecode.com/svn/trunk/</developerConnection>
+        <connection>scm:svn:http://ehcache-spring-annotations.googlecode.com/svn/trunk/</connection>
+        <developerConnection>scm:svn:https://ehcache-spring-annotations.googlecode.com/svn/trunk/</developerConnection>
         <url>http://ehcache-spring-annotations.googlecode.com/svn/trunk/</url>
     </scm>
+    
+    <issueManagement>
+        <url>http://code.google.com/p/ehcache-spring-annotations/issues</url>
+        <system>Google Code</system>
+    </issueManagement>
 
 	<properties>
 		<ehcache.version>2.0.0</ehcache.version>
