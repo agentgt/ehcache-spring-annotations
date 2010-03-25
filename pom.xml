@@ -2,10 +2,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.wisc.services</groupId>
-	<artifactId>spring-ehcache</artifactId>
+	<artifactId>ehcache-spring-annotations</artifactId>
 	<name>spring-ehcache</name>
 	<version>0.0.1-SNAPSHOT</version>
 	<description>Provides a simple model for integrating Ehcache in a Spring project via annotations.</description>
+    <url>http://code.google.com/p/ehcache-spring-annotations/</url>
 
 	<developers>
 		<developer>
@@ -27,9 +28,12 @@
     		<distribution>repo</distribution>
 		</license>
 	</licenses>
-	<organization>
-		<name>University of Wisconsin-Madison</name>
-	</organization>
+    
+    <scm>
+        <connection>http://ehcache-spring-annotations.googlecode.com/svn/trunk/</connection>
+        <developerConnection>https://ehcache-spring-annotations.googlecode.com/svn/trunk/</developerConnection>
+        <url>http://ehcache-spring-annotations.googlecode.com/svn/trunk/</url>
+    </scm>
 
 	<properties>
 		<ehcache.version>2.0.0</ehcache.version>
