@@ -26,7 +26,6 @@ public class CacheKeyGeneratorTestImpl implements CacheKeyGeneratorTestInterface
     /* (non-Javadoc)
      * @see com.googlecode.ecache.annotations.integration.CacheConfigurationTestInterface#singleCachedCall(java.lang.String)
      */
-    @Override
     public String singleCachedCall(String argument) {
         this.singleCachedCall++;
         return "singleCachedCall(" + argument + ")";
@@ -35,7 +34,6 @@ public class CacheKeyGeneratorTestImpl implements CacheKeyGeneratorTestInterface
     /* (non-Javadoc)
      * @see com.googlecode.ecache.annotations.integration.CacheConfigurationTestInterface#singleCachedCallCount()
      */
-    @Override
     public int singleCachedCallCount() {
         return this.singleCachedCall;
     }

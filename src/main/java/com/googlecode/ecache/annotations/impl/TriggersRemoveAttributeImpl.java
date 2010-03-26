@@ -42,7 +42,6 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
 		this.removeAll = removeAll;
 	}
     
-    @Override
     public AdviceType getAdviceType() {
         return AdviceType.REMOVE;
     }
@@ -50,7 +49,6 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
 	/* (non-Javadoc)
 	 * @see com.googlecode.ecache.annotations.FlushableAttribute#getCache()
 	 */
-	@Override
 	public Ehcache getCache() {
 		return this.cache;
 	}
@@ -58,7 +56,6 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
 	/* (non-Javadoc)
 	 * @see com.googlecode.ecache.annotations.FlushableAttribute#isRemoveAll()
 	 */
-	@Override
 	public boolean isRemoveAll() {
 		return this.removeAll;
 	}
@@ -66,7 +63,6 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
 	/* (non-Javadoc)
 	 * @see com.googlecode.ecache.annotations.FlushableAttribute#getCacheKeyGenerator()
 	 */
-	@Override
 	public CacheKeyGenerator getCacheKeyGenerator() {
 		return this.cacheKeyGenerator;
 	}

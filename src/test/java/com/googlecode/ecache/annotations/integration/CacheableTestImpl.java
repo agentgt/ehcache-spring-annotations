@@ -30,7 +30,6 @@ public class CacheableTestImpl implements CacheableTestInterface {
     private int interfaceAnnotatedNoArgCachedCount = 0;
     private int interfaceDefinedCount = 0;
     
-    @Override
     public String interfaceAnnotatedExceptionCached(boolean throwsException) {
         if (throwsException) {
             this.interfaceAnnotatedExceptionCachedThrowsCount++;
@@ -41,46 +40,38 @@ public class CacheableTestImpl implements CacheableTestInterface {
         return "interfaceAnnotatedExceptionCached(" + throwsException + ")";
     }
 
-    @Override
     public int interfaceAnnotatedExceptionCachedCount() {
         return this.interfaceAnnotatedExceptionCachedCount;
     }
 
-    @Override
     public int interfaceAnnotatedExceptionCachedThrowsCount() {
         return this.interfaceAnnotatedExceptionCachedThrowsCount;
     }
 
-    @Override
     public String interfaceAnnotatedCached(String argument) {
         this.interfaceAnnotatedCachedCount++;
         return "interfaceAnnotatedCached(" + argument + ")";
     }
 
-    @Override
     public int interfaceAnnotatedCachedCount() {
         return this.interfaceAnnotatedCachedCount;
     }
 
-    @Override
     public String interfaceAnnotatedNoArgCached() {
         this.interfaceAnnotatedNoArgCachedCount++;
         return "interfaceAnnotatedNoArgCached()";
     }
 
-    @Override
     public int interfaceAnnotatedNoArgCachedCount() {
         return this.interfaceAnnotatedNoArgCachedCount;
     }
 
-    @Override
     @Cacheable(cacheName="interfaceDefined")
     public String interfaceDefined(String argument) {
         this.interfaceDefinedCount++;
         return "interfaceDefined(" + argument + ")";
     }
 
-    @Override
     public int interfaceDefinedCount() {
         return this.interfaceDefinedCount;
     }

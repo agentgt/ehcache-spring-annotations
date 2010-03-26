@@ -76,7 +76,6 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     private String cacheManagerBeanName;
     private boolean createCaches = false;
 
-    @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
     }
@@ -90,7 +89,6 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     /* (non-Javadoc)
      * @see com.googlecode.ecache.annotations.CacheAttributeSource#getAdviceType(java.lang.reflect.Method, java.lang.Class)
      */
-    @Override
     public AdviceType getAdviceType(Method method, Class<?> targetClass) {
         final MethodAttribute methodAttribute = this.getMethodAttribute(method, targetClass);
         if (methodAttribute != null) {
@@ -103,7 +101,6 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     /* (non-Javadoc)
      * @see com.googlecode.ecache.annotations.CacheAttributeSource#getCacheableAttribute(java.lang.reflect.Method, java.lang.Class)
      */
-    @Override
     public CacheableAttribute getCacheableAttribute(Method method, Class<?> targetClass) {
         final MethodAttribute methodAttribute = this.getMethodAttribute(method, targetClass);
         if (methodAttribute != null && AdviceType.CACHE == methodAttribute.getAdviceType()) {
@@ -116,7 +113,6 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     /* (non-Javadoc)
      * @see com.googlecode.ecache.annotations.CacheAttributeSource#getTriggersRemoveAttribute(java.lang.reflect.Method, java.lang.Class)
      */
-    @Override
     public TriggersRemoveAttribute getTriggersRemoveAttribute(Method method, Class<?> targetClass) {
         final MethodAttribute methodAttribute = this.getMethodAttribute(method, targetClass);
         if (methodAttribute != null && AdviceType.REMOVE == methodAttribute.getAdviceType()) {
@@ -357,7 +353,6 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     private static class ThreadLocalCacheEntryFactory implements CacheEntryFactory {
         public final ThreadLocal<MethodInvocation> entryFactory = new ThreadLocal<MethodInvocation>();
 
-        @Override
         public Object createEntry(Object arg0) throws Exception {
             final MethodInvocation methodInvocation = this.entryFactory.get();
             if (methodInvocation == null) {

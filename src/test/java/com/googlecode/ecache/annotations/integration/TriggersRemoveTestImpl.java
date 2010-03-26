@@ -29,7 +29,6 @@ public class TriggersRemoveTestImpl implements TriggersRemoveTestInterface {
 	/* (non-Javadoc)
 	 * @see com.googlecode.ecache.annotations.TriggersRemoveTestInterface#implMethodTriggersFlush()
 	 */
-	@Override
 	@TriggersRemove(cacheName="triggersRemoveCountingCache")
     public void implMethodTriggersRemove() {
     }
@@ -37,21 +36,18 @@ public class TriggersRemoveTestImpl implements TriggersRemoveTestInterface {
     /* (non-Javadoc)
 	 * @see com.googlecode.ecache.annotations.TriggersRemoveTestInterface#methodTriggersFlush()
 	 */
-	@Override
 	public void methodTriggersRemove() {
 	}
 
 	/* (non-Javadoc)
 	 * @see com.googlecode.ecache.annotations.TriggersRemoveTestInterface#methodTriggersFlushAndRemoveAll()
 	 */
-	@Override
 	public void methodTriggersRemoveAll() {
 	}
 
 	/* (non-Javadoc)
 	 * @see com.googlecode.ecache.annotations.TriggersRemoveTestInterface#notFlushableMethod()
 	 */
-	@Override
 	public void notTriggersRemoveMethod() {
 	}
 }

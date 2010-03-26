@@ -44,27 +44,22 @@ class CacheableAttributeImpl implements CacheableAttribute {
         this.entryFactory = entryFactory;
     }
     
-    @Override
     public AdviceType getAdviceType() {
         return AdviceType.CACHE;
     }
 
-    @Override
     public Ehcache getCache() {
         return this.cache;
     }
 
-    @Override
     public CacheKeyGenerator getCacheKeyGenerator() {
         return this.cacheKeyGenerator;
     }
 
-    @Override
     public Ehcache getExceptionCache() {
         return this.exceptionCache;
     }
     
-    @Override
     public ThreadLocal<MethodInvocation> getEntryFactory() {
         return this.entryFactory;
     }

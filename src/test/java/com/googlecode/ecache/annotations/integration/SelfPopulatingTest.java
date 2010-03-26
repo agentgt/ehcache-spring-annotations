@@ -60,13 +60,11 @@ public class SelfPopulatingTest {
 		
 		// set up 2 threads 
 		Thread t1 = new Thread(new Runnable() {	
-			@Override
 			public void run() {
 				selfPopulatingTestInterface.methodB("foo");
 			}
 		});
 		Thread t2 = new Thread(new Runnable() {	
-			@Override
 			public void run() {
 				selfPopulatingTestInterface.methodB("foo");
 			}
@@ -107,14 +105,12 @@ public class SelfPopulatingTest {
 		
 		// set up 2 threads 
 		Thread t1 = new Thread(new Runnable() {	
-			@Override
 			public void run() {
 			    threadRunningLatch.countDown();
 				selfPopulatingTestInterface.methodA("foo");
 			}
 		}, "t1");
 		Thread t2 = new Thread(new Runnable() {	
-			@Override
 			public void run() {
 			    threadRunningLatch.countDown();
 				selfPopulatingTestInterface.methodA("foo");

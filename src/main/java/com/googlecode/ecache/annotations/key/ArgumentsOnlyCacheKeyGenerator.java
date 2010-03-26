@@ -73,7 +73,6 @@ public class ArgumentsOnlyCacheKeyGenerator implements CacheKeyGenerator {
 	 * @see ArrayList
 	 * @see CacheKeyGenerator#generateKey(MethodInvocation)
 	 */
-	@Override
 	public Serializable generateKey(MethodInvocation methodInvocation) {
 		Object [] arguments = methodInvocation.getArguments();
 		ArrayList<Serializable> resultList = new ArrayList<Serializable>();

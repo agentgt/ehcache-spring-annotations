@@ -42,7 +42,6 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
         this.proccedLatch = proccedLatch;
     }
 
-    @Override
 	@Cacheable(cacheName="blockingCache", selfPopulating=true)
 	public String methodA(String argument) {
 	    threadRunningLatch.countDown();
@@ -56,7 +55,6 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
 		return "methodA says: " + argument;
 	}
 	
-	@Override
 	@Cacheable(cacheName="blockingCache", selfPopulating=false)
 	public String methodB(String argument) {
 	    threadRunningLatch.countDown();
@@ -70,16 +68,13 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
 		return "methodB says: " + argument;
 	}
 	
-	@Override
 	public int getAInvocationCount() {
 		return this.aInvocationCount;
 	}
-	@Override
 	public int getBInvocationCount() {
 		return this.bInvocationCount;
 	}
 	
-    @Override
     public String interfaceAnnotatedExceptionCached(boolean throwsException) {
         threadRunningLatch.countDown();
         try {
@@ -98,12 +93,10 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
         return "interfaceAnnotatedExceptionCached(" + throwsException + ")";
     }
 
-    @Override
     public int interfaceAnnotatedExceptionCachedCount() {
         return this.interfaceAnnotatedExceptionCachedCount;
     }
 
-    @Override
     public int interfaceAnnotatedExceptionCachedThrowsCount() {
         return this.interfaceAnnotatedExceptionCachedThrowsCount;
     }

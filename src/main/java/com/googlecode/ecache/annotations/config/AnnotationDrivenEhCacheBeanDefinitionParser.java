@@ -50,7 +50,6 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
     /* (non-Javadoc)
      * @see org.springframework.beans.factory.xml.BeanDefinitionParser#parse(org.w3c.dom.Element, org.springframework.beans.factory.xml.ParserContext)
      */
-    @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
         if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME)) {

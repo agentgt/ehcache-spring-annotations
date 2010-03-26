@@ -57,7 +57,6 @@ public class EhCacheInterceptor implements MethodInterceptor {
     /* (non-Javadoc)
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */
-    @Override
     public final Object invoke(final MethodInvocation methodInvocation) throws Throwable {
         final Method method = methodInvocation.getMethod();
         final Class<?> targetClass = (methodInvocation.getThis() != null ? methodInvocation.getThis().getClass() : null);

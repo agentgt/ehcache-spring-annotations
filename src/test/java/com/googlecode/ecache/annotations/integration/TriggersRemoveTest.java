@@ -106,51 +106,36 @@ public class TriggersRemoveTest  {
             return this.removeCount;
         }
 
-        @Override
 		public void dispose() {
 		}
-		@Override
 		public void notifyCacheElementEvicted() {
 		}
-		@Override
 		public void notifyCacheElementExpired() {
 		}
-		@Override
 		public void notifyCacheElementPut() {
 		}
-		@Override
 		public void notifyCacheElementRemoved() {
             this.removeCount++;
 		}
-		@Override
 		public void notifyCacheElementUpdated() {
 		}
-		@Override
 		public void notifyCacheHitInMemory() {
 		}
-		@Override
 		public void notifyCacheHitOnDisk() {
 		}
-		@Override
 		public void notifyCacheMissedWithExpired() {
 		}
-		@Override
 		public void notifyCacheMissedWithNotFound() {
 		}
-		@Override
 		public void notifyRemoveAll() {
 			this.removeAllCount++;
 		}
-		@Override
 		public void notifyStatisticsAccuracyChanged(int arg0) {
 		}
-		@Override
 		public void notifyStatisticsCleared() {
 		}
-		@Override
 		public void notifyStatisticsEnabledChanged(boolean arg0) {
 		}
-		@Override
 		public void notifyTimeTakenForGet(long arg0) {
 		}
 	}

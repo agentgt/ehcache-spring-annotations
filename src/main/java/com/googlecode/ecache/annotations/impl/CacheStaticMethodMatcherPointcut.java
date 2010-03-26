@@ -42,7 +42,6 @@ public class CacheStaticMethodMatcherPointcut extends StaticMethodMatcherPointcu
      * method returns an {@link AdviceType} other than {@link AdviceType#NONE}.
      * @see org.springframework.aop.MethodMatcher#matches(java.lang.reflect.Method, java.lang.Class)
      */
-    @Override
     public boolean matches(Method method, Class<?> targetClass) {
         return AdviceType.NONE != this.cacheAttributeSource.getAdviceType(method, targetClass);
     }
