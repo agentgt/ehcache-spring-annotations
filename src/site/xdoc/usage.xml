@@ -47,7 +47,8 @@
     <h4 name="configoptions">Configuration options</h4>
 	<p>The "config" element in this project's namespace (ehcache in the example above) supports the following attributes:</p>
 	<ul>
-	<li>'createMissingCaches' - This value is a boolean that gets passed into the CacheManager#setCreateCaches method, default value is false.</li>
+	<li>'create-missing-caches' - This value is a boolean that gets passed into the CacheManager#setCreateCaches method, default value is false.</li>
+	<li>'default-cache-key-generator' - This value allows you to specify an alternate bean name that you have defined elsewhere in the Spring configuration that should be used as the default CacheKeyGenerator.</li>
 	</ul>
 	<p>Be sure to create an ehcache.xml file at the root of the classpath - see <a href="http://ehcache.org/documentation/configuration.html" class="external">Ehcache Configuration</a>.</p>
 	</section>

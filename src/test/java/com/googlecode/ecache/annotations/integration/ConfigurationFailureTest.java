@@ -87,6 +87,22 @@ public class ConfigurationFailureTest {
             Assert.assertEquals("customKeyGenerator", nsbd.getBeanName());
         }
     }
+    
+    /**
+     * Test verifies behavior when the "default-cache-key-generator" attribute
+     * on the main config element refers to a bean name that does not exist. 
+     */
+    @Test
+    public void testMissingOverrideDefaultCacheKeyGenerator() {
+    	try {
+            new ClassPathXmlApplicationContext("/noOverrideDefaultCacheKeyGeneratorTestContext.xml");
+            Assert.fail("Test should have failed with due to missing bean for default-cache-key-generator");
+        }
+        catch (BeanCreationException bce) {
+            final NoSuchBeanDefinitionException nsbd = (NoSuchBeanDefinitionException)bce.getCause();
+            Assert.assertEquals("undefinedCustomCacheKeyGenerator", nsbd.getBeanName());
+        }
+    }
 }
 
 

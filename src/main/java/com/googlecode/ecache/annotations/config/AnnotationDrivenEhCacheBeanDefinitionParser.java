@@ -45,7 +45,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
 
     public static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = "com.googlecode.ecache.annotations.config.internalEhCacheCachingAdvisor";
     
-    public static final String DEFAULT_CACHE_KEY_GENERATOR = HashCodeCacheKeyGenerator.class.getName() + "_DEFFAULT";
+    public static final String DEFAULT_CACHE_KEY_GENERATOR = HashCodeCacheKeyGenerator.class.getName() + "_DEFAULT";
     
     /* (non-Javadoc)
      * @see org.springframework.beans.factory.xml.BeanDefinitionParser#parse(org.w3c.dom.Element, org.springframework.beans.factory.xml.ParserContext)
@@ -55,11 +55,25 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME)) {
             Object elementSource = parserContext.extractSource(element);
             
+            String defaultCacheKeyGeneratorName = element.getAttribute("default-cache-key-generator");
+            RuntimeBeanReference overrideDefaultCacheKeyGenerator = null;
+            if(null == defaultCacheKeyGeneratorName || "".equals(defaultCacheKeyGeneratorName)) {
+            	final RootBeanDefinition defaultKeyGenerator = new RootBeanDefinition(HashCodeCacheKeyGenerator.class);
+                defaultKeyGenerator.setSource(elementSource);
+                defaultKeyGenerator.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+                parserContext.getRegistry().registerBeanDefinition(DEFAULT_CACHE_KEY_GENERATOR, defaultKeyGenerator);
+            } else {
+            	overrideDefaultCacheKeyGenerator = new RuntimeBeanReference(defaultCacheKeyGeneratorName);
+            }
+            
             RootBeanDefinition cacheAttributeSource = new RootBeanDefinition(CacheAttributeSourceImpl.class);
             cacheAttributeSource.setSource(elementSource);
             cacheAttributeSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
             cacheAttributeSource.getPropertyValues().add("cacheManagerBeanName", element.getAttribute("cache-manager"));
             cacheAttributeSource.getPropertyValues().add("createCaches", Boolean.parseBoolean(element.getAttribute("create-missing-caches")));
+            if(null != overrideDefaultCacheKeyGenerator) {
+            	cacheAttributeSource.getPropertyValues().add("defaultCacheKeyGenerator", overrideDefaultCacheKeyGenerator);
+            }
             String cacheableAttributeSourceBeanName = parserContext.getReaderContext().registerWithGeneratedName(cacheAttributeSource);
             RuntimeBeanReference cacheableAttributeSourceRuntimeReference = new RuntimeBeanReference(cacheableAttributeSourceBeanName);
             
@@ -82,12 +96,6 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
             cachingPointcutAdvisorSource.getPropertyValues().add("adviceBeanName", cachingInterceptorBeanName);
             cachingPointcutAdvisorSource.getPropertyValues().add("pointcut", new RuntimeBeanReference(cacheablePointcutBeanName));
             parserContext.getRegistry().registerBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME, cachingPointcutAdvisorSource);
-            
-            
-            final RootBeanDefinition defaultKeyGenerator = new RootBeanDefinition(HashCodeCacheKeyGenerator.class);
-            defaultKeyGenerator.setSource(elementSource);
-            defaultKeyGenerator.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            parserContext.getRegistry().registerBeanDefinition(DEFAULT_CACHE_KEY_GENERATOR, defaultKeyGenerator);
            
         }
         return null;
