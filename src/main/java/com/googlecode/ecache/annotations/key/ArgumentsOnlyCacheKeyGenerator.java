@@ -49,6 +49,14 @@ import com.googlecode.ecache.annotations.util.Reflections;
 public class ArgumentsOnlyCacheKeyGenerator implements CacheKeyGenerator {
 
 	private boolean overrideArgumentHashCode = false;
+	
+	public ArgumentsOnlyCacheKeyGenerator() {
+	}
+	
+	public ArgumentsOnlyCacheKeyGenerator(boolean overrideArgumentHashCode){
+        this.overrideArgumentHashCode = overrideArgumentHashCode;
+    }
+	
 	/**
 	 * @param overrideArgumentHashCode the overrideArgumentHashCode to set
 	 */

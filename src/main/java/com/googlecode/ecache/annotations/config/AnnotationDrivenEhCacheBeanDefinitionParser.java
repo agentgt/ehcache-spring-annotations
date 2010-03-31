@@ -32,15 +32,15 @@ import org.springframework.beans.factory.xml.XmlReaderContext;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
-import com.googlecode.ecache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ecache.annotations.CacheAttributeSource;
 import com.googlecode.ecache.annotations.Cacheable;
+import com.googlecode.ecache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ecache.annotations.TriggersRemove;
 import com.googlecode.ecache.annotations.impl.CacheAttributeSourceImpl;
 import com.googlecode.ecache.annotations.impl.CacheStaticMethodMatcherPointcut;
 import com.googlecode.ecache.annotations.interceptor.EhCacheInterceptor;
 import com.googlecode.ecache.annotations.key.CacheKeyGenerator;
-import com.googlecode.ecache.annotations.key.HashCodeCacheKeyGenerator;
+import com.googlecode.ecache.annotations.key.SimpleHashCodeCacheKeyGenerator;
 
 
 /**
@@ -59,7 +59,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
 
     public static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAdvisor";
     
-    public static final Class<? extends CacheKeyGenerator> DEFAULT_CACHE_KEY_GENERATOR_CLASS = HashCodeCacheKeyGenerator.class;
+    public static final Class<? extends CacheKeyGenerator> DEFAULT_CACHE_KEY_GENERATOR_CLASS = SimpleHashCodeCacheKeyGenerator.class;
     public static final String DEFAULT_CACHE_KEY_GENERATOR = DEFAULT_CACHE_KEY_GENERATOR_CLASS.getName() + "_DEFAULT";
     
     

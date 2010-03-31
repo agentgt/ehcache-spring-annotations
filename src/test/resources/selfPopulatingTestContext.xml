@@ -31,5 +31,7 @@
     
     <bean id="selfPopulatingTestImpl" class="com.googlecode.ecache.annotations.integration.SelfPopulatingTestImpl"/>
     
-    <bean id="defaultCacheKeyGenerator" class="com.googlecode.ecache.annotations.key.ArgumentsOnlyCacheKeyGenerator" />
+    <bean id="defaultCacheKeyGenerator" class="com.googlecode.ecache.annotations.key.SimpleHashCodeCacheKeyGenerator">
+        <property name="includeMethod" value="false" /> 
+    </bean>
 </beans>

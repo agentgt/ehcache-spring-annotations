@@ -28,14 +28,14 @@ import org.aopalliance.intercept.MethodInvocation;
  * 
  * @author Alex Ruiz
  */
-public interface CacheKeyGenerator {
+public interface CacheKeyGenerator<T extends Serializable> {
 
-  /**
-   * Generates the key for a cache entry.
-   * 
-   * @param methodInvocation
-   *          the description of an invocation to the intercepted method.
-   * @return the created key.
-   */
-  Serializable generateKey(MethodInvocation methodInvocation);
+    /**
+     * Generates the key for a cache entry.
+     * 
+     * @param methodInvocation
+     *          the description of an invocation to the intercepted method.
+     * @return the created key.
+     */
+    T generateKey(MethodInvocation methodInvocation);
 }
