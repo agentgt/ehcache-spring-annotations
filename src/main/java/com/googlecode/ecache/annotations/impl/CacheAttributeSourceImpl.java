@@ -48,7 +48,6 @@ import com.googlecode.ecache.annotations.CacheableAttribute;
 import com.googlecode.ecache.annotations.MethodAttribute;
 import com.googlecode.ecache.annotations.TriggersRemove;
 import com.googlecode.ecache.annotations.TriggersRemoveAttribute;
-import com.googlecode.ecache.annotations.config.AnnotationDrivenEhCacheBeanDefinitionParser;
 import com.googlecode.ecache.annotations.key.CacheKeyGenerator;
 
 
@@ -86,13 +85,11 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     public void setCreateCaches(boolean createCaches) {
         this.createCaches = createCaches;
     }
-    /**
-	 * @param defaultCacheKeyGenerator the defaultCacheKeyGenerator to set
-	 */
-	public void setDefaultCacheKeyGenerator(
-			CacheKeyGenerator defaultCacheKeyGenerator) {
+	public void setDefaultCacheKeyGenerator(CacheKeyGenerator defaultCacheKeyGenerator) {
 		this.defaultCacheKeyGenerator = defaultCacheKeyGenerator;
 	}
+	
+	
 	/* (non-Javadoc)
      * @see com.googlecode.ecache.annotations.CacheAttributeSource#getAdviceType(java.lang.reflect.Method, java.lang.Class)
      */
@@ -346,11 +343,8 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         final CacheKeyGenerator cacheKeyGenerator;
         if (StringUtils.hasLength(keyGeneratorName)) {
             cacheKeyGenerator = this.beanFactory.getBean(keyGeneratorName, CacheKeyGenerator.class);
-        } else if (null != defaultCacheKeyGenerator){
+        } else {
         	cacheKeyGenerator = this.defaultCacheKeyGenerator;
-        }
-        else {
-            cacheKeyGenerator = this.beanFactory.getBean(AnnotationDrivenEhCacheBeanDefinitionParser.DEFAULT_CACHE_KEY_GENERATOR, CacheKeyGenerator.class);
         }
         return cacheKeyGenerator;
     }

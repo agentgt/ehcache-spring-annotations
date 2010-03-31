@@ -16,20 +16,29 @@
 
 package com.googlecode.ecache.annotations.config;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.springframework.aop.Pointcut;
+import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.config.AopNamespaceUtils;
 import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
+import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.beans.factory.xml.XmlReaderContext;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
+import com.googlecode.ecache.annotations.CacheAttributeSource;
 import com.googlecode.ecache.annotations.Cacheable;
 import com.googlecode.ecache.annotations.TriggersRemove;
 import com.googlecode.ecache.annotations.impl.CacheAttributeSourceImpl;
 import com.googlecode.ecache.annotations.impl.CacheStaticMethodMatcherPointcut;
 import com.googlecode.ecache.annotations.interceptor.EhCacheInterceptor;
+import com.googlecode.ecache.annotations.key.CacheKeyGenerator;
 import com.googlecode.ecache.annotations.key.HashCodeCacheKeyGenerator;
 
 
@@ -43,9 +52,26 @@ import com.googlecode.ecache.annotations.key.HashCodeCacheKeyGenerator;
  */
 public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefinitionParser {
 
-    public static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = "com.googlecode.ecache.annotations.config.internalEhCacheCachingAdvisor";
+    /**
+     * XSD Attribute
+     */
+    public static final String ATTR__CREATE_MISSING_CACHES = "create-missing-caches";
+
+    /**
+     * XSD Attribute
+     */
+    public static final String ATTR__CACHE_MANAGER = "cache-manager";
+
+    /**
+     * XSD Attribute
+     */
+    public static final String ATTR__DEFAULT_CACHE_KEY_GENERATOR = "default-cache-key-generator";
+
+    public static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAdvisor";
     
-    public static final String DEFAULT_CACHE_KEY_GENERATOR = HashCodeCacheKeyGenerator.class.getName() + "_DEFAULT";
+    public static final Class<? extends CacheKeyGenerator> DEFAULT_CACHE_KEY_GENERATOR_CLASS = HashCodeCacheKeyGenerator.class;
+    public static final String DEFAULT_CACHE_KEY_GENERATOR = DEFAULT_CACHE_KEY_GENERATOR_CLASS.getName() + "_DEFAULT";
+    
     
     /* (non-Javadoc)
      * @see org.springframework.beans.factory.xml.BeanDefinitionParser#parse(org.w3c.dom.Element, org.springframework.beans.factory.xml.ParserContext)
@@ -53,52 +79,123 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
         if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME)) {
-            Object elementSource = parserContext.extractSource(element);
+            final Object elementSource = parserContext.extractSource(element);
             
-            String defaultCacheKeyGeneratorName = element.getAttribute("default-cache-key-generator");
-            RuntimeBeanReference overrideDefaultCacheKeyGenerator = null;
-            if(null == defaultCacheKeyGeneratorName || "".equals(defaultCacheKeyGeneratorName)) {
-            	final RootBeanDefinition defaultKeyGenerator = new RootBeanDefinition(HashCodeCacheKeyGenerator.class);
-                defaultKeyGenerator.setSource(elementSource);
-                defaultKeyGenerator.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-                parserContext.getRegistry().registerBeanDefinition(DEFAULT_CACHE_KEY_GENERATOR, defaultKeyGenerator);
-            } else {
-            	overrideDefaultCacheKeyGenerator = new RuntimeBeanReference(defaultCacheKeyGeneratorName);
-            }
+            final RuntimeBeanReference defaultCacheKeyGeneratorReference = 
+                this.setupDefaultCacheKeyGenerator(element, parserContext, elementSource);
             
-            RootBeanDefinition cacheAttributeSource = new RootBeanDefinition(CacheAttributeSourceImpl.class);
-            cacheAttributeSource.setSource(elementSource);
-            cacheAttributeSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            cacheAttributeSource.getPropertyValues().add("cacheManagerBeanName", element.getAttribute("cache-manager"));
-            cacheAttributeSource.getPropertyValues().add("createCaches", Boolean.parseBoolean(element.getAttribute("create-missing-caches")));
-            if(null != overrideDefaultCacheKeyGenerator) {
-            	cacheAttributeSource.getPropertyValues().add("defaultCacheKeyGenerator", overrideDefaultCacheKeyGenerator);
-            }
-            String cacheableAttributeSourceBeanName = parserContext.getReaderContext().registerWithGeneratedName(cacheAttributeSource);
-            RuntimeBeanReference cacheableAttributeSourceRuntimeReference = new RuntimeBeanReference(cacheableAttributeSourceBeanName);
+            final RuntimeBeanReference cacheAttributeSourceReference = 
+                this.setupCacheAttributeSource(element, parserContext, elementSource, defaultCacheKeyGeneratorReference);
             
-            RootBeanDefinition cacheablePointcutSource = new RootBeanDefinition(CacheStaticMethodMatcherPointcut.class);
-            cacheablePointcutSource.setSource(elementSource);
-            cacheablePointcutSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            cacheablePointcutSource.getPropertyValues().add("cacheAttributeSource", cacheableAttributeSourceRuntimeReference);
-            String cacheablePointcutBeanName = parserContext.getReaderContext().registerWithGeneratedName(cacheablePointcutSource);
+            final RuntimeBeanReference pointcutReference = 
+                this.setupPointcut(parserContext, elementSource, cacheAttributeSourceReference);
             
-            RootBeanDefinition cachingInterceptorSource = new RootBeanDefinition(EhCacheInterceptor.class);
-            cachingInterceptorSource.setSource(elementSource);
-            cachingInterceptorSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            cachingInterceptorSource.getPropertyValues().add("cacheAttributeSource", cacheableAttributeSourceRuntimeReference);
-            String cachingInterceptorBeanName = parserContext.getReaderContext().registerWithGeneratedName(cachingInterceptorSource);
+            final RuntimeBeanReference interceptorReference = 
+                this.setupInterceptor(parserContext, elementSource, cacheAttributeSourceReference);
             
-            
-            RootBeanDefinition cachingPointcutAdvisorSource = new RootBeanDefinition(DefaultBeanFactoryPointcutAdvisor.class);
-            cachingPointcutAdvisorSource.setSource(elementSource);
-            cachingPointcutAdvisorSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-            cachingPointcutAdvisorSource.getPropertyValues().add("adviceBeanName", cachingInterceptorBeanName);
-            cachingPointcutAdvisorSource.getPropertyValues().add("pointcut", new RuntimeBeanReference(cacheablePointcutBeanName));
-            parserContext.getRegistry().registerBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME, cachingPointcutAdvisorSource);
+            this.setupPointcutAdvisor(parserContext, elementSource, pointcutReference, interceptorReference);
            
         }
         return null;
+    }
+
+    /**
+     * Setup the default cache key generator. 
+     * 
+     * @return A reference to the default cache key generator. Should never be null.
+     */
+    protected RuntimeBeanReference setupDefaultCacheKeyGenerator(Element element, ParserContext parserContext, Object elementSource) {
+        //If the default cache key generator was specified simply return a bean reference for that
+        final String defaultCacheKeyGeneratorName = element.getAttribute(ATTR__DEFAULT_CACHE_KEY_GENERATOR);
+        if (StringUtils.hasLength(defaultCacheKeyGeneratorName)) {
+            return new RuntimeBeanReference(defaultCacheKeyGeneratorName);
+        }
+        
+        //Need to create a default key generator
+        
+    	final RootBeanDefinition defaultKeyGenerator = new RootBeanDefinition(DEFAULT_CACHE_KEY_GENERATOR_CLASS);
+        defaultKeyGenerator.setSource(elementSource);
+        defaultKeyGenerator.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        
+        final BeanDefinitionRegistry registry = parserContext.getRegistry();
+        registry.registerBeanDefinition(DEFAULT_CACHE_KEY_GENERATOR, defaultKeyGenerator);
+        
+        return new RuntimeBeanReference(DEFAULT_CACHE_KEY_GENERATOR);
+    }
+
+    /**
+     * Create a {@link CacheAttributeSource} bean that will be used by the advisor and interceptor
+     * 
+     * @return Reference to the {@link CacheAttributeSource}. Should never be null.
+     */
+    protected RuntimeBeanReference setupCacheAttributeSource(Element element, ParserContext parserContext, Object elementSource, RuntimeBeanReference defaultCacheKeyGenerator) {
+        final RootBeanDefinition cacheAttributeSource = new RootBeanDefinition(CacheAttributeSourceImpl.class);
+        cacheAttributeSource.setSource(elementSource);
+        cacheAttributeSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        
+        final MutablePropertyValues propertyValues = cacheAttributeSource.getPropertyValues();
+        propertyValues.add("cacheManagerBeanName", element.getAttribute(ATTR__CACHE_MANAGER));
+        propertyValues.add("createCaches", Boolean.parseBoolean(element.getAttribute(ATTR__CREATE_MISSING_CACHES)));
+        propertyValues.add("defaultCacheKeyGenerator", defaultCacheKeyGenerator);
+
+        final XmlReaderContext readerContext = parserContext.getReaderContext();
+        final String cacheAttributeSourceBeanName = readerContext.registerWithGeneratedName(cacheAttributeSource);
+        return new RuntimeBeanReference(cacheAttributeSourceBeanName);
+    }
+
+    /**
+     * Create the {@link Pointcut} used to apply the caching interceptor
+     * 
+     * @return Reference to the {@link Pointcut}. Should never be null.
+     */
+    protected RuntimeBeanReference setupPointcut(ParserContext parserContext, Object elementSource, RuntimeBeanReference cacheAttributeSource) {
+        final RootBeanDefinition pointcut = new RootBeanDefinition(CacheStaticMethodMatcherPointcut.class);
+        pointcut.setSource(elementSource);
+        pointcut.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        
+        final MutablePropertyValues propertyValues = pointcut.getPropertyValues();
+        propertyValues.add("cacheAttributeSource", cacheAttributeSource);
+        
+        final XmlReaderContext readerContext = parserContext.getReaderContext();
+        final String pointcutBeanName = readerContext.registerWithGeneratedName(pointcut);
+        return new RuntimeBeanReference(pointcutBeanName);
+    }
+
+    /**
+     * Create {@link MethodInterceptor} that is applies the caching logic to advised methods.
+     * 
+     * @return Reference to the {@link MethodInterceptor}. Should never be null.
+     */
+    protected RuntimeBeanReference setupInterceptor(ParserContext parserContext, Object elementSource, RuntimeBeanReference cacheableAttributeSourceRuntimeReference) {
+        final RootBeanDefinition interceptor = new RootBeanDefinition(EhCacheInterceptor.class);
+        interceptor.setSource(elementSource);
+        interceptor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        
+        final MutablePropertyValues propertyValues = interceptor.getPropertyValues();
+        propertyValues.add("cacheAttributeSource", cacheableAttributeSourceRuntimeReference);
+        
+        final XmlReaderContext readerContext = parserContext.getReaderContext();
+        final String interceptorBeanName = readerContext.registerWithGeneratedName(interceptor);
+        return new RuntimeBeanReference(interceptorBeanName);
+    }
+
+    /**
+     * Create {@link PointcutAdvisor} that puts the {@link Pointcut} and {@link MethodInterceptor} together.
+     * 
+     * @return Reference to the {@link PointcutAdvisor}. Should never be null.
+     */
+    protected RuntimeBeanReference setupPointcutAdvisor(ParserContext parserContext, Object elementSource, RuntimeBeanReference cacheablePointcutBeanReference,  RuntimeBeanReference cachingInterceptorBeanReference) {
+        final RootBeanDefinition pointcutAdvisor = new RootBeanDefinition(DefaultBeanFactoryPointcutAdvisor.class);
+        pointcutAdvisor.setSource(elementSource);
+        pointcutAdvisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+
+        final MutablePropertyValues propertyValues = pointcutAdvisor.getPropertyValues();
+        propertyValues.add("adviceBeanName", cachingInterceptorBeanReference.getBeanName());
+        propertyValues.add("pointcut", cacheablePointcutBeanReference);
+        
+        final BeanDefinitionRegistry registry = parserContext.getRegistry();
+        registry.registerBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME, pointcutAdvisor);
+        return new RuntimeBeanReference(EHCACHE_CACHING_ADVISOR_BEAN_NAME);
     }
 
 }
