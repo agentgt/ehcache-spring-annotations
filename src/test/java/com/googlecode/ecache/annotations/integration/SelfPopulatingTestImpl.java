@@ -18,8 +18,6 @@ package com.googlecode.ecache.annotations.integration;
 
 import java.util.concurrent.CountDownLatch;
 
-import com.googlecode.ecache.annotations.Cacheable;
-
 
 /**
  *
@@ -29,11 +27,18 @@ import com.googlecode.ecache.annotations.Cacheable;
 public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
     private volatile int interfaceAnnotatedExceptionCachedCount = 0;
     private volatile int interfaceAnnotatedExceptionCachedThrowsCount = 0;
-	private volatile int aInvocationCount = 0;
-	private volatile int bInvocationCount = 0;
+	private volatile int blockingAInvocationCount = 0;
+	private volatile int blockingBInvocationCount = 0;
+	private volatile int nonBlockingInvocationCount = 0;
 	private CountDownLatch threadRunningLatch;
 	private CountDownLatch proccedLatch;
 	
+    public void reset() {
+        this.blockingAInvocationCount = 0;
+        this.blockingBInvocationCount = 0;
+        this.nonBlockingInvocationCount = 0;
+    }
+
     public void setThreadRunningLatch(CountDownLatch threadRunningLatch) {
         this.threadRunningLatch = threadRunningLatch;
     }
@@ -42,8 +47,7 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
         this.proccedLatch = proccedLatch;
     }
 
-	@Cacheable(cacheName="blockingCache", selfPopulating=true)
-	public String methodA(String argument) {
+	public String blockingA(String argument) {
 	    threadRunningLatch.countDown();
 	    try {
             proccedLatch.await();
@@ -51,12 +55,23 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
         catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        aInvocationCount++;
-		return "methodA says: " + argument;
+        blockingAInvocationCount++;
+		return "blockingA says: " + argument;
 	}
+
+    public String blockingB(String argument) {
+        threadRunningLatch.countDown();
+        try {
+            proccedLatch.await();
+        }
+        catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        blockingBInvocationCount++;
+        return "blockingB says: " + argument;
+    }
 	
-	@Cacheable(cacheName="blockingCache", selfPopulating=false)
-	public String methodB(String argument) {
+	public String nonBlocking(String argument) {
 	    threadRunningLatch.countDown();
         try {
             proccedLatch.await();
@@ -64,17 +79,20 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
         catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-		bInvocationCount++;
-		return "methodB says: " + argument;
+        nonBlockingInvocationCount++;
+		return "nonBlocking says: " + argument;
 	}
 	
-	public int getAInvocationCount() {
-		return this.aInvocationCount;
+	public int getBlockingAInvocationCount() {
+		return this.blockingAInvocationCount;
 	}
-	public int getBInvocationCount() {
-		return this.bInvocationCount;
+	public int getBlockingBInvocationCount() {
+		return this.blockingBInvocationCount;
 	}
-	
+    public int getNonBlockingInvocationCount() {
+        return this.nonBlockingInvocationCount;
+    }
+
     public String interfaceAnnotatedExceptionCached(boolean throwsException) {
         threadRunningLatch.countDown();
         try {

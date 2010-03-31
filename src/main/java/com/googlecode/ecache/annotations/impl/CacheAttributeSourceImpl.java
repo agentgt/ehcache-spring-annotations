@@ -41,6 +41,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 import com.googlecode.ecache.annotations.AdviceType;
+import com.googlecode.ecache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ecache.annotations.CacheAttributeSource;
 import com.googlecode.ecache.annotations.CacheNotFoundException;
 import com.googlecode.ecache.annotations.Cacheable;
@@ -69,12 +70,14 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      */
     private final Map<Object, Object> ingoredMethods = new ConcurrentHashMap<Object, Object>();
     private final ConcurrentMap<Object, MethodAttribute> attributesCache = new ConcurrentHashMap<Object, MethodAttribute>();
+    private final ConcurrentMap<String, SelfPopulatingCacheTracker> selfPopulatingCaches = new ConcurrentHashMap<String, SelfPopulatingCacheTracker>(); 
     
     private CacheManager cacheManager;
     private BeanFactory beanFactory;
     private String cacheManagerBeanName;
     private boolean createCaches = false;
     private CacheKeyGenerator defaultCacheKeyGenerator;
+    private SelfPopulatingCacheScope selfPopulatingCacheScope = SelfPopulatingCacheScope.SHARED;
 
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
@@ -88,9 +91,12 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
 	public void setDefaultCacheKeyGenerator(CacheKeyGenerator defaultCacheKeyGenerator) {
 		this.defaultCacheKeyGenerator = defaultCacheKeyGenerator;
 	}
+	public void setSelfPopulatingCacheScope(SelfPopulatingCacheScope selfPopulatingCacheScope) {
+        this.selfPopulatingCacheScope = selfPopulatingCacheScope;
+    }
 	
 	
-	/* (non-Javadoc)
+    /* (non-Javadoc)
      * @see com.googlecode.ecache.annotations.CacheAttributeSource#getAdviceType(java.lang.reflect.Method, java.lang.Class)
      */
     public AdviceType getAdviceType(Method method, Class<?> targetClass) {
@@ -262,7 +268,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      * @param ae The element to inspect
      * @return The advice attributes about the element, null if the element is not advised
      */
-    protected MethodAttribute findMethodAttribute(AnnotatedElement ae) {
+    private MethodAttribute findMethodAttribute(AnnotatedElement ae) {
         Cacheable cacheableAnnotation = ae.getAnnotation(Cacheable.class);
         if (cacheableAnnotation != null) {
             return this.parseCacheableAnnotation(cacheableAnnotation);
@@ -299,9 +305,9 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         Ehcache cache = this.getCache(ann.cacheName());
         ThreadLocal<MethodInvocation> entryFactory = null;
         if (ann.selfPopulating()) {
-            final ThreadLocalCacheEntryFactory cacheEntryFactory = new ThreadLocalCacheEntryFactory();
-            entryFactory = cacheEntryFactory.entryFactory;
-            cache = new SelfPopulatingCache(cache, cacheEntryFactory);
+            final SelfPopulatingCacheTracker selfPopulatingCacheTracker = this.createSelfPopulatingCacheInternal(cache);
+            cache = selfPopulatingCacheTracker.selfPopulatingCache;
+            entryFactory = selfPopulatingCacheTracker.cacheEntryFactory;
         }
         
         final Ehcache exceptionCache;
@@ -316,6 +322,47 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         final CacheKeyGenerator cacheKeyGenerator = getCacheKeyGenerator(keyGeneratorName);
         
         return new CacheableAttributeImpl(cache, exceptionCache, cacheKeyGenerator, entryFactory);
+    }
+    
+    /**
+     * Creates or retrieves a SelfPopulatingCacheTracker for the specified cache depending on the
+     * configured {@link SelfPopulatingCacheScope}
+     * 
+     * @param cache The cache to create a self populating instance of
+     * @return The SelfPopulatingCache and corresponding factory object to use
+     */
+    protected final SelfPopulatingCacheTracker createSelfPopulatingCacheInternal(Ehcache cache) {
+        //If method scoped just create a new instance 
+        if (SelfPopulatingCacheScope.METHOD == this.selfPopulatingCacheScope) {
+            return this.createSelfPopulatingCache(cache);
+        }
+
+        //Shared scope, try loading the instance from local Map
+        
+        //See if there is a cached SelfPopulatingCache for the name
+        final String cacheName = cache.getName();
+        SelfPopulatingCacheTracker selfPopulatingCacheTracker = this.selfPopulatingCaches.get(cacheName);
+        if (selfPopulatingCacheTracker == null) {
+            selfPopulatingCacheTracker = this.createSelfPopulatingCache(cache);
+            
+            //do putIfAbsent to handle concurrent creation. If a value is returned it was already put and that
+            //value should be used. If no value was returned the newly created selfPopulatingCache should be used
+            final SelfPopulatingCacheTracker existing = this.selfPopulatingCaches.putIfAbsent(cacheName, selfPopulatingCacheTracker);
+            if (existing != null) {
+                selfPopulatingCacheTracker = existing;
+            }
+        }
+        
+        return selfPopulatingCacheTracker;
+    }
+
+    /**
+     * Create a new {@link SelfPopulatingCache} and corresponding {@link CacheEntryFactory}
+     */
+    protected SelfPopulatingCacheTracker createSelfPopulatingCache(Ehcache cache) {
+        final ThreadLocalCacheEntryFactory cacheEntryFactory = new ThreadLocalCacheEntryFactory();
+        final SelfPopulatingCache selfPopulatingCache = new SelfPopulatingCache(cache, cacheEntryFactory);
+        return new SelfPopulatingCacheTracker(selfPopulatingCache, cacheEntryFactory.entryFactory);
     }
 
     /**
@@ -347,6 +394,16 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         	cacheKeyGenerator = this.defaultCacheKeyGenerator;
         }
         return cacheKeyGenerator;
+    }
+    
+    static class SelfPopulatingCacheTracker {
+        public final SelfPopulatingCache selfPopulatingCache;
+        public final ThreadLocal<MethodInvocation> cacheEntryFactory;
+        
+        public SelfPopulatingCacheTracker(SelfPopulatingCache selfPopulatingCache, ThreadLocal<MethodInvocation> cacheEntryFactory) {
+            this.selfPopulatingCache = selfPopulatingCache;
+            this.cacheEntryFactory = cacheEntryFactory;
+        }
     }
 
     /**

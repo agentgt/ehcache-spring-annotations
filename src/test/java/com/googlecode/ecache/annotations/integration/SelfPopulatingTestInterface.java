@@ -28,22 +28,23 @@ import com.googlecode.ecache.annotations.Cacheable;
  */
 public interface SelfPopulatingTestInterface {
     
+    public void reset();
+    
     public void setThreadRunningLatch(CountDownLatch threadRunningLatch);
 
     public void setProccedLatch(CountDownLatch proccedLatch);
 
-	/**
-	 * Will be marked Cacheable with selfPopulating=true
-	 * @param argument
-	 */
-	public String methodA(String argument);
-	/**
-	 * Will be marked Cacheable with selfPopulating=false
-	 * @param argument
-	 */
-	public String methodB(String argument);
-	public int getAInvocationCount();
-	public int getBInvocationCount();
+    @Cacheable(cacheName="blockingCache", selfPopulating=true)
+    public String blockingA(String argument);
+    public int getBlockingAInvocationCount();
+    
+    @Cacheable(cacheName="blockingCache", selfPopulating=true)
+    public String blockingB(String argument);
+    public int getBlockingBInvocationCount();
+    
+    @Cacheable(cacheName="blockingCache", selfPopulating=false)
+    public String nonBlocking(String argument);
+    public int getNonBlockingInvocationCount();
 	
     @Cacheable(cacheName="interfaceAnnotatedCache", selfPopulating=true, exceptionCacheName="interfaceAnnotatedExceptionCache")
     public String interfaceAnnotatedExceptionCached(boolean throwsException);

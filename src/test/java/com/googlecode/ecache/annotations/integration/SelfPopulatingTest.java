@@ -19,11 +19,14 @@ package com.googlecode.ecache.annotations.integration;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.googlecode.ecache.annotations.util.ThreadGroupRunner;
 
 /**
  *
@@ -44,6 +47,11 @@ public class SelfPopulatingTest {
 		this.selfPopulatingTestInterface = selfPopulatingTestInterface;
 	}
 	
+	@Before
+	public void testSetup() {
+	    this.selfPopulatingTestInterface.reset();
+	}
+	
 	/**
 	 * Control case on a method with selfPopulating = false.
 	 * 
@@ -56,25 +64,22 @@ public class SelfPopulatingTest {
         this.selfPopulatingTestInterface.setThreadRunningLatch(threadRunningLatch);
         this.selfPopulatingTestInterface.setProccedLatch(proccedLatch);
 	    
-		Assert.assertEquals(0, this.selfPopulatingTestInterface.getBInvocationCount());
+		Assert.assertEquals(0, this.selfPopulatingTestInterface.getBlockingBInvocationCount());
 		
-		// set up 2 threads 
-		Thread t1 = new Thread(new Runnable() {	
+		final ThreadGroupRunner threadGroup = new ThreadGroupRunner("testSelfPopulatingFalse-", true);
+		
+		threadGroup.addTask(new Runnable() {	
 			public void run() {
-				selfPopulatingTestInterface.methodB("foo");
+				selfPopulatingTestInterface.nonBlocking("test1");
 			}
 		});
-		Thread t2 = new Thread(new Runnable() {	
+		threadGroup.addTask(new Runnable() {	
 			public void run() {
-				selfPopulatingTestInterface.methodB("foo");
+				selfPopulatingTestInterface.nonBlocking("test1");
 			}
 		});
 		
-		t1.setDaemon(true);
-		t2.setDaemon(true);
-		
-		t1.start();
-		t2.start();
+		threadGroup.start();
 		
 		// wait for both threads to get going
 		threadRunningLatch.await();
@@ -82,11 +87,10 @@ public class SelfPopulatingTest {
 		// Let both threads complete
 		proccedLatch.countDown();
 		
-		t1.join();
-		t2.join();
+		threadGroup.join();
 		
 		// verify 2 calls to methodB
-		Assert.assertEquals(2, this.selfPopulatingTestInterface.getBInvocationCount());
+		Assert.assertEquals(2, this.selfPopulatingTestInterface.getNonBlockingInvocationCount());
 	}
 	/**
 	 * Verify that setting selfPopulating=true will guarantee only 1 invocation
@@ -96,32 +100,44 @@ public class SelfPopulatingTest {
 	 */
 	@Test
 	public void testSelfPopulatingTrue() throws Exception {
-        final CountDownLatch threadRunningLatch = new CountDownLatch(3);
+        final CountDownLatch threadRunningLatch = new CountDownLatch(5);
         final CountDownLatch proccedLatch = new CountDownLatch(1);
         this.selfPopulatingTestInterface.setThreadRunningLatch(threadRunningLatch);
         this.selfPopulatingTestInterface.setProccedLatch(proccedLatch);
         
-		Assert.assertEquals(0, this.selfPopulatingTestInterface.getAInvocationCount());
+		Assert.assertEquals(0, this.selfPopulatingTestInterface.getBlockingAInvocationCount());
+		Assert.assertEquals(0, this.selfPopulatingTestInterface.getBlockingBInvocationCount());
 		
-		// set up 2 threads 
-		Thread t1 = new Thread(new Runnable() {	
+		final ThreadGroupRunner threadGroup = new ThreadGroupRunner("testSelfPopulatingFalse-", true);
+		
+		// set up threads 
+		threadGroup.addTask(new Runnable() {	
 			public void run() {
 			    threadRunningLatch.countDown();
-				selfPopulatingTestInterface.methodA("foo");
+				selfPopulatingTestInterface.blockingA("test2");
 			}
-		}, "t1");
-		Thread t2 = new Thread(new Runnable() {	
+		});
+		threadGroup.addTask(new Runnable() {	
 			public void run() {
 			    threadRunningLatch.countDown();
-				selfPopulatingTestInterface.methodA("foo");
+				selfPopulatingTestInterface.blockingA("test2");
 			}
-		}, "t2");
+		});
+        threadGroup.addTask(new Runnable() { 
+            public void run() {
+                threadRunningLatch.countDown();
+                selfPopulatingTestInterface.blockingB("test2");
+            }
+        });
+        threadGroup.addTask(new Runnable() { 
+            public void run() {
+                threadRunningLatch.countDown();
+                selfPopulatingTestInterface.blockingB("test2");
+            }
+        });
 		
-		t1.setDaemon(true);
-		t2.setDaemon(true);
 		
-		t1.start();
-		t2.start();
+        threadGroup.start();
         
         // wait for both threads to get going
         threadRunningLatch.await();
@@ -131,11 +147,10 @@ public class SelfPopulatingTest {
         // Let both threads complete
         proccedLatch.countDown();
         
-		t1.join();
-		t2.join();
+        threadGroup.join();
 		
-		// verify only 1 call to methodA
-		Assert.assertEquals(1, this.selfPopulatingTestInterface.getAInvocationCount());
+		// verify only 1 call between method A and method B
+		Assert.assertEquals(1, this.selfPopulatingTestInterface.getBlockingAInvocationCount() + this.selfPopulatingTestInterface.getBlockingBInvocationCount());
 	}
 
 	

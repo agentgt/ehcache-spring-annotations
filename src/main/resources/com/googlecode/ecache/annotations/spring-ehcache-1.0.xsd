@@ -31,6 +31,14 @@
             <xsd:attribute name="cache-manager" type="xsd:string" default="cacheManager" />
             <xsd:attribute name="create-missing-caches" type="xsd:boolean" default="false"/>
             <xsd:attribute name="default-cache-key-generator" type="xsd:string" use="optional"/>
+            <xsd:attribute name="self-populating-cache-scope" default="shared">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:enumeration value="method" />
+                        <xsd:enumeration value="shared" />
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
         </xsd:complexType>
     </xsd:element>
     

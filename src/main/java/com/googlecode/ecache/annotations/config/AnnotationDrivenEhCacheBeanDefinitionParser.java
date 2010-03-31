@@ -32,6 +32,7 @@ import org.springframework.beans.factory.xml.XmlReaderContext;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
+import com.googlecode.ecache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ecache.annotations.CacheAttributeSource;
 import com.googlecode.ecache.annotations.Cacheable;
 import com.googlecode.ecache.annotations.TriggersRemove;
@@ -51,21 +52,10 @@ import com.googlecode.ecache.annotations.key.HashCodeCacheKeyGenerator;
  * @version $Id$
  */
 public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefinitionParser {
-
-    /**
-     * XSD Attribute
-     */
-    public static final String ATTR__CREATE_MISSING_CACHES = "create-missing-caches";
-
-    /**
-     * XSD Attribute
-     */
-    public static final String ATTR__CACHE_MANAGER = "cache-manager";
-
-    /**
-     * XSD Attribute
-     */
-    public static final String ATTR__DEFAULT_CACHE_KEY_GENERATOR = "default-cache-key-generator";
+    public static final String XSD_ATTR__CREATE_MISSING_CACHES = "create-missing-caches";
+    public static final String XSD_ATTR__CACHE_MANAGER = "cache-manager";
+    public static final String XSD_ATTR__DEFAULT_CACHE_KEY_GENERATOR = "default-cache-key-generator";
+    public static final String XSD_ATTR__SELF_POPULATING_CACHE_SCOPE = "self-populating-cache-scope";
 
     public static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAdvisor";
     
@@ -106,7 +96,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
      */
     protected RuntimeBeanReference setupDefaultCacheKeyGenerator(Element element, ParserContext parserContext, Object elementSource) {
         //If the default cache key generator was specified simply return a bean reference for that
-        final String defaultCacheKeyGeneratorName = element.getAttribute(ATTR__DEFAULT_CACHE_KEY_GENERATOR);
+        final String defaultCacheKeyGeneratorName = element.getAttribute(XSD_ATTR__DEFAULT_CACHE_KEY_GENERATOR);
         if (StringUtils.hasLength(defaultCacheKeyGeneratorName)) {
             return new RuntimeBeanReference(defaultCacheKeyGeneratorName);
         }
@@ -134,9 +124,13 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         cacheAttributeSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         
         final MutablePropertyValues propertyValues = cacheAttributeSource.getPropertyValues();
-        propertyValues.add("cacheManagerBeanName", element.getAttribute(ATTR__CACHE_MANAGER));
-        propertyValues.add("createCaches", Boolean.parseBoolean(element.getAttribute(ATTR__CREATE_MISSING_CACHES)));
+        propertyValues.add("cacheManagerBeanName", element.getAttribute(XSD_ATTR__CACHE_MANAGER));
+        propertyValues.add("createCaches", Boolean.parseBoolean(element.getAttribute(XSD_ATTR__CREATE_MISSING_CACHES)));
         propertyValues.add("defaultCacheKeyGenerator", defaultCacheKeyGenerator);
+        final String blockingCacheScope = element.getAttribute(XSD_ATTR__SELF_POPULATING_CACHE_SCOPE);
+        if (blockingCacheScope != null) {
+            propertyValues.add("selfPopulatingCacheScope", SelfPopulatingCacheScope.valueOf(blockingCacheScope.toUpperCase()));
+        }
 
         final XmlReaderContext readerContext = parserContext.getReaderContext();
         final String cacheAttributeSourceBeanName = readerContext.registerWithGeneratedName(cacheAttributeSource);
