@@ -122,7 +122,7 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
         }
         
         final Map<Object, Object> registry = REGISTRY.get();
-        return registry.put(element, element) != null;
+        return registry.put(element, element) == null;
     }
 
     /**
