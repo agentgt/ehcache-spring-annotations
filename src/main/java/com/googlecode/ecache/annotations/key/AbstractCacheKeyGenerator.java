@@ -8,8 +8,8 @@ package com.googlecode.ecache.annotations.key;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -18,10 +18,10 @@ import org.aopalliance.intercept.MethodInvocation;
  * @version $Revision$
  */
 public abstract class AbstractCacheKeyGenerator<T extends Serializable> implements CacheKeyGenerator<T> {
-    private static final ThreadLocal<Set<IDKey>> REGISTRY = new ThreadLocal<Set<IDKey>>() {
+    private static final ThreadLocal<Map<Object, Object>> REGISTRY = new ThreadLocal<Map<Object, Object>>() {
         @Override
-        protected Set<IDKey> initialValue() {
-            return new HashSet<IDKey>();
+        protected Map<Object, Object> initialValue() {
+            return new IdentityHashMap<Object, Object>();
         }
     };
     
@@ -121,8 +121,8 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
             return true;
         }
         
-        final Set<IDKey> registry = REGISTRY.get();
-        return registry.add(new IDKey(element));
+        final Map<Object, Object> registry = REGISTRY.get();
+        return registry.put(element, element) != null;
     }
 
     /**
@@ -138,8 +138,8 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
             return;
         }
         
-        final Set<IDKey> registry = REGISTRY.get();
-        registry.remove(new IDKey(element));
+        final Map<Object, Object> registry = REGISTRY.get();
+        registry.remove(element);
     }
     
     protected abstract T generateKey(Object... data);
