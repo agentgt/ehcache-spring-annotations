@@ -16,6 +16,8 @@
 
 package com.googlecode.ecache.annotations;
 
+import java.io.Serializable;
+
 import com.googlecode.ecache.annotations.key.CacheKeyGenerator;
 
 import net.sf.ehcache.Ehcache;
@@ -40,5 +42,5 @@ public interface MethodAttribute {
     /**
      * @return The key generator to use, will never be null.
      */
-    public CacheKeyGenerator getCacheKeyGenerator();
+    public CacheKeyGenerator<? extends Serializable> getCacheKeyGenerator();
 }

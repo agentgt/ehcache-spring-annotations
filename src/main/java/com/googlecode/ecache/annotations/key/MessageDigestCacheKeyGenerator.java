@@ -20,7 +20,7 @@ import org.apache.commons.codec.binary.Base64;
  * @version $Revision$
  */
 public class MessageDigestCacheKeyGenerator implements CacheKeyGenerator<String> {
-    private static final byte[] ZERO_AS_BYTES = intToByteArray(0);
+    private static final byte[] ZERO_AS_BYTES = new byte[] {0, 0, 0, 0};
     
     private final MessageDigest messageDigest;
     private boolean includeMethod = true;
@@ -81,46 +81,42 @@ public class MessageDigestCacheKeyGenerator implements CacheKeyGenerator<String>
         
         if (this.includeMethod) {
             final Method method = methodInvocation.getMethod();
-            digestObject(digester, method.getDeclaringClass());
-            digestObject(digester, method.getName());
-            digestObject(digester, method.getReturnType());
-            digestObject(digester, method.getParameterTypes());
+            digest(digester, method.getDeclaringClass());
+            digest(digester, method.getName());
+            digest(digester, method.getReturnType());
         }
         
         for (final Object arg : arguments) {
-            digestObject(digester, arg);
+            digest(digester, arg);
         }
         
         final byte[] digest = digester.digest();
         return Base64.encodeBase64URLSafeString(digest);
     }
     
-    protected void digestObject(MessageDigest messageDigest, Object o) {
+    protected void digest(MessageDigest messageDigest, Object o) {
         if (o == null) {
             messageDigest.update(ZERO_AS_BYTES);
         }
         else if (o instanceof Class<?>) {
-            this.digestObject(messageDigest, ((Class<?>)o).getCanonicalName());
+            this.digest(messageDigest, ((Class<?>)o).getName());
         }
         else if (o.getClass().isArray()) {
             final int length = Array.getLength(o);
             for (int index = 0; index < length; index++) {
                 final Object arrayValue = Array.get(o, index);
-                this.digestObject(messageDigest, arrayValue);
+                this.digest(messageDigest, arrayValue);
             }
         }
         else {
-            final byte[] hashBytes = intToByteArray(o.hashCode());
-            messageDigest.update(hashBytes);
+            digest(messageDigest, o.hashCode());
         }
     }
     
-    public static final byte[] intToByteArray(int value) {
-        return new byte[] {
-                (byte)(value >>> 24),
-                (byte)(value >>> 16),
-                (byte)(value >>> 8),
-                (byte)value};
+    protected void digest(MessageDigest messageDigest, int value) {
+        messageDigest.update((byte)(value >>> 24));
+        messageDigest.update((byte)(value >>> 16));
+        messageDigest.update((byte)(value >>> 8));
+        messageDigest.update((byte)value);
     }
-
 }

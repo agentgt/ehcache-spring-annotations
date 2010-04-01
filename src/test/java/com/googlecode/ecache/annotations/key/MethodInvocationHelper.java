@@ -9,6 +9,9 @@ package com.googlecode.ecache.annotations.key;
 import java.util.Arrays;
 
 class MethodInvocationHelper {
+    public void testMethod0() {
+    }
+    
     public Object testMethod1(Object arg1) {
         return arg1;
     }

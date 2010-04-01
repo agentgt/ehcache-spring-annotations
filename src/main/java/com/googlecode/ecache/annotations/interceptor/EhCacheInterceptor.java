@@ -235,7 +235,7 @@ public class EhCacheInterceptor implements MethodInterceptor {
      * @return Generated cache key, must not return null.
      */
     protected Serializable generateCacheKey(final MethodInvocation methodInvocation, final MethodAttribute methodAttribute) {
-        final CacheKeyGenerator cacheKeyGenerator = methodAttribute.getCacheKeyGenerator();
+        final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = methodAttribute.getCacheKeyGenerator();
         final Serializable cacheKey = cacheKeyGenerator.generateKey(methodInvocation);
         this.logger.debug("Generated key '{}' for invocation: {}", cacheKey, methodInvocation);
         return cacheKey;

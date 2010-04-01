@@ -16,6 +16,8 @@
 
 package com.googlecode.ecache.annotations.impl;
 
+import java.io.Serializable;
+
 import net.sf.ehcache.Ehcache;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -34,10 +36,10 @@ import com.googlecode.ecache.annotations.key.CacheKeyGenerator;
 class CacheableAttributeImpl implements CacheableAttribute {
     private final Ehcache cache;
     private final Ehcache exceptionCache;
-    private final CacheKeyGenerator cacheKeyGenerator;
+    private final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator;
     private final ThreadLocal<MethodInvocation> entryFactory;
     
-    public CacheableAttributeImpl(Ehcache cache, Ehcache exceptionCache, CacheKeyGenerator cacheKeyGenerator, ThreadLocal<MethodInvocation> entryFactory) {
+    public CacheableAttributeImpl(Ehcache cache, Ehcache exceptionCache, CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, ThreadLocal<MethodInvocation> entryFactory) {
         this.cache = cache;
         this.exceptionCache = exceptionCache;
         this.cacheKeyGenerator = cacheKeyGenerator;
@@ -52,7 +54,7 @@ class CacheableAttributeImpl implements CacheableAttribute {
         return this.cache;
     }
 
-    public CacheKeyGenerator getCacheKeyGenerator() {
+    public CacheKeyGenerator<? extends Serializable> getCacheKeyGenerator() {
         return this.cacheKeyGenerator;
     }
 

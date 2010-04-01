@@ -16,6 +16,7 @@
 
 package com.googlecode.ecache.annotations.impl;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -41,12 +42,12 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 import com.googlecode.ecache.annotations.AdviceType;
-import com.googlecode.ecache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ecache.annotations.CacheAttributeSource;
 import com.googlecode.ecache.annotations.CacheNotFoundException;
 import com.googlecode.ecache.annotations.Cacheable;
 import com.googlecode.ecache.annotations.CacheableAttribute;
 import com.googlecode.ecache.annotations.MethodAttribute;
+import com.googlecode.ecache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ecache.annotations.TriggersRemove;
 import com.googlecode.ecache.annotations.TriggersRemoveAttribute;
 import com.googlecode.ecache.annotations.key.CacheKeyGenerator;
@@ -76,7 +77,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     private BeanFactory beanFactory;
     private String cacheManagerBeanName;
     private boolean createCaches = false;
-    private CacheKeyGenerator defaultCacheKeyGenerator;
+    private CacheKeyGenerator<? extends Serializable> defaultCacheKeyGenerator;
     private SelfPopulatingCacheScope selfPopulatingCacheScope = SelfPopulatingCacheScope.SHARED;
 
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
@@ -88,7 +89,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     public void setCreateCaches(boolean createCaches) {
         this.createCaches = createCaches;
     }
-	public void setDefaultCacheKeyGenerator(CacheKeyGenerator defaultCacheKeyGenerator) {
+	public void setDefaultCacheKeyGenerator(CacheKeyGenerator<? extends Serializable> defaultCacheKeyGenerator) {
 		this.defaultCacheKeyGenerator = defaultCacheKeyGenerator;
 	}
 	public void setSelfPopulatingCacheScope(SelfPopulatingCacheScope selfPopulatingCacheScope) {
@@ -319,7 +320,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         }
         
         final String keyGeneratorName = ann.keyGeneratorName();
-        final CacheKeyGenerator cacheKeyGenerator = getCacheKeyGenerator(keyGeneratorName);
+        final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = getCacheKeyGenerator(keyGeneratorName);
         
         return new CacheableAttributeImpl(cache, exceptionCache, cacheKeyGenerator, entryFactory);
     }
@@ -375,7 +376,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         final Ehcache cache = this.getCache(ann.cacheName());
 
         final String keyGeneratorName = ann.keyGeneratorName();
-        final CacheKeyGenerator cacheKeyGenerator = getCacheKeyGenerator(keyGeneratorName);
+        final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = getCacheKeyGenerator(keyGeneratorName);
         
         return new TriggersRemoveAttributeImpl(cache, cacheKeyGenerator, ann.removeAll());
     }
@@ -386,8 +387,9 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      * @param keyGeneratorName Name of the generator to retrieve
      * @return The named generator or the default generator if the name was empty or null
      */
-    protected CacheKeyGenerator getCacheKeyGenerator(final String keyGeneratorName) {
-        final CacheKeyGenerator cacheKeyGenerator;
+    @SuppressWarnings("unchecked")
+    protected CacheKeyGenerator<? extends Serializable> getCacheKeyGenerator(final String keyGeneratorName) {
+        final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator;
         if (StringUtils.hasLength(keyGeneratorName)) {
             cacheKeyGenerator = this.beanFactory.getBean(keyGeneratorName, CacheKeyGenerator.class);
         } else {

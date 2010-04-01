@@ -19,6 +19,8 @@
  */
 package com.googlecode.ecache.annotations.impl;
 
+import java.io.Serializable;
+
 import com.googlecode.ecache.annotations.AdviceType;
 import com.googlecode.ecache.annotations.TriggersRemoveAttribute;
 import com.googlecode.ecache.annotations.key.CacheKeyGenerator;
@@ -33,10 +35,10 @@ import net.sf.ehcache.Ehcache;
  */
 class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
 	private final Ehcache cache;
-	private final CacheKeyGenerator cacheKeyGenerator;
+	private final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator;
 	private final boolean removeAll;
 	
-	TriggersRemoveAttributeImpl(Ehcache cache, CacheKeyGenerator cacheKeyGenerator, boolean removeAll) {
+	TriggersRemoveAttributeImpl(Ehcache cache, CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, boolean removeAll) {
 		this.cache = cache;
 		this.cacheKeyGenerator = cacheKeyGenerator;
 		this.removeAll = removeAll;
@@ -63,7 +65,7 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
 	/* (non-Javadoc)
 	 * @see com.googlecode.ecache.annotations.FlushableAttribute#getCacheKeyGenerator()
 	 */
-	public CacheKeyGenerator getCacheKeyGenerator() {
+	public CacheKeyGenerator<? extends Serializable> getCacheKeyGenerator() {
 		return this.cacheKeyGenerator;
 	}
 

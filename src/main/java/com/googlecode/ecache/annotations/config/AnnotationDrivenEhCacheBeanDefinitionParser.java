@@ -16,6 +16,8 @@
 
 package com.googlecode.ecache.annotations.config;
 
+import java.io.Serializable;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.PointcutAdvisor;
@@ -59,7 +61,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
 
     public static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAdvisor";
     
-    public static final Class<? extends CacheKeyGenerator> DEFAULT_CACHE_KEY_GENERATOR_CLASS = SimpleHashCodeCacheKeyGenerator.class;
+    public static final Class<? extends CacheKeyGenerator<? extends Serializable>> DEFAULT_CACHE_KEY_GENERATOR_CLASS = SimpleHashCodeCacheKeyGenerator.class;
     public static final String DEFAULT_CACHE_KEY_GENERATOR = DEFAULT_CACHE_KEY_GENERATOR_CLASS.getName() + "_DEFAULT";
     
     

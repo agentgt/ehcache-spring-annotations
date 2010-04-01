@@ -35,6 +35,13 @@ public class ThreadGroupRunner {
         threads.add(t);
     }
     
+
+    public synchronized void addTask(int threadCount, Runnable r) {
+        for (int index = 0; index < threadCount; index++) {
+            this.addTask(r);
+        }
+    }
+    
     /**
      * Start all threads (start is in order of added runnable)
      */
