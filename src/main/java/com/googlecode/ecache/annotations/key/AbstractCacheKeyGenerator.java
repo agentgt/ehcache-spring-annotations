@@ -27,7 +27,7 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
     
     private boolean checkforCycles = false;
     private boolean includeMethod = true;
-    private boolean includeParameterTypes = false;
+    private boolean includeParameterTypes = true;
     
     public AbstractCacheKeyGenerator() {
     }

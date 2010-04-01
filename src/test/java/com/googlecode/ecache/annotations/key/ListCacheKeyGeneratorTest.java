@@ -20,11 +20,11 @@ import org.junit.Test;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class ArgumentListCacheKeyGeneratorTest {
+public class ListCacheKeyGeneratorTest {
 
     @Test
     public void testCircularReference() {
-        final ArgumentListCacheKeyGenerator generator = new ArgumentListCacheKeyGenerator(false, false);
+        final ListCacheKeyGenerator generator = new ListCacheKeyGenerator(false, false);
         generator.setCheckforCycles(true);
         
         final Object[] arg = new Object[2];
@@ -54,7 +54,7 @@ public class ArgumentListCacheKeyGeneratorTest {
     
     @Test
     public void testGenerateArgumentWithoutMethodKey() {
-        final ArgumentListCacheKeyGenerator generator = new ArgumentListCacheKeyGenerator(false, false);
+        final ListCacheKeyGenerator generator = new ListCacheKeyGenerator(false, false);
         
         final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
         EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { 
@@ -81,7 +81,7 @@ public class ArgumentListCacheKeyGeneratorTest {
     
     @Test
     public void testGenerateArgumentWithMethodKey() throws SecurityException, NoSuchMethodException {
-        final ArgumentListCacheKeyGenerator generator = new ArgumentListCacheKeyGenerator(true, true);
+        final ListCacheKeyGenerator generator = new ListCacheKeyGenerator(true, true);
         
         final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod2", int[].class, String.class, boolean[].class, Object.class);
         

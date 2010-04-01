@@ -16,8 +16,10 @@
 
 package com.googlecode.ecache.annotations.integration;
 
-import junit.framework.Assert;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
+import junit.framework.Assert;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 
@@ -99,8 +101,17 @@ public class ConfigurationFailureTest {
             Assert.fail("Test should have failed with due to missing bean for default-cache-key-generator");
         }
         catch (BeanCreationException bce) {
-            final NoSuchBeanDefinitionException nsbd = (NoSuchBeanDefinitionException)bce.getCause();
-            Assert.assertEquals("undefinedCustomCacheKeyGenerator", nsbd.getBeanName());
+            Throwable cause = bce;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            
+            final StringWriter stack = new StringWriter();
+            cause.printStackTrace(new PrintWriter(stack));
+            Assert.assertTrue("Root cause must be NoSuchBeanDefinitionException but was: " + cause + "\n " + stack.toString(), 
+                    cause instanceof NoSuchBeanDefinitionException);
+            
+            Assert.assertEquals("undefinedCustomCacheKeyGenerator", ((NoSuchBeanDefinitionException)cause).getBeanName());
         }
     }
 }

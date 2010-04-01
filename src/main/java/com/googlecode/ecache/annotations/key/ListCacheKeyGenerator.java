@@ -41,11 +41,13 @@ import java.util.Collections;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class ArgumentListCacheKeyGenerator extends AbstractCacheKeyGenerator<ReadOnlyList<Serializable>> {
-    public ArgumentListCacheKeyGenerator() {
+public class ListCacheKeyGenerator extends AbstractCacheKeyGenerator<ReadOnlyList<Serializable>> {
+    public static final String DEFAULT_BEAN_NAME = "com.googlecode.ecache.annotations.key.ListCacheKeyGenerator.DEFAULT_BEAN_NAME";
+    
+    public ListCacheKeyGenerator() {
     }
 
-    public ArgumentListCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) {
+    public ListCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) {
         super(includeMethod, includeParameterTypes);
     }
     

@@ -17,6 +17,7 @@
 package com.googlecode.ecache.annotations.config;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.Pointcut;
@@ -43,6 +44,10 @@ import com.googlecode.ecache.annotations.impl.CacheStaticMethodMatcherPointcut;
 import com.googlecode.ecache.annotations.interceptor.EhCacheInterceptor;
 import com.googlecode.ecache.annotations.key.CacheKeyGenerator;
 import com.googlecode.ecache.annotations.key.HashCodeCacheKeyGenerator;
+import com.googlecode.ecache.annotations.key.ListCacheKeyGenerator;
+import com.googlecode.ecache.annotations.key.MessageDigestCacheKeyGenerator;
+import com.googlecode.ecache.annotations.key.ReflectionHashCodeCacheKeyGenerator;
+import com.googlecode.ecache.annotations.key.StringCacheKeyGenerator;
 
 
 /**
@@ -61,8 +66,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
 
     public static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAdvisor";
     
-    public static final Class<? extends CacheKeyGenerator<? extends Serializable>> DEFAULT_CACHE_KEY_GENERATOR_CLASS = HashCodeCacheKeyGenerator.class;
-    public static final String DEFAULT_CACHE_KEY_GENERATOR = DEFAULT_CACHE_KEY_GENERATOR_CLASS.getName() + "_DEFAULT";
+    public static final String DEFAULT_CACHE_KEY_GENERATOR = HashCodeCacheKeyGenerator.DEFAULT_BEAN_NAME;  
     
     
     /* (non-Javadoc)
@@ -74,7 +78,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
             final Object elementSource = parserContext.extractSource(element);
             
             final RuntimeBeanReference defaultCacheKeyGeneratorReference = 
-                this.setupDefaultCacheKeyGenerator(element, parserContext, elementSource);
+                this.setupDefaultCacheKeyGenerators(element, parserContext, elementSource);
             
             final RuntimeBeanReference cacheAttributeSourceReference = 
                 this.setupCacheAttributeSource(element, parserContext, elementSource, defaultCacheKeyGeneratorReference);
@@ -96,24 +100,43 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
      * 
      * @return A reference to the default cache key generator. Should never be null.
      */
-    protected RuntimeBeanReference setupDefaultCacheKeyGenerator(Element element, ParserContext parserContext, Object elementSource) {
+    protected RuntimeBeanReference setupDefaultCacheKeyGenerators(Element element, ParserContext parserContext, Object elementSource) {
+        this.setupDefaultCacheKeyGenerator(ListCacheKeyGenerator.class, parserContext, elementSource);
+        this.setupDefaultCacheKeyGenerator(HashCodeCacheKeyGenerator.class, parserContext, elementSource);
+        this.setupDefaultCacheKeyGenerator(MessageDigestCacheKeyGenerator.class, parserContext, elementSource);
+        this.setupDefaultCacheKeyGenerator(ReflectionHashCodeCacheKeyGenerator.class, parserContext, elementSource);
+        this.setupDefaultCacheKeyGenerator(StringCacheKeyGenerator.class, parserContext, elementSource);
+        
         //If the default cache key generator was specified simply return a bean reference for that
         final String defaultCacheKeyGeneratorName = element.getAttribute(XSD_ATTR__DEFAULT_CACHE_KEY_GENERATOR);
         if (StringUtils.hasLength(defaultCacheKeyGeneratorName)) {
             return new RuntimeBeanReference(defaultCacheKeyGeneratorName);
         }
         
-        //Need to create a default key generator
+        //Use the default name for the bean reference
+        return new RuntimeBeanReference(DEFAULT_CACHE_KEY_GENERATOR);
+    }
+
+    /**
+     */
+    private void setupDefaultCacheKeyGenerator(Class<? extends CacheKeyGenerator<? extends Serializable>> generatorClass, ParserContext parserContext, Object elementSource) {
+        final String generatorName;
+        try {
+            final Field field = generatorClass.getField("DEFAULT_BEAN_NAME");
+            generatorName = (String)field.get(null);
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException("Could not access static field 'DEFAULT_BEAN_NAME' on " + generatorClass + ". This field is required to be setup as a default CacheKeyGenerator", e);
+        }
         
-    	final RootBeanDefinition defaultKeyGenerator = new RootBeanDefinition(DEFAULT_CACHE_KEY_GENERATOR_CLASS);
+        final RootBeanDefinition defaultKeyGenerator = new RootBeanDefinition(generatorClass);
         defaultKeyGenerator.setSource(elementSource);
         defaultKeyGenerator.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         
         final BeanDefinitionRegistry registry = parserContext.getRegistry();
-        registry.registerBeanDefinition(DEFAULT_CACHE_KEY_GENERATOR, defaultKeyGenerator);
-        
-        return new RuntimeBeanReference(DEFAULT_CACHE_KEY_GENERATOR);
+        registry.registerBeanDefinition(generatorName, defaultKeyGenerator);
     }
+    
 
     /**
      * Create a {@link CacheAttributeSource} bean that will be used by the advisor and interceptor

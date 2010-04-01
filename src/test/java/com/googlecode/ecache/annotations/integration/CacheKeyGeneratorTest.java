@@ -47,6 +47,50 @@ public class CacheKeyGeneratorTest {
         Assert.assertEquals("singleCachedCall(foo)", cacheableTestInterface.singleCachedCall("foo"));
         Assert.assertEquals(1, cacheableTestInterface.singleCachedCallCount());
     }
+
+    @Test
+    public void testCallListCacheKeyGenerator() {
+        Assert.assertEquals(0, cacheableTestInterface.callListCacheKeyGeneratorCount());
+        
+        Assert.assertEquals("callListCacheKeyGenerator(foo)", cacheableTestInterface.callListCacheKeyGenerator("foo"));
+        Assert.assertEquals(1, cacheableTestInterface.callListCacheKeyGeneratorCount());
+        
+        Assert.assertEquals("callListCacheKeyGenerator(foo)", cacheableTestInterface.callListCacheKeyGenerator("foo"));
+        Assert.assertEquals(1, cacheableTestInterface.callListCacheKeyGeneratorCount());
+    }
+
+    @Test
+    public void testCallMessageDigestCacheKeyGenerator() {
+        Assert.assertEquals(0, cacheableTestInterface.callMessageDigestCacheKeyGeneratorCount());
+        
+        Assert.assertEquals("callMessageDigestCacheKeyGenerator(foo)", cacheableTestInterface.callMessageDigestCacheKeyGenerator("foo"));
+        Assert.assertEquals(1, cacheableTestInterface.callMessageDigestCacheKeyGeneratorCount());
+        
+        Assert.assertEquals("callMessageDigestCacheKeyGenerator(foo)", cacheableTestInterface.callMessageDigestCacheKeyGenerator("foo"));
+        Assert.assertEquals(1, cacheableTestInterface.callMessageDigestCacheKeyGeneratorCount());
+    }
+
+    @Test
+    public void testCallReflectionHashCodeCacheKeyGenerator() {
+        Assert.assertEquals(0, cacheableTestInterface.callReflectionHashCodeCacheKeyGeneratorCount());
+        
+        Assert.assertEquals("callReflectionHashCodeCacheKeyGenerator(foo)", cacheableTestInterface.callReflectionHashCodeCacheKeyGenerator("foo"));
+        Assert.assertEquals(1, cacheableTestInterface.callReflectionHashCodeCacheKeyGeneratorCount());
+        
+        Assert.assertEquals("callReflectionHashCodeCacheKeyGenerator(foo)", cacheableTestInterface.callReflectionHashCodeCacheKeyGenerator("foo"));
+        Assert.assertEquals(1, cacheableTestInterface.callReflectionHashCodeCacheKeyGeneratorCount());
+    }
+
+    @Test
+    public void testCallStringCacheKeyGenerator() {
+        Assert.assertEquals(0, cacheableTestInterface.callStringCacheKeyGeneratorCount());
+        
+        Assert.assertEquals("callStringCacheKeyGenerator(foo)", cacheableTestInterface.callStringCacheKeyGenerator("foo"));
+        Assert.assertEquals(1, cacheableTestInterface.callStringCacheKeyGeneratorCount());
+        
+        Assert.assertEquals("callStringCacheKeyGenerator(foo)", cacheableTestInterface.callStringCacheKeyGenerator("foo"));
+        Assert.assertEquals(1, cacheableTestInterface.callStringCacheKeyGeneratorCount());
+    }
 }
 
 

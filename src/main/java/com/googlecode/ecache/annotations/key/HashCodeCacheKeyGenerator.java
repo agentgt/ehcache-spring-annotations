@@ -34,8 +34,10 @@ import java.util.Arrays;
  * @version $Revision$
  */
 public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
-    public static final int INITIAL_HASH = 1;
-    public static final int MULTIPLIER = 31;
+    public static final String DEFAULT_BEAN_NAME = "com.googlecode.ecache.annotations.key.HashCodeCacheKeyGenerator.DEFAULT_BEAN_NAME";
+    
+    protected static final int INITIAL_HASH = 1;
+    protected static final int MULTIPLIER = 31;
     
     public HashCodeCacheKeyGenerator() {
     }

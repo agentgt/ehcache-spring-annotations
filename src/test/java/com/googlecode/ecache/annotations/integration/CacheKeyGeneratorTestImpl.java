@@ -38,4 +38,48 @@ public class CacheKeyGeneratorTestImpl implements CacheKeyGeneratorTestInterface
         return this.singleCachedCall;
     }
 
+    private int callListCacheKeyGenerator = 0;
+    public String callListCacheKeyGenerator(String argument) {
+        callListCacheKeyGenerator++;
+        return "callListCacheKeyGenerator(" + argument + ")";
+    }
+    public int callListCacheKeyGeneratorCount() {
+        return callListCacheKeyGenerator;
+    }
+
+    private int callHashCodeCacheKeyGenerator = 0;
+    public String callHashCodeCacheKeyGenerator(String argument) {
+        callHashCodeCacheKeyGenerator++;
+        return "callHashCodeCacheKeyGenerator(" + argument + ")";
+    }
+    public int callHashCodeCacheKeyGeneratorCount() {
+        return callHashCodeCacheKeyGenerator;
+    }
+
+    private int callMessageDigestCacheKeyGenerator = 0;
+    public String callMessageDigestCacheKeyGenerator(String argument) {
+        callMessageDigestCacheKeyGenerator++;
+        return "callMessageDigestCacheKeyGenerator(" + argument + ")";
+    }
+    public int callMessageDigestCacheKeyGeneratorCount() {
+        return callMessageDigestCacheKeyGenerator;
+    }
+
+    private int callReflectionHashCodeCacheKeyGenerator = 0;
+    public String callReflectionHashCodeCacheKeyGenerator(String argument) {
+        callReflectionHashCodeCacheKeyGenerator++;
+        return "callReflectionHashCodeCacheKeyGenerator(" + argument + ")";
+    }
+    public int callReflectionHashCodeCacheKeyGeneratorCount() {
+        return callReflectionHashCodeCacheKeyGenerator;
+    }
+
+    private int callStringCacheKeyGenerator = 0;
+    public String callStringCacheKeyGenerator(String argument) {
+        callStringCacheKeyGenerator++;
+        return "callStringCacheKeyGenerator(" + argument + ")";
+    }
+    public int callStringCacheKeyGeneratorCount() {
+        return callStringCacheKeyGenerator;
+    }
 }

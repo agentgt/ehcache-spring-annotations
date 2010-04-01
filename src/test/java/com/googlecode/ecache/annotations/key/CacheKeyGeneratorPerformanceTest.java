@@ -72,9 +72,9 @@ public class CacheKeyGeneratorPerformanceTest {
     public void testCacheKeyGeneratorPerformance() throws NoSuchAlgorithmException, InterruptedException, BrokenBarrierException {
         final Map<String, CacheKeyGenerator<? extends Serializable>> generators = new LinkedHashMap<String, CacheKeyGenerator<? extends Serializable>>();
         
-        generators.put("ArgumentListCacheKeyGenerator(true, true)", new ArgumentListCacheKeyGenerator(true, true));
-        generators.put("ArgumentListCacheKeyGenerator(true, false)", new ArgumentListCacheKeyGenerator(true, false));
-        generators.put("ArgumentListCacheKeyGenerator(false, false)", new ArgumentListCacheKeyGenerator(false, false));
+        generators.put("ListCacheKeyGenerator(true, true)", new ListCacheKeyGenerator(true, true));
+        generators.put("ListCacheKeyGenerator(true, false)", new ListCacheKeyGenerator(true, false));
+        generators.put("ListCacheKeyGenerator(false, false)", new ListCacheKeyGenerator(false, false));
         generators.put("StringCacheKeyGenerator(true, true)", new StringCacheKeyGenerator(true, true));
         generators.put("StringCacheKeyGenerator(true, false)", new StringCacheKeyGenerator(true, false));
         generators.put("StringCacheKeyGenerator(false, false)", new StringCacheKeyGenerator(false, false));
@@ -96,9 +96,9 @@ public class CacheKeyGeneratorPerformanceTest {
         threadGroupRunner.start();
         
         
-        for (int totalLoopCount = 1; totalLoopCount <= 4; totalLoopCount++) {
+        for (int totalLoopCount = 1; totalLoopCount <= 20; totalLoopCount++) {
             final long duration = 1000 * totalLoopCount;
-            System.out.println("Sleeping Before: " + duration);
+            System.out.println("Sleeping 5s Before: " + duration);
             Thread.sleep(5*1000);
             
             for (final Map.Entry<String, CacheKeyGenerator<? extends Serializable>> generatorEntry : generators.entrySet()) {
