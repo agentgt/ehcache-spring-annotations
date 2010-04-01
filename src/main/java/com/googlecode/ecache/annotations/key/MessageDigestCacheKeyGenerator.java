@@ -7,11 +7,9 @@
 package com.googlecode.ecache.annotations.key;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.codec.binary.Base64;
 
 /**
@@ -19,50 +17,30 @@ import org.apache.commons.codec.binary.Base64;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class MessageDigestCacheKeyGenerator implements CacheKeyGenerator<String> {
+public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<String> {
     private static final byte[] ZERO_AS_BYTES = new byte[] {0, 0, 0, 0};
     
     private final MessageDigest messageDigest;
-    private boolean includeMethod = true;
     
     public MessageDigestCacheKeyGenerator() throws NoSuchAlgorithmException {
-        this("SHA-1", true);
+        this("SHA-1", true, false);
     }
     
     public MessageDigestCacheKeyGenerator(String algorithm) throws NoSuchAlgorithmException {
-        this(algorithm, true);
+        this(algorithm, true, false);
     }
     
-    public MessageDigestCacheKeyGenerator(boolean includeMethod) throws NoSuchAlgorithmException {
-        this("SHA-1", includeMethod);
+    public MessageDigestCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) throws NoSuchAlgorithmException {
+        this("SHA-1", includeMethod, includeParameterTypes);
     }
     
-    /**
-     * @see MessageDigestCacheKeyGenerator#setIncludeMethod(boolean)
-     */
-    public MessageDigestCacheKeyGenerator(String algorithm, boolean includeMethod) throws NoSuchAlgorithmException {
-        this.includeMethod = includeMethod;
+    public MessageDigestCacheKeyGenerator(String algorithm, boolean includeMethod, boolean includeParameterTypes) throws NoSuchAlgorithmException {
+        super(includeMethod, includeParameterTypes);
         this.messageDigest = MessageDigest.getInstance(algorithm);
     }
-
-    /**
-     * @see MessageDigestCacheKeyGenerator#setIncludeMethod(boolean)
-     */
-    public boolean isIncludeMethod() {
-        return includeMethod;
-    }
-
-    /**
-     * @param includeMethod true If the {@link Method} from the {@link MethodInvocation} should be included in the generated key. Defaults to true.
-     */
-    public void setIncludeMethod(boolean includeMethod) {
-        this.includeMethod = includeMethod;
-    }
-
-    /* (non-Javadoc)
-     * @see com.googlecode.ecache.annotations.key.CacheKeyGenerator#generateKey(org.aopalliance.intercept.MethodInvocation)
-     */
-    public String generateKey(MethodInvocation methodInvocation) {
+    
+    @Override
+    protected String generateKey(Object... data) {
         MessageDigest digester;
         try {
             digester = (MessageDigest)this.messageDigest.clone();
@@ -77,16 +55,7 @@ public class MessageDigestCacheKeyGenerator implements CacheKeyGenerator<String>
             }
         }
         
-        final Object[] arguments = methodInvocation.getArguments();
-        
-        if (this.includeMethod) {
-            final Method method = methodInvocation.getMethod();
-            digest(digester, method.getDeclaringClass());
-            digest(digester, method.getName());
-            digest(digester, method.getReturnType());
-        }
-        
-        for (final Object arg : arguments) {
+        for (final Object arg : data) {
             digest(digester, arg);
         }
         
@@ -97,19 +66,30 @@ public class MessageDigestCacheKeyGenerator implements CacheKeyGenerator<String>
     protected void digest(MessageDigest messageDigest, Object o) {
         if (o == null) {
             messageDigest.update(ZERO_AS_BYTES);
+            return;
         }
-        else if (o instanceof Class<?>) {
-            this.digest(messageDigest, ((Class<?>)o).getName());
+        
+        if (!register(o)) {
+            //Return without digesting anything in the case of a circular reference
+            return;
         }
-        else if (o.getClass().isArray()) {
-            final int length = Array.getLength(o);
-            for (int index = 0; index < length; index++) {
-                final Object arrayValue = Array.get(o, index);
-                this.digest(messageDigest, arrayValue);
+        try {
+            if (o instanceof Class<?>) {
+                this.digest(messageDigest, ((Class<?>)o).getName());
+            }
+            else if (o.getClass().isArray()) {
+                final int length = Array.getLength(o);
+                for (int index = 0; index < length; index++) {
+                    final Object arrayValue = Array.get(o, index);
+                    this.digest(messageDigest, arrayValue);
+                }
+            }
+            else {
+                digest(messageDigest, o.hashCode());
             }
         }
-        else {
-            digest(messageDigest, o.hashCode());
+        finally {
+            unregister(o);
         }
     }
     

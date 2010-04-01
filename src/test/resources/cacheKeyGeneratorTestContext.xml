@@ -28,7 +28,7 @@
     
     <bean id="cacheKeyGeneratorTestImpl" class="com.googlecode.ecache.annotations.integration.CacheKeyGeneratorTestImpl"/>
     
-    <bean id="generatedHash" class="com.googlecode.ecache.annotations.key.SimpleHashCodeCacheKeyGenerator">
+    <bean id="generatedHash" class="com.googlecode.ecache.annotations.key.HashCodeCacheKeyGenerator">
     </bean>
     
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">

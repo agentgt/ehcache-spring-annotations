@@ -8,9 +8,7 @@ package com.googlecode.ecache.annotations.key;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -35,77 +33,52 @@ import org.aopalliance.intercept.MethodInvocation;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class StringCacheKeyGenerator implements CacheKeyGenerator<String> {
-    private boolean includeMethod = true;
+public class StringCacheKeyGenerator extends AbstractCacheKeyGenerator<String> {
+    private final static String NULL_STRING = String.valueOf((Object)null);
     
     public StringCacheKeyGenerator() {
     }
+
+    public StringCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) {
+        super(includeMethod, includeParameterTypes);
+    }
     
-    /**
-     * @see ArgumentListCacheKeyGenerator#setIncludeMethod(boolean)
-     */
-    public StringCacheKeyGenerator(boolean includeMethod) {
-        this.includeMethod = includeMethod;
-    }
-
-    /**
-     * @see ArgumentListCacheKeyGenerator#setIncludeMethod(boolean)
-     */
-    public boolean isIncludeMethod() {
-        return includeMethod;
-    }
-
-    /**
-     * @param includeMethod true If the {@link Method} from the {@link MethodInvocation} should be included in the generated key. Defaults to true.
-     */
-    public void setIncludeMethod(boolean includeMethod) {
-        this.includeMethod = includeMethod;
-    }
-
-    /* (non-Javadoc)
-     * @see com.googlecode.ecache.annotations.key.CacheKeyGenerator#generateKey(org.aopalliance.intercept.MethodInvocation)
-     */
-    public String generateKey(MethodInvocation methodInvocation) {
-        final Object[] arguments = methodInvocation.getArguments();
-        
-        final ArrayList<Object> keyList;
-        if (this.includeMethod) {
-            keyList = new ArrayList<Object>(arguments.length + 4);
-            
-            final Method method = methodInvocation.getMethod();
-            keyList.add(method.getDeclaringClass());
-            keyList.add(method.getName());
-            keyList.add(method.getReturnType());
-            keyList.add(this.arrayCheck(method.getParameterTypes()));
-        }
-        else {
-            keyList = new ArrayList<Object>(arguments.length);
-        }
-        
-        for (final Object arg : arguments) {
+    @Override
+    protected String generateKey(Object... data) {
+        final ArrayList<Object> keyList = new ArrayList<Object>(data.length);
+        for (final Object arg : data) {
             keyList.add(this.arrayCheck(arg));
         }
         
         return keyList.toString();
     }
     
-    protected Object arrayCheck(Object object) {
+    protected String arrayCheck(Object object) {
         if (object == null) {
-            return null;
+            return NULL_STRING;
         }
         
-        final Class<? extends Object> c = object.getClass();
-        if (!c.isArray()) {
-            return object;
+        if (!register(object)) {
+            //Return class name in place of the actual hash code in the case of a circular reference
+            return "\"CIRCULAR_REFERENCE:" + object.getClass().getName() + "\"";
         }
-
-        final int length = Array.getLength(object);
-        final ArrayList<Object> objArray = new ArrayList<Object>(length);
-        for (int index = 0; index < length; index++) {
-            final Object arrayValue = Array.get(object, index);
-            objArray.add(this.arrayCheck(arrayValue));
+        try {
+            final Class<? extends Object> c = object.getClass();
+            if (!c.isArray()) {
+                return object.toString();
+            }
+    
+            final int length = Array.getLength(object);
+            final ArrayList<Object> objArray = new ArrayList<Object>(length);
+            for (int index = 0; index < length; index++) {
+                final Object arrayValue = Array.get(object, index);
+                objArray.add(this.arrayCheck(arrayValue));
+            }
+            
+            return objArray.toString();
         }
-        
-        return Collections.unmodifiableList(objArray);
+        finally {
+            unregister(object);
+        }
     }
 }

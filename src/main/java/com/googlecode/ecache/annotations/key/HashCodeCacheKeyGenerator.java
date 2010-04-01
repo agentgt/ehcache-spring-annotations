@@ -9,8 +9,6 @@ package com.googlecode.ecache.annotations.key;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 /**
  * This key generator is a good option for fast but rough comparison of method invocations. The standard Java
  * hashCode method is used which will only provide 32bits of key space.
@@ -35,52 +33,22 @@ import org.aopalliance.intercept.MethodInvocation;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class SimpleHashCodeCacheKeyGenerator implements CacheKeyGenerator<Long> {
-    private boolean includeMethod = true;
+public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
+    public static final int INITIAL_HASH = 1;
+    public static final int MULTIPLIER = 31;
     
-    public SimpleHashCodeCacheKeyGenerator() {
-    }
-    
-    /**
-     * @see SimpleHashCodeCacheKeyGenerator#setIncludeMethod(boolean)
-     */
-    public SimpleHashCodeCacheKeyGenerator(boolean includeMethod) {
-        this.includeMethod = includeMethod;
+    public HashCodeCacheKeyGenerator() {
     }
 
-    /**
-     * @see SimpleHashCodeCacheKeyGenerator#setIncludeMethod(boolean)
-     */
-    public boolean isIncludeMethod() {
-        return includeMethod;
+    public HashCodeCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) {
+        super(includeMethod, includeParameterTypes);
     }
 
-    /**
-     * @param includeMethod true If the {@link Method} from the {@link MethodInvocation} should be included in the generated key. Defaults to true.
-     */
-    public void setIncludeMethod(boolean includeMethod) {
-        this.includeMethod = includeMethod;
-    }
 
-    /* (non-Javadoc)
-     * @see com.googlecode.ecache.annotations.key.CacheKeyGenerator#generateKey(org.aopalliance.intercept.MethodInvocation)
-     */
-    public Long generateKey(MethodInvocation methodInvocation) {
-        final Object[] arguments = methodInvocation.getArguments();
-        
-        if (this.includeMethod) {
-            final Method method = methodInvocation.getMethod();
-            
-            return deepHashCode(new Object[] {
-                    method.getDeclaringClass(),
-                    method.getName(),
-                    method.getReturnType(),
-                    arguments});
-        }
-        
-        return deepHashCode(arguments);
+    @Override
+    protected Long generateKey(Object... data) {
+        return this.deepHashCode(data);
     }
-    
 
     /**
      * @see Arrays#hashCode(long[])
@@ -89,10 +57,10 @@ public class SimpleHashCodeCacheKeyGenerator implements CacheKeyGenerator<Long> 
         if (a == null)
             return 0;
 
-        long result = 1;
+        long result = INITIAL_HASH;
         for (final long element : a) {
             int elementHash = (int)(element ^ (element >>> 32));
-            result = 31 * result + elementHash;
+            result = MULTIPLIER * result + elementHash;
         }
 
         return result;
@@ -105,9 +73,9 @@ public class SimpleHashCodeCacheKeyGenerator implements CacheKeyGenerator<Long> 
         if (a == null)
             return 0;
 
-        long result = 1;
+        long result = INITIAL_HASH;
         for (final int element : a)
-            result = 31 * result + element;
+            result = MULTIPLIER * result + element;
 
         return result;
     }
@@ -119,9 +87,9 @@ public class SimpleHashCodeCacheKeyGenerator implements CacheKeyGenerator<Long> 
         if (a == null)
             return 0;
 
-        long result = 1;
+        long result = INITIAL_HASH;
         for (final short element : a)
-            result = 31 * result + element;
+            result = MULTIPLIER * result + element;
 
         return result;
     }
@@ -133,9 +101,9 @@ public class SimpleHashCodeCacheKeyGenerator implements CacheKeyGenerator<Long> 
         if (a == null)
             return 0;
 
-        long result = 1;
+        long result = INITIAL_HASH;
         for (final char element : a)
-            result = 31 * result + element;
+            result = MULTIPLIER * result + element;
 
         return result;
     }
@@ -147,9 +115,9 @@ public class SimpleHashCodeCacheKeyGenerator implements CacheKeyGenerator<Long> 
         if (a == null)
             return 0;
 
-        long result = 1;
+        long result = INITIAL_HASH;
         for (final byte element : a)
-            result = 31 * result + element;
+            result = MULTIPLIER * result + element;
 
         return result;
     }
@@ -161,9 +129,9 @@ public class SimpleHashCodeCacheKeyGenerator implements CacheKeyGenerator<Long> 
         if (a == null)
             return 0;
 
-        long result = 1;
+        long result = INITIAL_HASH;
         for (final boolean element : a)
-            result = 31 * result + (element ? 1231 : 1237);
+            result = MULTIPLIER * result + (element ? 1231 : 1237);
 
         return result;
     }
@@ -175,9 +143,9 @@ public class SimpleHashCodeCacheKeyGenerator implements CacheKeyGenerator<Long> 
         if (a == null)
             return 0;
 
-        long result = 1;
+        long result = INITIAL_HASH;
         for (final float element : a)
-            result = 31 * result + Float.floatToIntBits(element);
+            result = MULTIPLIER * result + Float.floatToIntBits(element);
 
         return result;
     }
@@ -189,10 +157,10 @@ public class SimpleHashCodeCacheKeyGenerator implements CacheKeyGenerator<Long> 
         if (a == null)
             return 0;
 
-        long result = 1;
+        long result = INITIAL_HASH;
         for (final double element : a) {
             long bits = Double.doubleToLongBits(element);
-            result = 31 * result + (int)(bits ^ (bits >>> 32));
+            result = MULTIPLIER * result + (int)(bits ^ (bits >>> 32));
         }
         return result;
     }
@@ -204,41 +172,50 @@ public class SimpleHashCodeCacheKeyGenerator implements CacheKeyGenerator<Long> 
         if (a == null)
             return 0;
 
-        long result = 1;
+        long result = INITIAL_HASH;
 
         for (final Object element : a) {
             final long elementHash = this.hashCode(element);
-            result = 31 * result + elementHash;
+            result = MULTIPLIER * result + elementHash;
         }
 
         return result;
     }
 
-    protected long hashCode(Object element) {
-        long elementHash = 0;
-        if (element instanceof Object[])
-            elementHash = deepHashCode((Object[]) element);
-        else if (element instanceof byte[])
-            elementHash = hashCode((byte[]) element);
-        else if (element instanceof short[])
-            elementHash = hashCode((short[]) element);
-        else if (element instanceof int[])
-            elementHash = hashCode((int[]) element);
-        else if (element instanceof long[])
-            elementHash = hashCode((long[]) element);
-        else if (element instanceof char[])
-            elementHash = hashCode((char[]) element);
-        else if (element instanceof float[])
-            elementHash = hashCode((float[]) element);
-        else if (element instanceof double[])
-            elementHash = hashCode((double[]) element);
-        else if (element instanceof boolean[])
-            elementHash = hashCode((boolean[]) element);
-        else if (element instanceof Class<?>)
-            elementHash = this.getHashCode((Class<?>)element);
-        else if (element != null)
-            elementHash = this.getHashCode(element);
-        return elementHash;
+    protected final long hashCode(Object element) {
+        if (element == null || !register(element)) {
+            //Return 0 in place of the actual hash code in the case of a circular reference
+            return 0;
+        }
+        try {
+            long elementHash = 0;
+            if (element instanceof Object[])
+                elementHash = deepHashCode((Object[]) element);
+            else if (element instanceof byte[])
+                elementHash = hashCode((byte[]) element);
+            else if (element instanceof short[])
+                elementHash = hashCode((short[]) element);
+            else if (element instanceof int[])
+                elementHash = hashCode((int[]) element);
+            else if (element instanceof long[])
+                elementHash = hashCode((long[]) element);
+            else if (element instanceof char[])
+                elementHash = hashCode((char[]) element);
+            else if (element instanceof float[])
+                elementHash = hashCode((float[]) element);
+            else if (element instanceof double[])
+                elementHash = hashCode((double[]) element);
+            else if (element instanceof boolean[])
+                elementHash = hashCode((boolean[]) element);
+            else if (element instanceof Class<?>)
+                elementHash = this.getHashCode((Class<?>)element);
+            else
+                elementHash = this.getHashCode(element);
+            return elementHash;
+        }
+        finally {
+            unregister(element);
+        }
     }
     
     /**

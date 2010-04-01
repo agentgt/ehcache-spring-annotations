@@ -10,6 +10,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 
 import org.springframework.util.ReflectionUtils;
 
@@ -17,13 +18,12 @@ import org.springframework.util.ReflectionUtils;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class ReflectionHashCodeCacheKeyGenerator extends SimpleHashCodeCacheKeyGenerator {
-    
+public class ReflectionHashCodeCacheKeyGenerator extends HashCodeCacheKeyGenerator {
     public ReflectionHashCodeCacheKeyGenerator() {
     }
 
-    public ReflectionHashCodeCacheKeyGenerator(boolean includeMethod) {
-        super(includeMethod);
+    public ReflectionHashCodeCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) {
+        super(includeMethod, includeParameterTypes);
     }
 
     @Override
@@ -38,15 +38,15 @@ public class ReflectionHashCodeCacheKeyGenerator extends SimpleHashCodeCacheKeyG
         }
         
         //Resolve the hashCode method to call
-        final Method hashCodeMethod = ReflectionUtils.findMethod(clazz, "hashCode", new Class[0]);
+        final Method hashCodeMethod = ReflectionUtils.findMethod(clazz, "hashCode");
         
-        //No hashCode method on the class, simply call it on the object passed in
-        if (hashCodeMethod != null) {
+        //hashCode method on the class, simply call it
+        if (hashCodeMethod != null && hashCodeMethod.getDeclaringClass() != Object.class) {
             return o.hashCode();
         }
 
         // could not find a hashCode other than the one declared by java.lang.Object
-        long result = 1;
+        long result = INITIAL_HASH;
 
         try {
             for (Class<?> targetClass = o.getClass(); targetClass != null; targetClass = targetClass.getSuperclass()) {
@@ -54,12 +54,12 @@ public class ReflectionHashCodeCacheKeyGenerator extends SimpleHashCodeCacheKeyG
                 AccessibleObject.setAccessible(fields, true);
 
                 for (int i = 0; i < fields.length; i++) {
-                    Field field = fields[i];
-                    int modifiers = field.getModifiers();
+                    final Field field = fields[i];
+                    final int modifiers = field.getModifiers();
 
-                    if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
+                    if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers) && !field.getName().startsWith("this$")) {
                         final Object fieldValue = field.get(o);
-                        result = 31 * result + this.hashCode(fieldValue);
+                        result = MULTIPLIER * result + this.hashCode(fieldValue);
                     }
                 }
             }
@@ -70,5 +70,14 @@ public class ReflectionHashCodeCacheKeyGenerator extends SimpleHashCodeCacheKeyG
 
         return result;
     }
-    
+
+    protected long hashCode(Collection<?> collection) {
+        long result = INITIAL_HASH;
+        
+        for (final Object element : collection) {
+            result = MULTIPLIER * result + this.hashCode(element);
+        }
+
+        return result;
+    }
 }

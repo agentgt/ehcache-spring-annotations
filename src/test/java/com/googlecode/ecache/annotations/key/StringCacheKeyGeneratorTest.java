@@ -18,9 +18,36 @@ import org.junit.Test;
  * @version $Revision$
  */
 public class StringCacheKeyGeneratorTest {
+
+    @Test
+    public void testCircularReference() {
+        final StringCacheKeyGenerator generator = new StringCacheKeyGenerator(false, false);
+        generator.setCheckforCycles(true);
+        
+        final Object[] arg = new Object[2];
+        final Object[] childArg = new Object[2];
+        arg[0] = childArg;
+        arg[1] = "argString";
+        childArg[0] = arg;
+        childArg[1] = "childArgString";
+        
+        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { arg });
+        
+        EasyMock.replay(invocation);
+
+        final String key = generator.generateKey(invocation);
+        final String expectedKey = "[[[\"CIRCULAR_REFERENCE:[Ljava.lang.Object;\", childArgString], argString]]";
+        
+        Assert.assertEquals(expectedKey, key);
+        
+        EasyMock.verify(invocation);
+    }
+    
+    
     @Test
     public void testGenerateArgumentWithoutMethodKey() {
-        final StringCacheKeyGenerator generator = new StringCacheKeyGenerator(false);
+        final StringCacheKeyGenerator generator = new StringCacheKeyGenerator(false, false);
         
         final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
         EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { 
@@ -36,14 +63,13 @@ public class StringCacheKeyGeneratorTest {
         final String expectedKey = "[[1, 2, 3, 4], foo, [false, true], null]";
         
         Assert.assertEquals(expectedKey, key);
-        Assert.assertEquals(expectedKey.hashCode(), key.hashCode());
         
         EasyMock.verify(invocation);
     }
     
     @Test
     public void testGenerateArgumentWithMethodKey() throws SecurityException, NoSuchMethodException {
-        final StringCacheKeyGenerator generator = new StringCacheKeyGenerator();
+        final StringCacheKeyGenerator generator = new StringCacheKeyGenerator(true, true);
         
         final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod2", int[].class, String.class, boolean[].class, Object.class);
         
@@ -59,10 +85,9 @@ public class StringCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
         
         final String key = generator.generateKey(invocation);
-        final String expectedKey = "[class com.googlecode.ecache.annotations.key.MethodInvocationHelper, testMethod2, class java.lang.Object, [class [I, class java.lang.String, class [Z, class java.lang.Object], [1, 2, 3, 4], foo, [false, true], null]";
+        final String expectedKey = "[class com.googlecode.ecache.annotations.key.MethodInvocationHelper, testMethod2, class java.lang.Object, [class [I, class java.lang.String, class [Z, class java.lang.Object], [[1, 2, 3, 4], foo, [false, true], null]]";
         
         Assert.assertEquals(expectedKey, key);
-        Assert.assertEquals(expectedKey.hashCode(), key.hashCode());
         
         EasyMock.verify(invocation);
     }

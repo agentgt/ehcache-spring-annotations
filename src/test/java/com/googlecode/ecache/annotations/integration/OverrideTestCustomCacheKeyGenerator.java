@@ -21,18 +21,18 @@ import java.io.Serializable;
 import org.aopalliance.intercept.MethodInvocation;
 
 import com.googlecode.ecache.annotations.key.CacheKeyGenerator;
-import com.googlecode.ecache.annotations.key.SimpleHashCodeCacheKeyGenerator;
+import com.googlecode.ecache.annotations.key.HashCodeCacheKeyGenerator;
 
 /**
- * Custom {@link CacheKeyGenerator} that delegates to a {@link SimpleHashCodeCacheKeyGenerator}
+ * Custom {@link CacheKeyGenerator} that delegates to a {@link HashCodeCacheKeyGenerator}
  * and counts invocations; used in {@link OverrideDefaultCacheKeyGeneratorTest}.
  * @author Nicholas Blair, nblair@doit.wisc.edu
  * @version $Id$
  */
-public class OverrideTestCustomCacheKeyGenerator implements CacheKeyGenerator {
+public class OverrideTestCustomCacheKeyGenerator implements CacheKeyGenerator<Serializable> {
 
 	private int callCount = 0;
-	private SimpleHashCodeCacheKeyGenerator delegate = new SimpleHashCodeCacheKeyGenerator();
+	private HashCodeCacheKeyGenerator delegate = new HashCodeCacheKeyGenerator();
 	/* (non-Javadoc)
 	 * @see com.googlecode.ecache.annotations.key.CacheKeyGenerator#generateKey(org.aopalliance.intercept.MethodInvocation)
 	 */

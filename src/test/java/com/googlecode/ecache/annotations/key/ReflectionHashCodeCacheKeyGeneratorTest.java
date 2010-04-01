@@ -17,18 +17,17 @@ import org.junit.Test;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class HashCodeCacheKeyGeneratorTest {
-
+public class ReflectionHashCodeCacheKeyGeneratorTest {
     @Test
     public void testCircularReference() {
-        final HashCodeCacheKeyGenerator generator = new HashCodeCacheKeyGenerator(false, false);
+        final ReflectionHashCodeCacheKeyGenerator generator = new ReflectionHashCodeCacheKeyGenerator(false, false);
         generator.setCheckforCycles(true);
         
         final Object[] arg = new Object[2];
         final Object[] childArg = new Object[2];
         arg[0] = childArg;
         arg[1] = "argString";
-        childArg[0] = arg;
+        childArg[0] = new ReflectionKey(arg);
         childArg[1] = "childArgString";
         
         final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
@@ -37,7 +36,7 @@ public class HashCodeCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
         
         final Long key = generator.generateKey(invocation);
-        Assert.assertEquals(Long.valueOf(55143651163l), key);
+        Assert.assertEquals(Long.valueOf(55143680954l), key);
         
         EasyMock.verify(invocation);
     }
@@ -45,7 +44,7 @@ public class HashCodeCacheKeyGeneratorTest {
     
     @Test
     public void testNegativeOne() {
-        final HashCodeCacheKeyGenerator generator = new HashCodeCacheKeyGenerator(false, false);
+        final ReflectionHashCodeCacheKeyGenerator generator = new ReflectionHashCodeCacheKeyGenerator(false, false);
         
         final MethodInvocation negOneCall = EasyMock.createMock(MethodInvocation.class);
         EasyMock.expect(negOneCall.getArguments()).andReturn(new Object[] { -1 });
@@ -60,7 +59,7 @@ public class HashCodeCacheKeyGeneratorTest {
     
     @Test
     public void testMinimumInt() {
-        final HashCodeCacheKeyGenerator generator = new HashCodeCacheKeyGenerator(false, false);
+        final ReflectionHashCodeCacheKeyGenerator generator = new ReflectionHashCodeCacheKeyGenerator(false, false);
         
         final MethodInvocation negOneCall = EasyMock.createMock(MethodInvocation.class);
         EasyMock.expect(negOneCall.getArguments()).andReturn(new Object[] { Integer.MIN_VALUE });
@@ -75,7 +74,7 @@ public class HashCodeCacheKeyGeneratorTest {
     
     @Test
     public void testMaximumInt() {
-        final HashCodeCacheKeyGenerator generator = new HashCodeCacheKeyGenerator(false, false);
+        final ReflectionHashCodeCacheKeyGenerator generator = new ReflectionHashCodeCacheKeyGenerator(false, false);
         
         final MethodInvocation negOneCall = EasyMock.createMock(MethodInvocation.class);
         EasyMock.expect(negOneCall.getArguments()).andReturn(new Object[] { Integer.MAX_VALUE });
@@ -90,7 +89,7 @@ public class HashCodeCacheKeyGeneratorTest {
     
     @Test
     public void testComplexHashCode() throws SecurityException, NoSuchMethodException {
-        final HashCodeCacheKeyGenerator generator = new HashCodeCacheKeyGenerator(true, true);
+        final ReflectionHashCodeCacheKeyGenerator generator = new ReflectionHashCodeCacheKeyGenerator(true, true);
         
         final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod2", int[].class, String.class, boolean[].class, Object.class);
         
@@ -99,7 +98,7 @@ public class HashCodeCacheKeyGeneratorTest {
         EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { 
                 new int[] {1, 2, 3, 4}, 
                 "foo", 
-                new boolean[] {false, true},
+                new ReflectionKey(new boolean[] {false, true}),
                 null
                 });
         
@@ -107,8 +106,16 @@ public class HashCodeCacheKeyGeneratorTest {
         
         final Long key = generator.generateKey(invocation);
         
-        Assert.assertEquals(Long.valueOf(-585326292264226l), key);
+        Assert.assertEquals(Long.valueOf(-585326292263265l), key);
         
         EasyMock.verify(invocation);
+    }
+    
+    private class ReflectionKey {
+        private final Object hiddenKey;
+
+        public ReflectionKey(Object hiddenKey) {
+            this.hiddenKey = hiddenKey;
+        }
     }
 }

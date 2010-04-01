@@ -42,7 +42,7 @@ import com.googlecode.ecache.annotations.impl.CacheAttributeSourceImpl;
 import com.googlecode.ecache.annotations.impl.CacheStaticMethodMatcherPointcut;
 import com.googlecode.ecache.annotations.interceptor.EhCacheInterceptor;
 import com.googlecode.ecache.annotations.key.CacheKeyGenerator;
-import com.googlecode.ecache.annotations.key.SimpleHashCodeCacheKeyGenerator;
+import com.googlecode.ecache.annotations.key.HashCodeCacheKeyGenerator;
 
 
 /**
@@ -61,7 +61,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
 
     public static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAdvisor";
     
-    public static final Class<? extends CacheKeyGenerator<? extends Serializable>> DEFAULT_CACHE_KEY_GENERATOR_CLASS = SimpleHashCodeCacheKeyGenerator.class;
+    public static final Class<? extends CacheKeyGenerator<? extends Serializable>> DEFAULT_CACHE_KEY_GENERATOR_CLASS = HashCodeCacheKeyGenerator.class;
     public static final String DEFAULT_CACHE_KEY_GENERATOR = DEFAULT_CACHE_KEY_GENERATOR_CLASS.getName() + "_DEFAULT";
     
     

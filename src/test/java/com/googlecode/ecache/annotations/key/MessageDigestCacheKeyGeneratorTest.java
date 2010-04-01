@@ -19,9 +19,38 @@ import org.junit.Test;
  * @version $Revision$
  */
 public class MessageDigestCacheKeyGeneratorTest {
+
+    @Test
+    public void testCircularReference() throws NoSuchAlgorithmException, SecurityException, NoSuchMethodException {
+        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator("SHA-512", true, true);
+        generator.setCheckforCycles(true);
+        
+        final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
+        
+        final Object[] arg = new Object[2];
+        final Object[] childArg = new Object[2];
+        arg[0] = childArg;
+        arg[1] = "argString";
+        childArg[0] = arg;
+        childArg[1] = "childArgString";
+        
+        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
+        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { arg });
+        
+        EasyMock.replay(invocation);
+        
+        final String key = generator.generateKey(invocation);
+        final String expectedKey = "wy118e1IVPqlGnDR96_19rJd56AEOzMOH3427gU11mOJSfQVkzd1zhp9ONAmcrRVklEJdlEC6rVK6bQ7orcp_A";
+        
+        Assert.assertEquals(expectedKey, key);
+        
+        EasyMock.verify(invocation);
+    }
+    
     @Test
     public void testNegativeOne() throws NoSuchAlgorithmException {
-        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator(false);
+        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator(false, false);
         
         final MethodInvocation negOneCall = EasyMock.createMock(MethodInvocation.class);
         EasyMock.expect(negOneCall.getArguments()).andReturn(new Object[] { -1 });
@@ -36,7 +65,7 @@ public class MessageDigestCacheKeyGeneratorTest {
     
     @Test
     public void testMinimumInt() throws NoSuchAlgorithmException {
-        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator(false);
+        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator(false, false);
         
         final MethodInvocation negOneCall = EasyMock.createMock(MethodInvocation.class);
         EasyMock.expect(negOneCall.getArguments()).andReturn(new Object[] { Integer.MIN_VALUE });
@@ -51,7 +80,7 @@ public class MessageDigestCacheKeyGeneratorTest {
     
     @Test
     public void testMaximumInt() throws NoSuchAlgorithmException {
-        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator(false);
+        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator(false, false);
         
         final MethodInvocation negOneCall = EasyMock.createMock(MethodInvocation.class);
         EasyMock.expect(negOneCall.getArguments()).andReturn(new Object[] { Integer.MAX_VALUE });
@@ -66,7 +95,7 @@ public class MessageDigestCacheKeyGeneratorTest {
     
     @Test
     public void testComplexDigest() throws NoSuchAlgorithmException, SecurityException, NoSuchMethodException {
-        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator("SHA-512", true);
+        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator("SHA-512", true, true);
         
         final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod2", int[].class, String.class, boolean[].class, Object.class);
         
@@ -82,7 +111,7 @@ public class MessageDigestCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
         
         final String key = generator.generateKey(invocation);
-        final String expectedKey = "PN6U1JjBqNfk6WhUCHaEtKNc20sB5Cyzxqt57iPw3NOjA8uNN11_V-nDZnRPfAb_vArhM5W2yBuu9_9ekOkfpA";
+        final String expectedKey = "ZGTQAZI8yXCfPXwPXPS0dFL0lA6n4rj2Vge32jU2S3u94UY2fWAN34hMnyf3YJiDx9AtieTah076x6ywgN7lnQ";
         
         Assert.assertEquals(expectedKey, key);
         

@@ -12,8 +12,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 /**
  * This key generator is a good option when you want to be 100% sure that two sets of method invocation arguments
  * are the same. The original arguments are completely preserved and used in every hashCode and equals call made
@@ -43,78 +41,47 @@ import org.aopalliance.intercept.MethodInvocation;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class ArgumentListCacheKeyGenerator implements CacheKeyGenerator<ReadOnlyList<Serializable>> {
-    private boolean includeMethod = true;
-    
+public class ArgumentListCacheKeyGenerator extends AbstractCacheKeyGenerator<ReadOnlyList<Serializable>> {
     public ArgumentListCacheKeyGenerator() {
     }
+
+    public ArgumentListCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) {
+        super(includeMethod, includeParameterTypes);
+    }
     
-    /**
-     * @see ArgumentListCacheKeyGenerator#setIncludeMethod(boolean)
-     */
-    public ArgumentListCacheKeyGenerator(boolean includeMethod) {
-        this.includeMethod = includeMethod;
-    }
-
-    /**
-     * @see ArgumentListCacheKeyGenerator#setIncludeMethod(boolean)
-     */
-    public boolean isIncludeMethod() {
-        return includeMethod;
-    }
-
-    /**
-     * @param includeMethod true If the {@link Method} from the {@link MethodInvocation} should be included in the generated key. Defaults to true.
-     */
-    public void setIncludeMethod(boolean includeMethod) {
-        this.includeMethod = includeMethod;
-    }
-
-    /* (non-Javadoc)
-     * @see com.googlecode.ecache.annotations.key.CacheKeyGenerator#generateKey(org.aopalliance.intercept.MethodInvocation)
-     */
-    public ReadOnlyList<Serializable> generateKey(MethodInvocation methodInvocation) {
-        final Object[] arguments = methodInvocation.getArguments();
+    @Override
+    protected ReadOnlyList<Serializable> generateKey(Object... data) {
+        final ArrayList<Serializable> keyList = new ArrayList<Serializable>(data.length);
         
-        final ArrayList<Serializable> keyList;
-        if (this.includeMethod) {
-            keyList = new ArrayList<Serializable>(arguments.length + 4);
-            
-            final Method method = methodInvocation.getMethod();
-            keyList.add(method.getDeclaringClass());
-            keyList.add(method.getName());
-            keyList.add(method.getReturnType());
-            keyList.add(this.arrayCheck(method.getParameterTypes()));
-        }
-        else {
-            keyList = new ArrayList<Serializable>(arguments.length);
-        }
-        
-        for (final Object arg : arguments) {
+        for (final Object arg : data) {
             keyList.add(this.arrayCheck((Serializable)arg));
         }
         
-        //Cast here is ugly by we know unmodifiable list is serializable
         return new ReadOnlyList<Serializable>(keyList);
     }
     
     protected Serializable arrayCheck(Serializable object) {
-        if (object == null) {
+        if (object == null || !register(object)) {
+            //Return null in place of the actual hash code in the case of a circular reference
             return null;
         }
-        
-        final Class<? extends Object> c = object.getClass();
-        if (!c.isArray()) {
-            return object;
+        try {
+            final Class<? extends Object> c = object.getClass();
+            if (!c.isArray()) {
+                return object;
+            }
+    
+            final int length = Array.getLength(object);
+            final ArrayList<Object> objArray = new ArrayList<Object>(length);
+            for (int index = 0; index < length; index++) {
+                final Object arrayValue = Array.get(object, index);
+                objArray.add(this.arrayCheck((Serializable)arrayValue));
+            }
+            
+            return (Serializable)Collections.unmodifiableList(objArray);
         }
-
-        final int length = Array.getLength(object);
-        final ArrayList<Object> objArray = new ArrayList<Object>(length);
-        for (int index = 0; index < length; index++) {
-            final Object arrayValue = Array.get(object, index);
-            objArray.add(this.arrayCheck((Serializable)arrayValue));
+        finally {
+            unregister(object);
         }
-        
-        return (Serializable)Collections.unmodifiableList(objArray);
     }
 }
