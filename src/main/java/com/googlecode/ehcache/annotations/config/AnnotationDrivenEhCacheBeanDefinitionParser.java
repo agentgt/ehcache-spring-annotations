@@ -84,12 +84,12 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
                 this.setupCacheAttributeSource(element, parserContext, elementSource, defaultCacheKeyGeneratorReference);
             
             final RuntimeBeanReference pointcutReference = 
-                this.setupPointcut(parserContext, elementSource, cacheAttributeSourceReference);
+                this.setupPointcut(element, parserContext, elementSource, cacheAttributeSourceReference);
             
             final RuntimeBeanReference interceptorReference = 
-                this.setupInterceptor(parserContext, elementSource, cacheAttributeSourceReference);
+                this.setupInterceptor(element, parserContext, elementSource, cacheAttributeSourceReference);
             
-            this.setupPointcutAdvisor(parserContext, elementSource, pointcutReference, interceptorReference);
+            this.setupPointcutAdvisor(element, parserContext, elementSource, pointcutReference, interceptorReference);
            
         }
         return null;
@@ -167,7 +167,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
      * 
      * @return Reference to the {@link Pointcut}. Should never be null.
      */
-    protected RuntimeBeanReference setupPointcut(ParserContext parserContext, Object elementSource, RuntimeBeanReference cacheAttributeSource) {
+    protected RuntimeBeanReference setupPointcut(Element element, ParserContext parserContext, Object elementSource, RuntimeBeanReference cacheAttributeSource) {
         final RootBeanDefinition pointcut = new RootBeanDefinition(CacheStaticMethodMatcherPointcut.class);
         pointcut.setSource(elementSource);
         pointcut.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -185,7 +185,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
      * 
      * @return Reference to the {@link MethodInterceptor}. Should never be null.
      */
-    protected RuntimeBeanReference setupInterceptor(ParserContext parserContext, Object elementSource, RuntimeBeanReference cacheableAttributeSourceRuntimeReference) {
+    protected RuntimeBeanReference setupInterceptor(Element element, ParserContext parserContext, Object elementSource, RuntimeBeanReference cacheableAttributeSourceRuntimeReference) {
         final RootBeanDefinition interceptor = new RootBeanDefinition(EhCacheInterceptor.class);
         interceptor.setSource(elementSource);
         interceptor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -203,7 +203,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
      * 
      * @return Reference to the {@link PointcutAdvisor}. Should never be null.
      */
-    protected RuntimeBeanReference setupPointcutAdvisor(ParserContext parserContext, Object elementSource, RuntimeBeanReference cacheablePointcutBeanReference,  RuntimeBeanReference cachingInterceptorBeanReference) {
+    protected RuntimeBeanReference setupPointcutAdvisor(Element element, ParserContext parserContext, Object elementSource, RuntimeBeanReference cacheablePointcutBeanReference,  RuntimeBeanReference cachingInterceptorBeanReference) {
         final RootBeanDefinition pointcutAdvisor = new RootBeanDefinition(DefaultBeanFactoryPointcutAdvisor.class);
         pointcutAdvisor.setSource(elementSource);
         pointcutAdvisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -211,6 +211,9 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         final MutablePropertyValues propertyValues = pointcutAdvisor.getPropertyValues();
         propertyValues.add("adviceBeanName", cachingInterceptorBeanReference.getBeanName());
         propertyValues.add("pointcut", cacheablePointcutBeanReference);
+        if (element.hasAttribute("order")) {
+            propertyValues.addPropertyValue("order", element.getAttribute("order"));
+        }
         
         final BeanDefinitionRegistry registry = parserContext.getRegistry();
         registry.registerBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME, pointcutAdvisor);
