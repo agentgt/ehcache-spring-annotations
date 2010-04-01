@@ -30,7 +30,7 @@ import org.apache.commons.codec.binary.Base64;
 public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<String> {
     public static final String DEFAULT_BEAN_NAME = "com.googlecode.ehcache.annotations.key.MessageDigestCacheKeyGenerator.DEFAULT_BEAN_NAME";
     
-    protected static final byte[] ZERO_AS_BYTES = new byte[] {0, 0, 0, 0};
+    private static final byte[] ZERO_AS_BYTES = new byte[] {0, 0, 0, 0};
     
     private final MessageDigest messageDigest;
     
