@@ -26,6 +26,6 @@
 
     <ehcache:config create-missing-caches="true" default-cache-key-generator="undefinedCustomCacheKeyGenerator" />
     
-    <bean id="cacheableTestImpl" class="com.googlecode.ecache.annotations.integration.CacheableTestImpl"/>
+    <bean id="cacheableTestImpl" class="com.googlecode.ehcache.annotations.integration.CacheableTestImpl"/>
     
 </beans>

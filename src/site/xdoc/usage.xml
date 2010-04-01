@@ -146,9 +146,9 @@ public class CacheableTestImpl implements CacheableTestInterface {
    	}
 }
 	</source>
-	<p>The @Cacheable annotation supplies a default mechanism for generating Cache keys (see com.googlecode.ecache.annotations.key.CacheKeyGenerator) that uses reflection
+	<p>The @Cacheable annotation supplies a default mechanism for generating Cache keys (see com.googlecode.ehcache.annotations.key.CacheKeyGenerator) that uses reflection
 	to calculate a hashCode based key from the MethodInvocation (class, method, and arguments). If you need to override this behavior, create an implementation
-	of com.googlecode.ecache.annotations.key.CacheKeyGenerator in your project, specify an instance in your Spring configuration, and pass the bean name into the
+	of com.googlecode.ehcache.annotations.key.CacheKeyGenerator in your project, specify an instance in your Spring configuration, and pass the bean name into the
 	keyGeneratorName attribute. We generally recommend that you do not override the default CacheKeyGenerator, use this only if you truly understand the consequences.</p>
 	
 	</section> <!-- END Marking methods @Cacheable -->

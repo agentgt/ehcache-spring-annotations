@@ -29,6 +29,6 @@
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     </bean>
     
-    <bean id="triggersRemoveTestImpl" class="com.googlecode.ecache.annotations.integration.TriggersRemoveTestImpl"/>
+    <bean id="triggersRemoveTestImpl" class="com.googlecode.ehcache.annotations.integration.TriggersRemoveTestImpl"/>
     
 </beans>

@@ -26,8 +26,8 @@
 
     <ehcache:config create-missing-caches="true" default-cache-key-generator="myCustomCacheKeyGenerator"/>
     
-    <bean id="testDao" class="com.googlecode.ecache.annotations.integration.OverrideTestImpl"/>
-    <bean id="myCustomCacheKeyGenerator" class="com.googlecode.ecache.annotations.integration.OverrideTestCustomCacheKeyGenerator"/>
+    <bean id="testDao" class="com.googlecode.ehcache.annotations.integration.OverrideTestImpl"/>
+    <bean id="myCustomCacheKeyGenerator" class="com.googlecode.ehcache.annotations.integration.OverrideTestCustomCacheKeyGenerator"/>
     
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     </bean>

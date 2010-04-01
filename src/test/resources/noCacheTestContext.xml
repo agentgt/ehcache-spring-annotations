@@ -26,7 +26,7 @@
 
     <ehcache:config/>
     
-    <bean id="missingCacheNameImpl" class="com.googlecode.ecache.annotations.integration.MissingCacheNameImpl"/>
+    <bean id="missingCacheNameImpl" class="com.googlecode.ehcache.annotations.integration.MissingCacheNameImpl"/>
     
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     </bean>

@@ -29,5 +29,5 @@
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     </bean>
     
-    <bean id="cacheableTestImpl" class="com.googlecode.ecache.annotations.integration.CacheableTestImpl"/>
+    <bean id="cacheableTestImpl" class="com.googlecode.ehcache.annotations.integration.CacheableTestImpl"/>
 </beans>
