@@ -109,7 +109,7 @@ public class HashCodeCacheKeyGeneratorTest {
         
         final Long key = generator.generateKey(invocation);
         
-        Assert.assertEquals(Long.valueOf(-585326292264226l), key);
+        Assert.assertEquals(Long.valueOf(-43138117840462l), key);
         
         EasyMock.verify(invocation);
     }

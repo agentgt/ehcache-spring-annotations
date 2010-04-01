@@ -43,7 +43,7 @@ public class MessageDigestCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
         
         final String key = generator.generateKey(invocation);
-        final String expectedKey = "wy118e1IVPqlGnDR96_19rJd56AEOzMOH3427gU11mOJSfQVkzd1zhp9ONAmcrRVklEJdlEC6rVK6bQ7orcp_A";
+        final String expectedKey = "hDVuN9HgFvbA4SHQf1P94gw0sw0R7ileTuXbxnUjDvyWG64Pjp8jHYdX1F4DqZ9w6FzyE_4GpPb5VEieB4NabA";
         
         Assert.assertEquals(expectedKey, key);
         
@@ -113,7 +113,7 @@ public class MessageDigestCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
         
         final String key = generator.generateKey(invocation);
-        final String expectedKey = "ZGTQAZI8yXCfPXwPXPS0dFL0lA6n4rj2Vge32jU2S3u94UY2fWAN34hMnyf3YJiDx9AtieTah076x6ywgN7lnQ";
+        final String expectedKey = "jsueI5EGEcdsIs7JTK7qWUy7xLU7U_y0hSpfknpXDmUznUqGeqgXb0af0vxV8iaCxc_IZMDaz_FFx11RTM68xg";
         
         Assert.assertEquals(expectedKey, key);
         
