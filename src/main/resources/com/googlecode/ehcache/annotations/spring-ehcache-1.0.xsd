@@ -69,6 +69,12 @@
                 </xsd:annotation>
             </xsd:attribute>
             <xsd:attribute name="self-populating-cache-scope" default="shared">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[
+    Are the SelfPopulatingCache wrappers scoped to the method or are they shared
+    among all methods using each self populating cache.
+                    ]]></xsd:documentation>
+                </xsd:annotation>
                 <xsd:simpleType>
                     <xsd:restriction base="xsd:string">
                         <xsd:enumeration value="method" />
