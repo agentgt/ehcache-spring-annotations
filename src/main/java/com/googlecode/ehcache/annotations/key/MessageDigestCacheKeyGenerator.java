@@ -83,25 +83,19 @@ public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<St
 
     @Override
     protected String generateKey(Object... data) {
-        MessageDigest digester;
-        try {
-            digester = (MessageDigest) this.messageDigest.clone();
-        }
-        catch (CloneNotSupportedException e) {
-            System.err.println("Cannot clone MessageDigest");
-            try {
-                digester = MessageDigest.getInstance(this.messageDigest.getAlgorithm());
-            }
-            catch (NoSuchAlgorithmException e1) {
-                throw new RuntimeException(e1);
-            }
-        }
+        final MessageDigest digester = this.getMessageDigest();
 
         final byte[] hashBytes = new byte[HASH_CODE_BYTE_SIZE];
         this.deepDigest(hashBytes, digester, data);
 
-
         final byte[] digest = digester.digest();
+        return this.encodeHash(digest);
+    }
+
+    /**
+     * Encode the digested hash bytes as a String
+     */
+    protected String encodeHash(final byte[] digest) {
         return Base64.encodeBase64URLSafeString(digest);
     }
 
