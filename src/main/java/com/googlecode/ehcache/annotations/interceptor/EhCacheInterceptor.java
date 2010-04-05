@@ -66,7 +66,7 @@ public class EhCacheInterceptor implements MethodInterceptor {
             case CACHE: {
                 final CacheableAttribute cacheableAttribute = this.cacheAttributeSource.getCacheableAttribute(method, targetClass);
                 if (cacheableAttribute == null) {
-                    this.logger.warn("CacheAttributeSource.getAdviceType(Method, Class) returned CACHE but no CacheAttributeSource.getCacheableAttribute(Method, Class) returned null. Method will be invoked directly with no Cachable advice. Method: {}, Class: {}", method, targetClass);
+                    this.logger.warn("CacheAttributeSource.getAdviceType(Method, Class) returned CACHE but CacheAttributeSource.getCacheableAttribute(Method, Class) returned null. Method will be invoked directly with no Cachable advice. Method: {}, Class: {}", method, targetClass);
                     return methodInvocation.proceed();
                 }
                 
@@ -77,7 +77,7 @@ public class EhCacheInterceptor implements MethodInterceptor {
             case REMOVE: {
                 final TriggersRemoveAttribute triggersRemoveAttribute = this.cacheAttributeSource.getTriggersRemoveAttribute(method, targetClass);
                 if (triggersRemoveAttribute == null) {
-                    this.logger.warn("CacheAttributeSource.getAdviceType(Method, Class) returned REMOVE but no CacheAttributeSource.getTriggersRemoveAttribute(Method, Class) returned null. Method will be invoked directly with no TriggersFlush advice. Method: {}, Class: {}", method, targetClass);
+                    this.logger.warn("CacheAttributeSource.getAdviceType(Method, Class) returned REMOVE but CacheAttributeSource.getTriggersRemoveAttribute(Method, Class) returned null. Method will be invoked directly with no TriggersFlush advice. Method: {}, Class: {}", method, targetClass);
                     return methodInvocation.proceed();
                 }
                 
