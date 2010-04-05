@@ -17,6 +17,7 @@
 package com.googlecode.ehcache.annotations.key;
 
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * This key generator is a good option for fast but rough comparison of method invocations. The standard Java
@@ -194,6 +195,39 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
         return result;
     }
 
+
+    /**
+     * @see Arrays#deepHashCode(Object[])
+     */
+    protected long deepHashCode(Iterable<?> a) {
+        if (a == null)
+            return 0;
+
+        long result = INITIAL_HASH;
+
+        for (final Object element : a) {
+            final long elementHash = this.hashCode(element);
+            result = MULTIPLIER * result + elementHash;
+        }
+
+        return result;
+    }
+    
+    protected long hashCode(Map.Entry<?, ?> e) {
+        if (e == null)
+            return 0;
+        
+        long result = INITIAL_HASH;
+
+        final long keyHash = this.hashCode(e.getKey());
+        result = MULTIPLIER * result + keyHash;
+
+        final long valueHash = this.hashCode(e.getValue());
+        result = MULTIPLIER * result + valueHash;
+
+        return result;
+    }
+
     protected final long hashCode(Object element) {
         if (element == null || !register(element)) {
             //Return 0 in place of the actual hash code in the case of a circular reference
@@ -220,9 +254,15 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
             else if (element instanceof boolean[])
                 elementHash = hashCode((boolean[]) element);
             else if (element instanceof Class<?>)
-                elementHash = this.getHashCode((Class<?>)element);
+                elementHash = getHashCode((Class<?>)element);
+            else if (element instanceof Iterable<?>)
+                elementHash = deepHashCode((Iterable<?>)element);
+            else if (element instanceof Map<?, ?>)
+                elementHash = deepHashCode(((Map<?, ?>)element).entrySet());
+            else if (element instanceof Map.Entry<?, ?>)
+                elementHash = hashCode((Map.Entry<?, ?>)element);
             else
-                elementHash = this.getHashCode(element);
+                elementHash = getHashCode(element);
             return elementHash;
         }
         finally {
