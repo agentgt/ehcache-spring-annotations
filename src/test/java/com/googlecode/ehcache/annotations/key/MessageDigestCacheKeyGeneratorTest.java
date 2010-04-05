@@ -18,13 +18,13 @@ package com.googlecode.ehcache.annotations.key;
 
 import java.lang.reflect.Method;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.googlecode.ehcache.annotations.key.MessageDigestCacheKeyGenerator;
 
 /**
  * @author Eric Dalquist
@@ -116,14 +116,15 @@ public class MessageDigestCacheKeyGeneratorTest {
         EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { 
                 new int[] {1, 2, 3, 4}, 
                 "foo", 
-                new boolean[] {false, true},
-                null
+                null,
+                Arrays.asList(new boolean[] {false, true},
+                        new HashSet<Object>(Arrays.asList("1", "2", "3")))
                 });
         
         EasyMock.replay(invocation);
         
         final String key = generator.generateKey(invocation);
-        final String expectedKey = "jsueI5EGEcdsIs7JTK7qWUy7xLU7U_y0hSpfknpXDmUznUqGeqgXb0af0vxV8iaCxc_IZMDaz_FFx11RTM68xg";
+        final String expectedKey = "C8L4OrXnZsaoWsHZaicuScavbdnQYM-ws3yNUB797IXMgDVtGohWFWVBQeCjV2OxAvcJR7nfQlvBXiivSRnBMA";
         
         Assert.assertEquals(expectedKey, key);
         

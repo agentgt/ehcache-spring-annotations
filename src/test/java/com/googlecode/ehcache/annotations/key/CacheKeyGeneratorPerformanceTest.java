@@ -33,12 +33,6 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
-import com.googlecode.ehcache.annotations.key.HashCodeCacheKeyGenerator;
-import com.googlecode.ehcache.annotations.key.ListCacheKeyGenerator;
-import com.googlecode.ehcache.annotations.key.MessageDigestCacheKeyGenerator;
-import com.googlecode.ehcache.annotations.key.ReflectionHashCodeCacheKeyGenerator;
-import com.googlecode.ehcache.annotations.key.StringCacheKeyGenerator;
 import com.googlecode.ehcache.annotations.util.MockMethodInvocation;
 import com.googlecode.ehcache.annotations.util.ThreadGroupRunner;
 
@@ -112,7 +106,7 @@ public class CacheKeyGeneratorPerformanceTest {
         threadGroupRunner.start();
         
         
-        for (int totalLoopCount = 1; totalLoopCount <= 4; totalLoopCount++) {
+        for (int totalLoopCount = 2; totalLoopCount <= 10; totalLoopCount+=2) {
             final long duration = 1000 * totalLoopCount;
             System.out.println("Sleeping 5s Before: " + duration);
             Thread.sleep(5*1000);
