@@ -24,7 +24,7 @@
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
         http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.0.xsd">
 
-    <ehcache:config create-missing-caches="true" default-cache-key-generator="undefinedCustomCacheKeyGenerator" />
+    <ehcache:annotation-driven create-missing-caches="true" default-cache-key-generator="undefinedCustomCacheKeyGenerator" />
     
     <bean id="cacheableTestImpl" class="com.googlecode.ehcache.annotations.integration.CacheableTestImpl"/>
     

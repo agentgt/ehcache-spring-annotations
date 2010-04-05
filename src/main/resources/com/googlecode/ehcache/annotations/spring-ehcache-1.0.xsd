@@ -33,7 +33,7 @@
         ]]></xsd:documentation>
     </xsd:annotation>
     
-    <xsd:element name="config">
+    <xsd:element name="annotation-driven">
         <xsd:complexType>
             <xsd:attribute name="cache-manager" type="xsd:string" default="cacheManager">
                 <xsd:annotation>

@@ -36,7 +36,7 @@
         http://services.wisc.edu/schema/spring-ehcache http://services.wisc.edu/schema/spring-ehcache/spring-ehcache-1.0.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
     
-    <ehcache:config/>
+    <ehcache:annotation-driven/>
     
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     	<property name="cacheManagerName" value="yourCacheManagerName"/>

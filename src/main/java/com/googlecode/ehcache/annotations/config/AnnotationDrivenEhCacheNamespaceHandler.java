@@ -29,7 +29,7 @@ public class AnnotationDrivenEhCacheNamespaceHandler extends NamespaceHandlerSup
 	 * @see org.springframework.beans.factory.xml.NamespaceHandler#init()
 	 */
 	public void init() {
-		this.registerBeanDefinitionParser("config", new AnnotationDrivenEhCacheBeanDefinitionParser());
+		this.registerBeanDefinitionParser("annotation-driven", new AnnotationDrivenEhCacheBeanDefinitionParser());
 	}
 
 }
