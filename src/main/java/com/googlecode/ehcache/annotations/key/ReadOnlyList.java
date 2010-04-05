@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * Composite interface that denotes a serializable list that is read only. None of the modification
+ * Composite interface that denotes a {@link Serializable} {@link List} that is read only. None of the modification
  * methods will work on this list.
  * 
  * @author Eric Dalquist

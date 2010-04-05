@@ -33,9 +33,8 @@ public interface CacheKeyGenerator<T extends Serializable> {
     /**
      * Generates the key for a cache entry.
      * 
-     * @param methodInvocation
-     *          the description of an invocation to the intercepted method.
-     * @return the created key.
+     * @param methodInvocation the description of an invocation to the intercepted method.
+     * @return the created key, will never be null and will be {@link Serializable}
      */
     T generateKey(MethodInvocation methodInvocation);
 }

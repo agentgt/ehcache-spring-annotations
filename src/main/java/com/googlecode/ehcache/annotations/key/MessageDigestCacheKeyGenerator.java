@@ -21,21 +21,48 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
+ * This key generator is a good option when a secure hash of the arguments is needed or when a
+ * larger final key space is desired. As with {@link HashCodeCacheKeyGenerator} the argument
+ * hashCode is used for key generation data but instead of the simple Java hash algorithm being
+ * used any {@link MessageDigest} can be used, SHA-1 is used by default. The generated hash is
+ * base64 encoded using {@link Base64#encodeBase64URLSafeString(byte[])}
+ * 
+ * <table>
+ *  <tr>
+ *      <th>Pros</th>
+ *      <th>Cons</th>
+ *  </tr>
+ *  <tr>
+ *      <td>
+ *          Better assurance than {@link HashCodeCacheKeyGenerator} against key collisions though
+ *          with the argument hashCodes being the source of the data it is still not perfect.
+ *      </td>
+ *      <td>
+ *          Slower than {@link HashCodeCacheKeyGenerator}
+ *      </td>
+ *  </tr>
+ * </table>
  * 
  * @author Eric Dalquist
  * @version $Revision$
  */
 public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<String> {
     public static final String DEFAULT_BEAN_NAME = "com.googlecode.ehcache.annotations.key.MessageDigestCacheKeyGenerator.DEFAULT_BEAN_NAME";
+    public static final String DEFAULT_ALGORITHM = "SHA-1";
     
     private static final byte[] ZERO_AS_BYTES = new byte[] {0, 0, 0, 0};
     
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     private final MessageDigest messageDigest;
+    private boolean cloneNotSupported;
     
     public MessageDigestCacheKeyGenerator() throws NoSuchAlgorithmException {
-        this("SHA-1", true, false);
+        this(DEFAULT_ALGORITHM, true, false);
     }
     
     public MessageDigestCacheKeyGenerator(String algorithm) throws NoSuchAlgorithmException {
@@ -43,12 +70,36 @@ public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<St
     }
     
     public MessageDigestCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) throws NoSuchAlgorithmException {
-        this("SHA-1", includeMethod, includeParameterTypes);
+        this(DEFAULT_ALGORITHM, includeMethod, includeParameterTypes);
     }
     
     public MessageDigestCacheKeyGenerator(String algorithm, boolean includeMethod, boolean includeParameterTypes) throws NoSuchAlgorithmException {
         super(includeMethod, includeParameterTypes);
         this.messageDigest = MessageDigest.getInstance(algorithm);
+    }
+    
+    /**
+     * @return Generates a {@link MessageDigest} to use during a call to {@link #generateKey(Object...)}
+     */
+    protected MessageDigest getMessageDigest() {
+        if (this.cloneNotSupported) {
+            final String algorithm = this.messageDigest.getAlgorithm();
+                try {
+                return MessageDigest.getInstance(algorithm);
+            }
+            catch (NoSuchAlgorithmException e) {
+                throw new IllegalStateException("MessageDigest algorithm '" + algorithm + "' was supported when " + this.getClass().getSimpleName() + " was created but is not now. This should not be possible.", e);
+            }
+        }
+        
+        try {
+            return (MessageDigest)this.messageDigest.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            this.cloneNotSupported = true;
+            this.logger.warn("Could not clone MessageDigest using algorithm '" + this.messageDigest.getAlgorithm() + "'. MessageDigest.getInstance will be used from now on which will be much more expensive.", e);
+            return this.getMessageDigest();
+        }
     }
     
     @Override

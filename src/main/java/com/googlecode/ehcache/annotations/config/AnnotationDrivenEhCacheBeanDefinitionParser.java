@@ -101,6 +101,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
      * @return A reference to the default cache key generator. Should never be null.
      */
     protected RuntimeBeanReference setupDefaultCacheKeyGenerators(Element element, ParserContext parserContext, Object elementSource) {
+        //Register all of the default cache key generator types
         this.setupDefaultCacheKeyGenerator(ListCacheKeyGenerator.class, parserContext, elementSource);
         this.setupDefaultCacheKeyGenerator(HashCodeCacheKeyGenerator.class, parserContext, elementSource);
         this.setupDefaultCacheKeyGenerator(MessageDigestCacheKeyGenerator.class, parserContext, elementSource);
@@ -118,8 +119,11 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
     }
 
     /**
+     * Utility API used to setup each of the default {@link CacheKeyGenerator} implementations. Requires
+     * that the class has a static String field named DEFAULT_BEAN_NAME declared that is used for the bean
+     * name. 
      */
-    private void setupDefaultCacheKeyGenerator(Class<? extends CacheKeyGenerator<? extends Serializable>> generatorClass, ParserContext parserContext, Object elementSource) {
+    protected final void setupDefaultCacheKeyGenerator(Class<? extends CacheKeyGenerator<? extends Serializable>> generatorClass, ParserContext parserContext, Object elementSource) {
         final String generatorName;
         try {
             final Field field = generatorClass.getField("DEFAULT_BEAN_NAME");

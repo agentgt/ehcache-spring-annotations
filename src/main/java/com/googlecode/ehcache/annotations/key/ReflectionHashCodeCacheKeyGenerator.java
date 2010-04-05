@@ -25,6 +25,28 @@ import java.util.Collection;
 import org.springframework.util.ReflectionUtils;
 
 /**
+ * An extension of {@link HashCodeCacheKeyGenerator} that uses reflection to generate hash codes
+ * for objects that don't implement hashCode. All of the same key uniqueness issues affect this
+ * generator as affect {@link HashCodeCacheKeyGenerator}
+ * 
+ * 
+ * <table>
+ *  <tr>
+ *      <th>Pros</th>
+ *      <th>Cons</th>
+ *  </tr>
+ *  <tr>
+ *      <td>
+ *          Don't have to modify/implement argument object hashCode methods to get a non-colliding
+ *          key generated.
+ *      </td>
+ *      <td>
+ *          The slowest key generation strategy available due to use of reflection and complete object
+ *          graph traversal.
+ *      </td>
+ *  </tr>
+ * </table>
+ * 
  * @author Eric Dalquist
  * @version $Revision$
  */

@@ -18,35 +18,41 @@ package com.googlecode.ehcache.annotations.key;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * This key generator is a good option when you want to be 100% sure that two sets of method invocation arguments
- * are the same. The original arguments are completely preserved and used in every hashCode and equals call made
- * on the key.
+ * are the same.  It does depend on all arguments correctly implementing the hashCode and equals methods.  All of
+ * the objects involved in the invocation arguments are put into {@link List}s and arrays are converted to
+ * {@link List}s to provide better equals and hashCode behavior. 
  * 
- * The caveats with this approach are:
- * <ul>
- *  <li>
- *      All method arguments must be completely {@link Serializable}. A {@link ClassCastException} will be thrown if
- *      any argument does not implmenent {@link Serializable}.
- *  </li>
- *  <li>
- *      The more complex implementation of hashCode and equals on each argument the more expensive this key is to
- *      compare during cache access operations.
- *  </li>
- * </ul>  
- * 
- * Builds a List out of the method arguments. If any of the arguments are arrays they are converted to lists and this
- * check is done recursively on every visible array element. All non-array objects should have a good equals and hashCode
- * implementation as the List that is returned will delegate to the argument and array member hashCode and equals
- * implementations.
- * 
- * If includeMethod is set to true {@link Method#getDeclaringClass()}, {@link Method#getName()},
- * {@link Method#getReturnType()}, and {@link Method#getParameterTypes()} will be included in the generated
- * key. includeMethod defaults to true.
+ * <table>
+ *  <tr>
+ *      <th>Pros</th>
+ *      <th>Cons</th>
+ *  </tr>
+ *  <tr>
+ *      <td>
+ *          100% assurance that generated keys will never collide.
+ *      </td>
+ *      <td>
+ *          All method arguments must be completely {@link Serializable} if disk storage or any replication
+ *          operations will be used. A {@link ClassCastException} may be thrown if any argument does not
+ *          implement {@link Serializable}.
+ *      </td>
+ *  </tr>
+ *  <tr>
+ *      <td>
+ *      </td>
+ *      <td>
+ *          Each time the key is compared using equals or has its hash generated via hashCode all arguments will
+ *          be visited and have their equals and hashCode methods called. This results in a higher expense after
+ *          key generation each time the key is inspected.
+ *      </td>
+ *  </tr>
+ * </table>
  * 
  * @author Eric Dalquist
  * @version $Revision$

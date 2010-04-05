@@ -24,10 +24,16 @@ import java.util.Map;
 import org.aopalliance.intercept.MethodInvocation;
 
 /**
+ * Base class for cache key generators. Handles common logic for including/excluding the method
+ * signature from key generation. Also provides support for avoiding circular references for key
+ * generators that traverse the argument object graph via the {@link #register(Object)} and
+ * {@link #unregister(Object)} APIs 
+ * 
  * @author Eric Dalquist
  * @version $Revision$
  */
 public abstract class AbstractCacheKeyGenerator<T extends Serializable> implements CacheKeyGenerator<T> {
+    //Used by circular reference tracking register/unregister APIs
     private static final ThreadLocal<Map<Object, Object>> REGISTRY = new ThreadLocal<Map<Object, Object>>() {
         @Override
         protected Map<Object, Object> initialValue() {
@@ -55,7 +61,20 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
         return includeMethod;
     }
     /**
-     * @param includeMethod true If the {@link Method} from the {@link MethodInvocation} should be included in the generated key. Defaults to true.
+     * Determines if the invoked method signature should be included in the generated cache key. If
+     * true {@link Method#getDeclaringClass()}, {@link Method#getName()}, and {@link Method#getReturnType()}
+     * are included in the object array the key is generated from. Note that the effect of this option is
+     * such that two methods with the same arguments will have different keys if true. If you have two methods
+     * in the same class with the same name and return value you may want to enable {@link #setIncludeParameterTypes(boolean)}
+     * for even more specific key generation.
+     * 
+     * Note that including the method signature in key generation reduces key generation speed between
+     * 27% and 155% depending on the key generator implementation. See the full documentation on more
+     * details on key generation approaches.
+     * 
+     * @param includeMethod true If the {@link Method} from the {@link MethodInvocation} should be
+     *                      included in the generated key, defaults to true.
+     * @see #setIncludeParameterTypes(boolean)
      */
     public void setIncludeMethod(boolean includeMethod) {
         this.includeMethod = includeMethod;
@@ -65,7 +84,17 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
         return includeParameterTypes;
     }
     /**
-     * @param includeParameterTypes true if the {@link Method#getParameterTypes()} should be included in the generated key. Defaults to false.
+     * Determines if the method parameter types returned by {@link Method#getParameterTypes()} should be
+     * included in the generated key. This is broken out into a separate option because the call results
+     * in a clone() call on the Class[] every time {@link Method#getParameterTypes()} which reduces key
+     * generation speed by between 10% and 40% depending on the key generator implementation. See the full
+     * documentation on more details on key generation approaches.
+     * 
+     * This is option is only used if {@link #setIncludeMethod(boolean)} is true.
+     * 
+     * @param includeParameterTypes true if the {@link Method#getParameterTypes()} should be included in
+     *                              the generated key, defaults to false.
+     * @see #setIncludeMethod(boolean)
      */
     public void setIncludeParameterTypes(boolean includeParameterTypes) {
         this.includeParameterTypes = includeParameterTypes;
@@ -75,8 +104,11 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
         return checkforCycles;
     }
     /**
-     * @param checkforCycles true If the hash code generation should gracefully handle object graph cycles. If false
-     *                       cycles result in undefined behavior. Defaults to false.
+     * If the key generation should gracefully handle object graph cycles. If false the {@link #register(Object)} and
+     * {@link #unregister(Object)} methods are non-functional. If true the implementation of this class must correctly
+     * utilize the {@link #register(Object)} and {@link #unregister(Object)} methods to track visited objects.
+     * 
+     * @param checkforCycles Defaults to false.
      */
     public void setCheckforCycles(boolean checkforCycles) {
         this.checkforCycles = checkforCycles;
@@ -152,5 +184,12 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
         registry.remove(element);
     }
     
+    /**
+     * Called to generate the key. Depending on the {@link #setIncludeMethod(boolean)} and 
+     * {@link #setIncludeParameterTypes(boolean)} the the appropriate parts of the {@link Method}
+     * signature will be included in the data array.
+     * 
+     *  @return The {@link Serializable} cache key for the method invocation.
+     */
     protected abstract T generateKey(Object... data);
 }

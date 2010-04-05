@@ -49,7 +49,7 @@ public class StringCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
 
         final String key = generator.generateKey(invocation);
-        final String expectedKey = "[[[\"CIRCULAR_REFERENCE:[Ljava.lang.Object;\", childArgString], argString]]";
+        final String expectedKey = "[[[[...], childArgString], argString]]";
         
         Assert.assertEquals(expectedKey, key);
         

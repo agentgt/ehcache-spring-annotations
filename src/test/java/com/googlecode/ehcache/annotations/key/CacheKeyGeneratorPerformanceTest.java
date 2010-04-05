@@ -88,21 +88,21 @@ public class CacheKeyGeneratorPerformanceTest {
     public void testCacheKeyGeneratorPerformance() throws NoSuchAlgorithmException, InterruptedException, BrokenBarrierException {
         final Map<String, CacheKeyGenerator<? extends Serializable>> generators = new LinkedHashMap<String, CacheKeyGenerator<? extends Serializable>>();
         
-        generators.put("ListCacheKeyGenerator(true, true)", new ListCacheKeyGenerator(true, true));
-        generators.put("ListCacheKeyGenerator(true, false)", new ListCacheKeyGenerator(true, false));
-        generators.put("ListCacheKeyGenerator(false, false)", new ListCacheKeyGenerator(false, false));
-        generators.put("StringCacheKeyGenerator(true, true)", new StringCacheKeyGenerator(true, true));
-        generators.put("StringCacheKeyGenerator(true, false)", new StringCacheKeyGenerator(true, false));
-        generators.put("StringCacheKeyGenerator(false, false)", new StringCacheKeyGenerator(false, false));
-        generators.put("MessageDigestCacheKeyGenerator(\"MD5\", true, true)", new MessageDigestCacheKeyGenerator("MD5", true, true));
-        generators.put("MessageDigestCacheKeyGenerator(\"MD5\", true, false)", new MessageDigestCacheKeyGenerator("MD5", true, false));
-        generators.put("MessageDigestCacheKeyGenerator(\"MD5\", false, false)", new MessageDigestCacheKeyGenerator("MD5", false, false));
-        generators.put("SimpleHashCodeCacheKeyGenerator(true, true)", new HashCodeCacheKeyGenerator(true, true));
-        generators.put("SimpleHashCodeCacheKeyGenerator(true, false)", new HashCodeCacheKeyGenerator(true, false));
-        generators.put("SimpleHashCodeCacheKeyGenerator(false, false)", new HashCodeCacheKeyGenerator(false, false));
-        generators.put("ReflectionHashCodeCacheKeyGenerator(true, true)", new ReflectionHashCodeCacheKeyGenerator(true, true));
-        generators.put("ReflectionHashCodeCacheKeyGenerator(true, false)", new ReflectionHashCodeCacheKeyGenerator(true, false));
-        generators.put("ReflectionHashCodeCacheKeyGenerator(false, false)", new ReflectionHashCodeCacheKeyGenerator(false, false));
+        generators.put("ListCacheKeyGenerator|true|true", new ListCacheKeyGenerator(true, true));
+        generators.put("ListCacheKeyGenerator|true|false", new ListCacheKeyGenerator(true, false));
+        generators.put("ListCacheKeyGenerator|false|false", new ListCacheKeyGenerator(false, false));
+        generators.put("StringCacheKeyGenerator|true|true", new StringCacheKeyGenerator(true, true));
+        generators.put("StringCacheKeyGenerator|true|false", new StringCacheKeyGenerator(true, false));
+        generators.put("StringCacheKeyGenerator|false|false", new StringCacheKeyGenerator(false, false));
+        generators.put("MessageDigestCacheKeyGenerator_\"MD5\"|true|true", new MessageDigestCacheKeyGenerator("MD5", true, true));
+        generators.put("MessageDigestCacheKeyGenerator_\"MD5\"|true|false", new MessageDigestCacheKeyGenerator("MD5", true, false));
+        generators.put("MessageDigestCacheKeyGenerator_\"MD5\"|false|false", new MessageDigestCacheKeyGenerator("MD5", false, false));
+        generators.put("HashCodeCacheKeyGenerator|true|true", new HashCodeCacheKeyGenerator(true, true));
+        generators.put("HashCodeCacheKeyGenerator|true|false", new HashCodeCacheKeyGenerator(true, false));
+        generators.put("HashCodeCacheKeyGenerator|false|false", new HashCodeCacheKeyGenerator(false, false));
+        generators.put("ReflectionHashCodeCacheKeyGenerator|true|true", new ReflectionHashCodeCacheKeyGenerator(true, true));
+        generators.put("ReflectionHashCodeCacheKeyGenerator|true|false", new ReflectionHashCodeCacheKeyGenerator(true, false));
+        generators.put("ReflectionHashCodeCacheKeyGenerator|false|false", new ReflectionHashCodeCacheKeyGenerator(false, false));
         
         final ThreadGroupRunner threadGroupRunner = new ThreadGroupRunner("CacheKeyGeneratorPerformanceTest-", true);
 
@@ -112,7 +112,7 @@ public class CacheKeyGeneratorPerformanceTest {
         threadGroupRunner.start();
         
         
-        for (int totalLoopCount = 1; totalLoopCount <= 20; totalLoopCount++) {
+        for (int totalLoopCount = 1; totalLoopCount <= 4; totalLoopCount++) {
             final long duration = 1000 * totalLoopCount;
             System.out.println("Sleeping 5s Before: " + duration);
             Thread.sleep(5*1000);

@@ -16,11 +16,24 @@
 
 package com.googlecode.ehcache.annotations;
 
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+
 /**
+ * Scope at which the {@link SelfPopulatingCache} should be applied.
+ * 
  * @author Eric Dalquist
  * @version $Revision$
  */
 public enum SelfPopulatingCacheScope {
+    /**
+     * The {@link SelfPopulatingCache} wrapper is only used for invocations
+     * on the annotated method. Other annotations using the same cache name
+     * will have their own wrappers.
+     */
     METHOD,
+    /**
+     * The {@link SelfPopulatingCache} wrapper is shared among all methods
+     * using the same cache name and marked as self populating.
+     */
     SHARED;
 }
