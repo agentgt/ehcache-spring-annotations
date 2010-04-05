@@ -69,7 +69,7 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
      * for even more specific key generation.
      * 
      * Note that including the method signature in key generation reduces key generation speed between
-     * 27% and 155% depending on the key generator implementation. See the full documentation on more
+     * 14% and 197% depending on the key generator implementation. See the full documentation on more
      * details on key generation approaches.
      * 
      * @param includeMethod true If the {@link Method} from the {@link MethodInvocation} should be
@@ -87,7 +87,7 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
      * Determines if the method parameter types returned by {@link Method#getParameterTypes()} should be
      * included in the generated key. This is broken out into a separate option because the call results
      * in a clone() call on the Class[] every time {@link Method#getParameterTypes()} which reduces key
-     * generation speed by between 10% and 40% depending on the key generator implementation. See the full
+     * generation speed by between 5% and 22% depending on the key generator implementation. See the full
      * documentation on more details on key generation approaches.
      * 
      * This is option is only used if {@link #setIncludeMethod(boolean)} is true.

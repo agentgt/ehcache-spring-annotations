@@ -32,7 +32,7 @@ import java.util.Map;
  *  </tr>
  *  <tr>
  *      <td>
- *          This is the fastest of the included key generation techniques by over 450%
+ *          This is the fastest of the included key generation techniques by over 150%
  *      </td>
  *      <td>
  *          The generated hash code is only a long so the key is only 64bits long. It is possible for different
