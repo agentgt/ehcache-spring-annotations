@@ -148,18 +148,20 @@ public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<St
                 }
             }
             else {
-                digest(messageDigest, o.hashCode());
+                final byte[] bytes = intToBytes(o.hashCode());
+                digest(messageDigest, bytes);
             }
         }
         finally {
             unregister(o);
         }
     }
-    
-    protected void digest(MessageDigest messageDigest, int value) {
-        messageDigest.update((byte)(value >>> 24));
-        messageDigest.update((byte)(value >>> 16));
-        messageDigest.update((byte)(value >>> 8));
-        messageDigest.update((byte)value);
+
+    protected byte[] intToBytes(int value) {
+        return new byte[] {
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
+                (byte)(value >>> 8),
+                (byte)value};
     }
 }
