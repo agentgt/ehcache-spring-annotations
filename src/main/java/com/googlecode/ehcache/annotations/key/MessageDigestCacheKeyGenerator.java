@@ -149,7 +149,7 @@ public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<St
             }
             else {
                 final byte[] bytes = intToBytes(o.hashCode());
-                digest(messageDigest, bytes);
+                messageDigest.update(bytes);
             }
         }
         finally {
