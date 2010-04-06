@@ -62,6 +62,19 @@ public class StringCacheKeyGenerator extends AbstractCacheKeyGenerator<String> {
         super(includeMethod, includeParameterTypes);
     }
     
+    
+    @Override
+    public boolean isCheckforCycles() {
+        return true;
+    }
+
+    @Override
+    public void setCheckforCycles(boolean checkforCycles) {
+        if (!checkforCycles) {
+            throw new UnsupportedOperationException("StringCacheKeyGenerator always checks for cycles");
+        }
+    }
+
     @Override
     protected String generateKey(Object... data) {
         return Arrays.deepToString(data);
