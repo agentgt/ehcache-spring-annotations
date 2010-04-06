@@ -3,7 +3,7 @@
 	<groupId>com.googlecode.ehcache-spring-annotations</groupId>
 	<artifactId>ehcache-spring-annotations</artifactId>
 	<name>Ehcache Spring Annotations</name>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.1</version>
 	<description>Provides a simple model for integrating Ehcache in a Spring project via annotations.</description>
     <url>http://code.google.com/p/ehcache-spring-annotations/</url>
 
@@ -29,9 +29,9 @@
 	</licenses>
     
     <scm>
-        <connection>scm:svn:http://ehcache-spring-annotations.googlecode.com/svn/trunk/</connection>
-        <developerConnection>scm:svn:https://ehcache-spring-annotations.googlecode.com/svn/trunk/</developerConnection>
-        <url>http://ehcache-spring-annotations.googlecode.com/svn/trunk/</url>
+        <connection>scm:svn:http://ehcache-spring-annotations.googlecode.com/svn/tags/ehcache-spring-annotations-1.0.1</connection>
+        <developerConnection>scm:svn:https://ehcache-spring-annotations.googlecode.com/svn/tags/ehcache-spring-annotations-1.0.1</developerConnection>
+        <url>http://ehcache-spring-annotations.googlecode.com/svn/tags/ehcache-spring-annotations-1.0.1</url>
     </scm>
     
     <issueManagement>
