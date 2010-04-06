@@ -59,7 +59,7 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
 
 
     @Override
-    protected Long generateKey(Object... data) {
+    public Long generateKey(Object... data) {
         return this.deepHashCode(data);
     }
 

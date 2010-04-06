@@ -68,7 +68,7 @@ public class ListCacheKeyGenerator extends AbstractCacheKeyGenerator<ReadOnlyLis
     }
     
     @Override
-    protected ReadOnlyList<Serializable> generateKey(Object... data) {
+    public ReadOnlyList<Serializable> generateKey(Object... data) {
         final ArrayList<Serializable> keyList = new ArrayList<Serializable>(data.length);
         
         for (final Object arg : data) {

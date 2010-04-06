@@ -76,7 +76,7 @@ public class StringCacheKeyGenerator extends AbstractCacheKeyGenerator<String> {
     }
 
     @Override
-    protected String generateKey(Object... data) {
+    public String generateKey(Object... data) {
         return Arrays.deepToString(data);
     }
 }

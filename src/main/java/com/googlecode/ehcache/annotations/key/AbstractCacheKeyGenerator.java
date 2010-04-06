@@ -191,5 +191,5 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
      * 
      *  @return The {@link Serializable} cache key for the method invocation.
      */
-    protected abstract T generateKey(Object... data);
+    public abstract T generateKey(Object... data);
 }

@@ -82,7 +82,7 @@ public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<St
     
 
     @Override
-    protected String generateKey(Object... data) {
+    public String generateKey(Object... data) {
         final MessageDigest digester = this.getMessageDigest();
 
         final byte[] hashBytes = new byte[HASH_CODE_BYTE_SIZE];
