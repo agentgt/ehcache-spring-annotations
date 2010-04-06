@@ -55,6 +55,25 @@ public class StringCacheKeyGeneratorTest {
         
         EasyMock.verify(invocation);
     }
+
+    @Test
+    public void testForDocs() throws SecurityException, NoSuchMethodException {
+        final StringCacheKeyGenerator generator = new StringCacheKeyGenerator();
+        generator.setCheckforCycles(true);
+        
+        final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
+        
+        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
+        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { "49931" });
+        
+        EasyMock.replay(invocation);
+        
+        final String key = generator.generateKey(invocation);
+        Assert.assertEquals("[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [49931]]", key);
+        
+        EasyMock.verify(invocation);
+    }
     
     
     @Test

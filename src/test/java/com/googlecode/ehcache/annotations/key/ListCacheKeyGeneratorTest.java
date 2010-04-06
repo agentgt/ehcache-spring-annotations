@@ -64,6 +64,31 @@ public class ListCacheKeyGeneratorTest {
         
         EasyMock.verify(invocation);
     }
+
+    @Test
+    public void testForDocs() throws SecurityException, NoSuchMethodException {
+        final ListCacheKeyGenerator generator = new ListCacheKeyGenerator();
+        generator.setCheckforCycles(true);
+        
+        final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
+        
+        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
+        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { "49931" });
+        
+        EasyMock.replay(invocation);
+        
+        final ReadOnlyList<Serializable> key = generator.generateKey(invocation);
+        final List<?> expected = Arrays.asList(
+                MethodInvocationHelper.class,
+                "testMethod1",
+                Object.class,
+                Arrays.asList(Object.class),
+                Arrays.asList("49931"));
+        Assert.assertEquals(expected, key);
+        
+        EasyMock.verify(invocation);
+    }
     
     @Test
     public void testGenerateArgumentWithoutMethodKey() {

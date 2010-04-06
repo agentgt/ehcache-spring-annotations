@@ -23,8 +23,6 @@ import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.googlecode.ehcache.annotations.key.ReflectionHashCodeCacheKeyGenerator;
-
 /**
  * @author Eric Dalquist
  * @version $Revision$
@@ -51,6 +49,33 @@ public class ReflectionHashCodeCacheKeyGeneratorTest {
         Assert.assertEquals(Long.valueOf(55143680954l), key);
         
         EasyMock.verify(invocation);
+    }
+
+    @Test
+    public void testForDocs() throws SecurityException, NoSuchMethodException {
+        final ReflectionHashCodeCacheKeyGenerator generator = new ReflectionHashCodeCacheKeyGenerator();
+        generator.setCheckforCycles(true);
+        
+        final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
+        
+        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
+        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { new WeatherId("49931") });
+        
+        EasyMock.replay(invocation);
+        
+        final Long key = generator.generateKey(invocation);
+        Assert.assertEquals(Long.valueOf(-78777307802668l), key);
+        
+        EasyMock.verify(invocation);
+    }
+    
+    private static class WeatherId {
+        private final String id;
+    
+        public WeatherId(String id) {
+            this.id = id;
+        }
     }
     
     

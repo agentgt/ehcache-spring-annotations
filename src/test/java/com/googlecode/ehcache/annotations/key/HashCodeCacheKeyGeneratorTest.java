@@ -53,6 +53,25 @@ public class HashCodeCacheKeyGeneratorTest {
         
         EasyMock.verify(invocation);
     }
+
+    @Test
+    public void testForDocs() throws SecurityException, NoSuchMethodException {
+        final HashCodeCacheKeyGenerator generator = new HashCodeCacheKeyGenerator();
+        generator.setCheckforCycles(true);
+        
+        final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
+        
+        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
+        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { "49931" });
+        
+        EasyMock.replay(invocation);
+        
+        final Long key = generator.generateKey(invocation);
+        Assert.assertEquals(Long.valueOf(-78777307802699l), key);
+        
+        EasyMock.verify(invocation);
+    }
     
     
     @Test

@@ -59,6 +59,27 @@ public class MessageDigestCacheKeyGeneratorTest {
         
         EasyMock.verify(invocation);
     }
+
+    @Test
+    public void testForDocs() throws SecurityException, NoSuchMethodException, NoSuchAlgorithmException {
+        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator();
+        generator.setCheckforCycles(true);
+        
+        final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
+        
+        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
+        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { "49931" });
+        
+        EasyMock.replay(invocation);
+        
+        final String key = generator.generateKey(invocation);
+        final String expectedKey = "FKeW4z_I5_yc_z9J98GmaM4aWSU";
+        
+        Assert.assertEquals(expectedKey, key);
+        
+        EasyMock.verify(invocation);
+    }
     
     @Test
     public void testNegativeOne() throws NoSuchAlgorithmException {
