@@ -31,8 +31,7 @@
 	
 	<section name="Answers">
 	<ol>
-	<li name="answer1">Make sure your method annotated with @TriggersRemove has the same arguments (type, number, and order) as another @Cacheable method. Don't put
-	@TriggersRemove on any method also marked @Cacheable, as it will do exactly that.</li>
+	<li name="answer1">See the <a href="http://code.google.com/p/ehcache-spring-annotations/wiki/UsingTriggersRemove">UsingTriggersRemove documentation on the wiki</a>.</li>
 	</ol>
 	</section>
 	</body>
