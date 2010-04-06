@@ -30,13 +30,13 @@ import java.io.Serializable;
  */
 public abstract class DelegateCacheKeyGenerator extends AbstractCacheKeyGenerator<Serializable> {
 
-	private final AbstractCacheKeyGenerator<Serializable> delegate;
+	private final AbstractCacheKeyGenerator<? extends Serializable> delegate;
 	
 	/**
 	 * @param delegate
 	 */
 	public DelegateCacheKeyGenerator(
-			AbstractCacheKeyGenerator<Serializable> delegate) {
+			AbstractCacheKeyGenerator<? extends Serializable> delegate) {
 		super();
 		this.delegate = delegate;
 	}
