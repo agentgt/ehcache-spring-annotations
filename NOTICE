@@ -15,14 +15,19 @@ limitations under the License.
 
 This project includes:
 
- Ehcache under the Apache License, Version 2
+    Under the Apache License, Version 2
+        Code Generation Library
+        Commons Codec
+        EasyMock
+        Ehcache Core
+        Log4j
+        Spring Framework
 
- Spring Framework under the Apache License, Version 2
+    Under the Public Domain License
+        AOP Alliance
  
- Log4j under the Apache License, Version 2
+    Under the MIT license
+        SLF4J
  
- AOP Alliance under the Public Domain License
-
- SLF4J under the MIT license
- 
- JUnit under the Common Public License Version 1.0
+    Under the Common Public License Version 1.0
+        JUnit
