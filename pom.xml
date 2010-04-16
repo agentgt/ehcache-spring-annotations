@@ -29,9 +29,9 @@
 	</licenses>
     
     <scm>
-        <connection>scm:svn:http://ehcache-spring-annotations.googlecode.com/svn/branches/ehcache-spring-annotations-1.0-PATCHES</connection>
-        <developerConnection>scm:svn:https://ehcache-spring-annotations.googlecode.com/svn/branches/ehcache-spring-annotations-1.0-PATCHES</developerConnection>
-        <url>http://ehcache-spring-annotations.googlecode.com/svn/branches/ehcache-spring-annotations-1.0-PATCHES</url>
+        <connection>scm:svn:http://ehcache-spring-annotations.googlecode.com/svn/trunk/</connection>
+        <developerConnection>scm:svn:https://ehcache-spring-annotations.googlecode.com/svn/trunk/</developerConnection>
+        <url>http://ehcache-spring-annotations.googlecode.com/svn/trunk/</url>
     </scm>
     
     <issueManagement>
