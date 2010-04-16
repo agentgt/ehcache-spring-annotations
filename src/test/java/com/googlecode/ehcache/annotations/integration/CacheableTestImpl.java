@@ -51,7 +51,7 @@ public class CacheableTestImpl implements CacheableTestInterface {
         return this.interfaceAnnotatedExceptionCachedThrowsCount;
     }
 
-    public String interfaceAnnotatedCached(String argument) {
+    public String interfaceAnnotatedCached(int argument) {
         this.interfaceAnnotatedCachedCount++;
         return "interfaceAnnotatedCached(" + argument + ")";
     }

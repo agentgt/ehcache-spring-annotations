@@ -17,6 +17,7 @@
 package com.googlecode.ehcache.annotations.key;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.easymock.EasyMock;
@@ -144,6 +145,23 @@ public class ReflectionHashCodeCacheKeyGeneratorTest {
         final Long key = generator.generateKey(invocation);
         
         Assert.assertEquals(Long.valueOf(-43138117839501l), key);
+        
+        EasyMock.verify(invocation);
+    }
+    
+    @Test
+    public void testEnumHashCode() {
+        final ReflectionHashCodeCacheKeyGenerator generator = new ReflectionHashCodeCacheKeyGenerator(false, false);
+        
+        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { TimeUnit.DAYS });
+        
+        EasyMock.replay(invocation);
+        
+        final Long key = generator.generateKey(invocation);
+        
+        Assert.assertEquals(Long.valueOf(-53035962820l), key);
+        
         
         EasyMock.verify(invocation);
     }

@@ -66,7 +66,7 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
     /**
      * @see Arrays#hashCode(long[])
      */
-    protected long hashCode(long a[]) {
+    protected final long hashCode(long a[]) {
         if (a == null)
             return 0;
 
@@ -82,7 +82,7 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
     /**
      * @see Arrays#hashCode(int[])
      */
-    protected long hashCode(int a[]) {
+    protected final long hashCode(int a[]) {
         if (a == null)
             return 0;
 
@@ -96,7 +96,7 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
     /**
      * @see Arrays#hashCode(short[])
      */
-    protected long hashCode(short a[]) {
+    protected final long hashCode(short a[]) {
         if (a == null)
             return 0;
 
@@ -110,7 +110,7 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
     /**
      * @see Arrays#hashCode(char[])
      */
-    protected long hashCode(char a[]) {
+    protected final long hashCode(char a[]) {
         if (a == null)
             return 0;
 
@@ -124,7 +124,7 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
     /**
      * @see Arrays#hashCode(byte[])
      */
-    protected long hashCode(byte a[]) {
+    protected final long hashCode(byte a[]) {
         if (a == null)
             return 0;
 
@@ -138,7 +138,7 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
     /**
      * @see Arrays#hashCode(boolean[])
      */
-    protected long hashCode(boolean a[]) {
+    protected final long hashCode(boolean a[]) {
         if (a == null)
             return 0;
 
@@ -152,7 +152,7 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
     /**
      * @see Arrays#hashCode(float[])
      */
-    protected long hashCode(float a[]) {
+    protected final long hashCode(float a[]) {
         if (a == null)
             return 0;
 
@@ -166,7 +166,7 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
     /**
      * @see Arrays#hashCode(double[])
      */
-    protected long hashCode(double a[]) {
+    protected final long hashCode(double a[]) {
         if (a == null)
             return 0;
 
@@ -181,7 +181,7 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
     /**
      * @see Arrays#deepHashCode(Object[])
      */
-    protected long deepHashCode(Object a[]) {
+    protected final long deepHashCode(Object a[]) {
         if (a == null)
             return 0;
 
@@ -199,7 +199,7 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
     /**
      * @see Arrays#deepHashCode(Object[])
      */
-    protected long deepHashCode(Iterable<?> a) {
+    protected final long deepHashCode(Iterable<?> a) {
         if (a == null)
             return 0;
 
@@ -213,7 +213,7 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
         return result;
     }
     
-    protected long hashCode(Map.Entry<?, ?> e) {
+    protected final long hashCode(Map.Entry<?, ?> e) {
         if (e == null)
             return 0;
         
@@ -230,7 +230,7 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
 
     protected final long hashCode(Object element) {
         if (element == null || !register(element)) {
-            //Return 0 in place of the actual hash code in the case of a circular reference
+            //Return 0 in place of the actual hash code in the case of null or a circular reference
             return 0;
         }
         try {
@@ -255,6 +255,10 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
                 elementHash = hashCode((boolean[]) element);
             else if (element instanceof Class<?>)
                 elementHash = getHashCode((Class<?>)element);
+            else if (element instanceof Number)
+                elementHash = getHashCode((Number)element);
+            else if (element instanceof Enum<?>)
+                elementHash = getHashCode((Enum<?>)element);
             else if (element instanceof Iterable<?>)
                 elementHash = deepHashCode((Iterable<?>)element);
             else if (element instanceof Map<?, ?>)
@@ -275,6 +279,20 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
      */
     protected long getHashCode(Class<?> c) {
         return c.getName().hashCode();
+    }
+    
+    /**
+     * Generate hash code for a Number, getting the more precise long value.
+     */
+    protected long getHashCode(Number n) {
+        return n.longValue();
+    }
+    
+    /**
+     * Generate hash code for an Enum, uses a combination of the Class and name to generate a consistent hash code
+     */
+    protected long getHashCode(Enum<?> e) {
+        return this.hashCode(new Object[] { e.getClass(), e.name() });
     }
     
     /**

@@ -20,14 +20,12 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.googlecode.ehcache.annotations.key.ListCacheKeyGenerator;
-import com.googlecode.ehcache.annotations.key.ReadOnlyList;
 
 /**
  * @author Eric Dalquist
@@ -110,6 +108,25 @@ public class ListCacheKeyGeneratorTest {
                 "foo",
                 Arrays.asList(false, true),
                 null);
+        
+        Assert.assertEquals(expectedKey.hashCode(), key.hashCode());
+        Assert.assertEquals(expectedKey, key);
+        
+        EasyMock.verify(invocation);
+    }
+    
+    @Test
+    public void testEnumHashCode() {
+        final ListCacheKeyGenerator generator = new ListCacheKeyGenerator(false, false);
+        
+        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { TimeUnit.DAYS });
+        
+        EasyMock.replay(invocation);
+        
+        final ReadOnlyList<Serializable> key = generator.generateKey(invocation);
+        
+        final List<?> expectedKey = Arrays.asList(TimeUnit.DAYS);
         
         Assert.assertEquals(expectedKey.hashCode(), key.hashCode());
         Assert.assertEquals(expectedKey, key);

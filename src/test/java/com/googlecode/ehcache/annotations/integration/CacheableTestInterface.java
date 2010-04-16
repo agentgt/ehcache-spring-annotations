@@ -32,7 +32,7 @@ public interface CacheableTestInterface {
     public int interfaceAnnotatedExceptionCachedThrowsCount();
     
     @Cacheable(cacheName="interfaceAnnotatedCached")
-    public String interfaceAnnotatedCached(String argument);
+    public String interfaceAnnotatedCached(int argument);
     public int interfaceAnnotatedCachedCount();
     
     @Cacheable(cacheName="interfaceAnnotatedNoArgCached")

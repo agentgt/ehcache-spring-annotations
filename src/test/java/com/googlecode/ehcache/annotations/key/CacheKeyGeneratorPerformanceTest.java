@@ -106,7 +106,7 @@ public class CacheKeyGeneratorPerformanceTest {
         threadGroupRunner.start();
         
         
-        for (int totalLoopCount = 2; totalLoopCount <= 10; totalLoopCount+=2) {
+        for (int totalLoopCount = 1; totalLoopCount <= 3; totalLoopCount+=1) {
             final long duration = 1000 * totalLoopCount;
             System.out.println("Sleeping 5s Before: " + duration);
             Thread.sleep(5*1000);

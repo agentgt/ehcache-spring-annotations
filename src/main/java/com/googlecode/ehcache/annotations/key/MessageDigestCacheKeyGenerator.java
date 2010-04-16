@@ -16,6 +16,8 @@
 
 package com.googlecode.ehcache.annotations.key;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -54,13 +56,11 @@ import org.slf4j.LoggerFactory;
 public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<String> {
     public static final String DEFAULT_BEAN_NAME = "com.googlecode.ehcache.annotations.key.MessageDigestCacheKeyGenerator.DEFAULT_BEAN_NAME";
     public static final String DEFAULT_ALGORITHM = "SHA-1";
-    public static final int HASH_CODE_BYTE_SIZE = 4;
-    
-    private static final byte[] ZERO_AS_BYTES = new byte[] {0, 0, 0, 0};
+    protected static final int DEFAULT_BYTE_BUFFER_SIZE = 64;
     
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     
-    private final MessageDigest messageDigest;
+    private final MessageDigest baseMessageDigest;
     private boolean cloneNotSupported;
     
     public MessageDigestCacheKeyGenerator() throws NoSuchAlgorithmException {
@@ -77,18 +77,25 @@ public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<St
     
     public MessageDigestCacheKeyGenerator(String algorithm, boolean includeMethod, boolean includeParameterTypes) throws NoSuchAlgorithmException {
         super(includeMethod, includeParameterTypes);
-        this.messageDigest = MessageDigest.getInstance(algorithm);
+        this.baseMessageDigest = MessageDigest.getInstance(algorithm);
     }
     
 
     @Override
     public String generateKey(Object... data) {
-        final MessageDigest digester = this.getMessageDigest();
+        final MessageDigest messageDigest = this.getMessageDigest();
+        
+        final MessageDigestOutputStream messageDigestOutputStream = new MessageDigestOutputStream(messageDigest);
+        final DataOutputStream dataOutputStream = new DataOutputStream(messageDigestOutputStream);
+        
+        try {
+            this.deepDigest(dataOutputStream, data);
+        }
+        catch (IOException ioe) {
+            throw new IllegalStateException("IOExceptions should not be possible from this key generator");
+        }
 
-        final byte[] hashBytes = new byte[HASH_CODE_BYTE_SIZE];
-        this.deepDigest(hashBytes, digester, data);
-
-        final byte[] digest = digester.digest();
+        final byte[] digest = messageDigest.digest();
         return this.encodeHash(digest);
     }
 
@@ -108,7 +115,7 @@ public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<St
      */
     protected MessageDigest getMessageDigest() {
         if (this.cloneNotSupported) {
-            final String algorithm = this.messageDigest.getAlgorithm();
+            final String algorithm = this.baseMessageDigest.getAlgorithm();
             try {
                 return MessageDigest.getInstance(algorithm);
             }
@@ -118,11 +125,11 @@ public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<St
         }
         
         try {
-            return (MessageDigest)this.messageDigest.clone();
+            return (MessageDigest)this.baseMessageDigest.clone();
         }
         catch (CloneNotSupportedException e) {
             this.cloneNotSupported = true;
-            this.logger.warn("Could not clone MessageDigest using algorithm '" + this.messageDigest.getAlgorithm() + "'. MessageDigest.getInstance will be used from now on which will be much more expensive.", e);
+            this.logger.warn("Could not clone MessageDigest using algorithm '" + this.baseMessageDigest.getAlgorithm() + "'. MessageDigest.getInstance will be used from now on which will be much more expensive.", e);
             return this.getMessageDigest();
         }
     }
@@ -131,49 +138,73 @@ public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<St
      * Does a deep traversal, iterating over arrays, collections and maps and map entries. When
      * a leaf in the object graph is found the appropriate digest method is called.
      * 
-     * If {@link #setCheckforCycles(boolean)} is true and a cycle is found nothing is appeneded
+     * If {@link #setCheckforCycles(boolean)} is true and a cycle is found nothing is appended
      * to the {@link MessageDigest} the second time the object is encountered.
      * 
-     * @param hashBytes A byte array of length {@link #HASH_CODE_BYTE_SIZE} used when converting a hash code to byte array. Passed around to avoid extra object creation.
-     * @param messageDigest The {@link MessageDigest} used to generate the file hash key
      * @param o The object to inspect
      */
-    protected final void deepDigest(byte[] hashBytes, MessageDigest messageDigest, Object o) {
-        if (o == null) {
-            messageDigest.update(ZERO_AS_BYTES);
+    protected final void deepDigest(DataOutputStream dataOutputStream, Object o) throws IOException {
+        if (o == null || !register(o)) {
+            dataOutputStream.write(0);
             return;
         }
         
-        if (!register(o)) {
-            //Return without digesting anything in the case of a circular reference
-            return;
-        }
         try {
             if (o instanceof Class<?>) {
-                this.digest(hashBytes, messageDigest, (Class<?>) o);
+                this.digest(dataOutputStream, (Class<?>) o);
+            }
+            else if (o instanceof Enum<?>) {
+                this.digest(dataOutputStream, (Enum<?>) o);
             }
             else if (o.getClass().isArray()) {
                 final int length = Array.getLength(o);
                 for (int index = 0; index < length; index++) {
                     final Object arrayValue = Array.get(o, index);
-                    this.deepDigest(hashBytes, messageDigest, arrayValue);
+                    this.deepDigest(dataOutputStream, arrayValue);
                 }
             }
             else if (o instanceof Iterable<?>) {
                 for (final Object e : ((Iterable<?>) o)) {
-                    this.deepDigest(hashBytes, messageDigest, e);
+                    this.deepDigest(dataOutputStream, e);
                 }
             }
             else if (o instanceof Map<?, ?>) {
-                this.deepDigest(hashBytes, messageDigest, ((Map<?, ?>) o).entrySet());
+                this.deepDigest(dataOutputStream, ((Map<?, ?>) o).entrySet());
             }
             else if (o instanceof Map.Entry<?, ?>) {
                 final Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
-                this.deepDigest(hashBytes, messageDigest, entry.getKey());
-                this.deepDigest(hashBytes, messageDigest, entry.getValue());
+                this.deepDigest(dataOutputStream, entry.getKey());
+                this.deepDigest(dataOutputStream, entry.getValue());
+            }
+            else if (o instanceof String) {
+                dataOutputStream.writeUTF((String)o);
+            }
+            else if (o instanceof Boolean) {
+                dataOutputStream.writeBoolean(((Boolean)o).booleanValue());
+            }
+            else if (o instanceof Byte) {
+                dataOutputStream.writeByte(((Byte)o).byteValue());
+            }
+            else if (o instanceof Character) {
+                dataOutputStream.writeChar(((Character)o).charValue());
+            }
+            else if (o instanceof Double) {
+                dataOutputStream.writeDouble(((Double)o).doubleValue());
+            }
+            else if (o instanceof Float) {
+                dataOutputStream.writeFloat(((Float)o).floatValue());
+            }
+            else if (o instanceof Integer) {
+                dataOutputStream.writeInt(((Integer)o).intValue());
+            }
+            else if (o instanceof Long) {
+                dataOutputStream.writeLong(((Long)o).longValue());
+            }
+            else if (o instanceof Short) {
+                dataOutputStream.writeShort(((Short)o).shortValue());
             }
             else {
-                this.digest(hashBytes, messageDigest, o);
+                this.digest(dataOutputStream, o);
             }
         }
         finally {
@@ -184,32 +215,23 @@ public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<St
     /**
      * Special handling for digesting a {@link Class} which does not implement hashCode.
      * 
-     * Default implmentation is to digest {@link Class#getName()}
+     * Default implementation is to digest {@link Class#getName()}
      */
-    protected void digest(byte[] hashBytes, MessageDigest messageDigest, Class<?> c) {
-        this.digest(hashBytes, messageDigest, c.getName());
+    protected void digest(DataOutputStream dataOutputStream, Class<?> c) throws IOException {
+        this.digest(dataOutputStream, c.getName());
+    }
+    
+    /**
+     * Generate hash code for an Enum, uses a combination of the Class and name to generate a consistent hash code
+     */
+    protected void digest(DataOutputStream dataOutputStream, Enum<?> e) throws IOException {
+        this.deepDigest(dataOutputStream, new Object[] { e.getClass(), e.name() });
     }
 
     /**
      * Add an object to the digest. Default adds the object's hashCode to the digest
      */
-    protected void digest(byte[] hashBytes, MessageDigest messageDigest, Object o) {
-        intToBytes(hashBytes, o.hashCode());
-        messageDigest.update(hashBytes, 0, HASH_CODE_BYTE_SIZE);
-    }
-
-    /**
-     * Convert an int to a byte array. The passed in byte[] must be at least
-     * 4 bytes long, if longer the bytes above the fourth are ignored.
-     * 
-     * @return the same byte[] that was passed in
-     */
-    protected final byte[] intToBytes(byte[] hashBytes, int value) {
-        hashBytes[0] = (byte) (value >>> 24);
-        hashBytes[1] = (byte) (value >>> 16);
-        hashBytes[2] = (byte) (value >>> 8);
-        hashBytes[3] = (byte) value;
-
-        return hashBytes;
+    protected void digest(DataOutputStream dataOutputStream, Object o) throws IOException {
+        dataOutputStream.writeInt(o.hashCode());
     }
 }

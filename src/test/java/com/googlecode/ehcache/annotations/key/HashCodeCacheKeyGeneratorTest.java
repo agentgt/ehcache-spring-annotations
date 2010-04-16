@@ -17,6 +17,7 @@
 package com.googlecode.ehcache.annotations.key;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.easymock.EasyMock;
@@ -90,33 +91,48 @@ public class HashCodeCacheKeyGeneratorTest {
     }
     
     @Test
-    public void testMinimumInt() {
+    public void testMinimumLong() {
         final HashCodeCacheKeyGenerator generator = new HashCodeCacheKeyGenerator(false, false);
         
         final MethodInvocation negOneCall = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(negOneCall.getArguments()).andReturn(new Object[] { Integer.MIN_VALUE });
+        EasyMock.expect(negOneCall.getArguments()).andReturn(new Object[] { Long.MIN_VALUE });
         
         EasyMock.replay(negOneCall);
         
         final Long key = generator.generateKey(negOneCall);
-        Assert.assertEquals(Long.valueOf(-2147483617), key);
+        Assert.assertEquals(Long.valueOf(-9223372036854775777l), key);
         
         EasyMock.verify(negOneCall);
     }
     
     @Test
-    public void testMaximumInt() {
+    public void testMaximumLong() {
         final HashCodeCacheKeyGenerator generator = new HashCodeCacheKeyGenerator(false, false);
         
         final MethodInvocation negOneCall = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(negOneCall.getArguments()).andReturn(new Object[] { Integer.MAX_VALUE });
+        EasyMock.expect(negOneCall.getArguments()).andReturn(new Object[] { Long.MAX_VALUE });
         
         EasyMock.replay(negOneCall);
         
         final Long key = generator.generateKey(negOneCall);
-        Assert.assertEquals(Long.valueOf(2147483678l), key);
+        Assert.assertEquals(Long.valueOf(-9223372036854775778l), key);
         
         EasyMock.verify(negOneCall);
+    }
+    
+    @Test
+    public void testEnumHashCode() {
+        final HashCodeCacheKeyGenerator generator = new HashCodeCacheKeyGenerator(false, false);
+        
+        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { TimeUnit.DAYS });
+        
+        EasyMock.replay(invocation);
+        
+        final Long key = generator.generateKey(invocation);
+        Assert.assertEquals(Long.valueOf(-53035962820l), key);
+        
+        EasyMock.verify(invocation);
     }
     
     @Test
@@ -139,6 +155,30 @@ public class HashCodeCacheKeyGeneratorTest {
         final Long key = generator.generateKey(invocation);
         
         Assert.assertEquals(Long.valueOf(-43138117840462l), key);
+        
+        EasyMock.verify(invocation);
+    }
+    
+    @Test
+    public void testPrimitiveHashCode() throws SecurityException, NoSuchMethodException {
+        final HashCodeCacheKeyGenerator generator = new HashCodeCacheKeyGenerator(true, true);
+        
+        final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod3", int.class, long.class, boolean.class, Integer.class);
+        
+        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
+        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { 
+                1, 
+                42, 
+                false,
+                1337
+                });
+        
+        EasyMock.replay(invocation);
+        
+        final Long key = generator.generateKey(invocation);
+        
+        Assert.assertEquals(Long.valueOf(-78616304309326l), key);
         
         EasyMock.verify(invocation);
     }

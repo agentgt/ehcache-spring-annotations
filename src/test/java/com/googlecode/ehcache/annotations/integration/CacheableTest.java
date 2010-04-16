@@ -43,16 +43,16 @@ public class CacheableTest {
     public void testCachingOnTheInterfaceWithArgs() {
         Assert.assertEquals(0, cacheableTestInterface.interfaceAnnotatedCachedCount());
         
-        Assert.assertEquals("interfaceAnnotatedCached(foo)", cacheableTestInterface.interfaceAnnotatedCached("foo"));
+        Assert.assertEquals("interfaceAnnotatedCached(1)", cacheableTestInterface.interfaceAnnotatedCached(1));
         Assert.assertEquals(1, cacheableTestInterface.interfaceAnnotatedCachedCount());
         
-        Assert.assertEquals("interfaceAnnotatedCached(foo)", cacheableTestInterface.interfaceAnnotatedCached("foo"));
+        Assert.assertEquals("interfaceAnnotatedCached(1)", cacheableTestInterface.interfaceAnnotatedCached(1));
         Assert.assertEquals(1, cacheableTestInterface.interfaceAnnotatedCachedCount());
         
-        Assert.assertEquals("interfaceAnnotatedCached(bar)", cacheableTestInterface.interfaceAnnotatedCached("bar"));
+        Assert.assertEquals("interfaceAnnotatedCached(2)", cacheableTestInterface.interfaceAnnotatedCached(2));
         Assert.assertEquals(2, cacheableTestInterface.interfaceAnnotatedCachedCount());
         
-        Assert.assertEquals("interfaceAnnotatedCached(bar)", cacheableTestInterface.interfaceAnnotatedCached("bar"));
+        Assert.assertEquals("interfaceAnnotatedCached(2)", cacheableTestInterface.interfaceAnnotatedCached(2));
         Assert.assertEquals(2, cacheableTestInterface.interfaceAnnotatedCachedCount());
     }
 
