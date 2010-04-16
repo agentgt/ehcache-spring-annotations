@@ -16,6 +16,8 @@
 
 package com.googlecode.ehcache.annotations.integration;
 
+import java.util.concurrent.TimeUnit;
+
 import com.googlecode.ehcache.annotations.Cacheable;
 
 
@@ -29,6 +31,7 @@ public class CacheableTestImpl implements CacheableTestInterface {
     private int interfaceAnnotatedCachedCount = 0;
     private int interfaceAnnotatedNoArgCachedCount = 0;
     private int interfaceDefinedCount = 0;
+    private int enumParameterCount = 0;
     
     public String interfaceAnnotatedExceptionCached(boolean throwsException) {
         if (throwsException) {
@@ -74,5 +77,14 @@ public class CacheableTestImpl implements CacheableTestInterface {
 
     public int interfaceDefinedCount() {
         return this.interfaceDefinedCount;
+    }
+
+    public String enumParameter(TimeUnit timeUnit) {
+        this.enumParameterCount++;
+        return "enumParameter(" + timeUnit + ")";
+    }
+    
+    public int enumParameterCount() {
+        return this.enumParameterCount;
     }
 }

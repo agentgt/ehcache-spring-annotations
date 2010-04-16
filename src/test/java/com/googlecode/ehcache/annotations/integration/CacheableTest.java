@@ -16,6 +16,8 @@
 
 package com.googlecode.ehcache.annotations.integration;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -114,6 +116,29 @@ public class CacheableTest {
         }
         Assert.assertEquals(1, cacheableTestInterface.interfaceAnnotatedExceptionCachedCount());
         Assert.assertEquals(1, cacheableTestInterface.interfaceAnnotatedExceptionCachedThrowsCount());
+    }
+
+    @Test
+    public void testEnumArgCaching() {
+        Assert.assertEquals(0, cacheableTestInterface.enumParameterCount());
+        
+        Assert.assertEquals("enumParameter(DAYS)", cacheableTestInterface.enumParameter(TimeUnit.DAYS));
+        Assert.assertEquals(1, cacheableTestInterface.enumParameterCount());
+        
+        Assert.assertEquals("enumParameter(DAYS)", cacheableTestInterface.enumParameter(TimeUnit.DAYS));
+        Assert.assertEquals(1, cacheableTestInterface.enumParameterCount());
+        
+        Assert.assertEquals("enumParameter(null)", cacheableTestInterface.enumParameter(null));
+        Assert.assertEquals(2, cacheableTestInterface.enumParameterCount());
+        
+        Assert.assertEquals("enumParameter(null)", cacheableTestInterface.enumParameter(null));
+        Assert.assertEquals(2, cacheableTestInterface.enumParameterCount());
+        
+        Assert.assertEquals("enumParameter(MINUTES)", cacheableTestInterface.enumParameter(TimeUnit.MINUTES));
+        Assert.assertEquals(3, cacheableTestInterface.enumParameterCount());
+        
+        Assert.assertEquals("enumParameter(MINUTES)", cacheableTestInterface.enumParameter(TimeUnit.MINUTES));
+        Assert.assertEquals(3, cacheableTestInterface.enumParameterCount());
     }
 }
 
