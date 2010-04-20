@@ -50,9 +50,15 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
     protected static final int INITIAL_HASH = 1;
     protected static final int MULTIPLIER = 31;
     
+    /**
+     * @see AbstractCacheKeyGenerator#AbstractCacheKeyGenerator() 
+     */
     public HashCodeCacheKeyGenerator() {
     }
 
+    /**
+     * @see AbstractCacheKeyGenerator#AbstractCacheKeyGenerator(boolean, boolean) 
+     */
     public HashCodeCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) {
         super(includeMethod, includeParameterTypes);
     }

@@ -53,9 +53,15 @@ import org.springframework.util.ReflectionUtils;
 public class ReflectionHashCodeCacheKeyGenerator extends HashCodeCacheKeyGenerator {
     public static final String DEFAULT_BEAN_NAME = "com.googlecode.ehcache.annotations.key.ReflectionHashCodeCacheKeyGenerator.DEFAULT_BEAN_NAME";
     
+    /**
+     * @see AbstractCacheKeyGenerator#AbstractCacheKeyGenerator() 
+     */
     public ReflectionHashCodeCacheKeyGenerator() {
     }
 
+    /**
+     * @see AbstractCacheKeyGenerator#AbstractCacheKeyGenerator(boolean, boolean) 
+     */
     public ReflectionHashCodeCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) {
         super(includeMethod, includeParameterTypes);
     }

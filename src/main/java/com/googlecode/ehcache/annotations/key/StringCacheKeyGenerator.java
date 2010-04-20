@@ -55,9 +55,15 @@ import java.util.List;
 public class StringCacheKeyGenerator extends AbstractCacheKeyGenerator<String> {
     public static final String DEFAULT_BEAN_NAME = "com.googlecode.ehcache.annotations.key.StringCacheKeyGenerator.DEFAULT_BEAN_NAME";
     
+    /**
+     * @see AbstractCacheKeyGenerator#AbstractCacheKeyGenerator() 
+     */
     public StringCacheKeyGenerator() {
     }
 
+    /**
+     * @see AbstractCacheKeyGenerator#AbstractCacheKeyGenerator(boolean, boolean)
+     */
     public StringCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) {
         super(includeMethod, includeParameterTypes);
     }

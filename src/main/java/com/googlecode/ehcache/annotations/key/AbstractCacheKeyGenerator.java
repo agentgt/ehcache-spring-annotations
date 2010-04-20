@@ -45,6 +45,9 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
     private boolean includeMethod = true;
     private boolean includeParameterTypes = true;
     
+    /**
+     * Default constructor, same as calling {@link #AbstractCacheKeyGenerator(boolean, boolean)} with (true, true) 
+     */
     public AbstractCacheKeyGenerator() {
     }
     

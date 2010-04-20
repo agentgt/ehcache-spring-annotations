@@ -63,18 +63,32 @@ public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<St
     private final MessageDigest baseMessageDigest;
     private boolean cloneNotSupported;
     
+    /**
+     * Uses {@link #DEFAULT_ALGORITHM} for the algorithm
+     * @see AbstractCacheKeyGenerator#AbstractCacheKeyGenerator() 
+     */
     public MessageDigestCacheKeyGenerator() throws NoSuchAlgorithmException {
-        this(DEFAULT_ALGORITHM, true, false);
+        this(DEFAULT_ALGORITHM);
     }
     
+    /**
+     * @see AbstractCacheKeyGenerator#AbstractCacheKeyGenerator() 
+     */
     public MessageDigestCacheKeyGenerator(String algorithm) throws NoSuchAlgorithmException {
-        this(algorithm, true, false);
+        this.baseMessageDigest = MessageDigest.getInstance(algorithm);
     }
     
+    /**
+     * Uses {@link #DEFAULT_ALGORITHM} for the algorithm
+     * @see AbstractCacheKeyGenerator#AbstractCacheKeyGenerator(boolean, boolean) 
+     */
     public MessageDigestCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) throws NoSuchAlgorithmException {
         this(DEFAULT_ALGORITHM, includeMethod, includeParameterTypes);
     }
     
+    /**
+     * @see AbstractCacheKeyGenerator#AbstractCacheKeyGenerator(boolean, boolean) 
+     */
     public MessageDigestCacheKeyGenerator(String algorithm, boolean includeMethod, boolean includeParameterTypes) throws NoSuchAlgorithmException {
         super(includeMethod, includeParameterTypes);
         this.baseMessageDigest = MessageDigest.getInstance(algorithm);
