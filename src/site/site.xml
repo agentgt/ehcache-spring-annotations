@@ -16,17 +16,18 @@
     limitations under the License.
 
 -->
-
-<project name="Spring-EhCache ${project.version}">
-
-	<!--
-    <bannerRight>
-        <name>Spring-EhCache</name>
-        <src>images/wisccal_logo.gif</src>
-        <href>http://www.doit.wisc.edu/calendaring/</href>
-    </bannerRight>
-    -->
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd"
+    name="Spring-EhCache ${project.version}">
     
+    <skin>
+        <groupId>com.anasoft.os</groupId>
+        <artifactId>m2st-stylus-ext-skin</artifactId>
+        <version>2.0</version>
+    </skin>
+
     <publishDate position="left" format="MM-dd-yy hh:mm zz"/>
 
     <body>
@@ -34,7 +35,7 @@
           <item name="Home" href="${project.url}"/>
         </breadcrumbs>
     
-    	<menu name="Spring EhCache ${project.version}">
+    	<menu name="EhCache Spring Annotations ${project.version}">
     		<item name="Home" href="index.html"/>
       		<item name="Usage" href="usage.html"/>
       		<item name="FAQ" href="faq.html"/>
