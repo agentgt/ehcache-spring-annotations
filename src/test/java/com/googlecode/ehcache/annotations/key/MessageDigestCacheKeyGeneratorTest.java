@@ -75,7 +75,7 @@ public class MessageDigestCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
         
         final String key = generator.generateKey(invocation);
-        final String expectedKey = "yH9YKNLGedFyWaXuj7niMSO6lkA";
+        final String expectedKey = "C45-E3ptVV3dSkoFYwakb44EjhU";
         
         Assert.assertEquals(expectedKey, key);
         
