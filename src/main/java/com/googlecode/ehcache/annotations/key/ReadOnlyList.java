@@ -34,6 +34,7 @@ public class ReadOnlyList<E extends Serializable> implements List<E>, Serializab
     private static final long serialVersionUID = 1L;
     
     private final List<E> readOnlyDelegate;
+    private int hashCodeCache;
 
     public ReadOnlyList(List<E> readOnlyDelegate) {
         this.readOnlyDelegate = Collections.unmodifiableList(readOnlyDelegate);
@@ -78,7 +79,12 @@ public class ReadOnlyList<E extends Serializable> implements List<E>, Serializab
 
     @Override
     public int hashCode() {
-        return readOnlyDelegate.hashCode();
+        int h = this.hashCodeCache;
+        if (h == 0) {
+            h = readOnlyDelegate.hashCode();
+            this.hashCodeCache = h;
+        }
+        return h;
     }
 
     public int indexOf(Object o) {
