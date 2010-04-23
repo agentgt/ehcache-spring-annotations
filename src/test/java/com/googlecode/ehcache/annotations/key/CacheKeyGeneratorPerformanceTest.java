@@ -160,12 +160,15 @@ public class CacheKeyGeneratorPerformanceTest {
                 
                 long keyCount = 0;
                 while (runTest) {
+                    Serializable lastKey = null;
                     for (final MethodInvocation invocation : invocations) {
                         final Serializable key = generator.generateKey(invocation);
                         //include cost of generated keys hashCode API
                         for (int index = 0; index < 10; index++) {
-                            key.hashCode(); 
+                            key.hashCode();
                         }
+                        key.equals(lastKey);
+                        lastKey = key;
                         keyCount++;
                     }
                 }
