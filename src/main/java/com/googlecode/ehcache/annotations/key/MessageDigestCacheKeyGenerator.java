@@ -54,7 +54,11 @@ import org.slf4j.LoggerFactory;
  * @version $Revision$
  */
 public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<String> {
+    /**
+     * Name of the bean this generator is registered under using the default constructor.
+     */
     public static final String DEFAULT_BEAN_NAME = "com.googlecode.ehcache.annotations.key.MessageDigestCacheKeyGenerator.DEFAULT_BEAN_NAME";
+    
     public static final String DEFAULT_ALGORITHM = "SHA-1";
     protected static final int DEFAULT_BYTE_BUFFER_SIZE = 64;
     
