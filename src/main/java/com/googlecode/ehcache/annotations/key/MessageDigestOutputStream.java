@@ -16,6 +16,7 @@
 
 package com.googlecode.ehcache.annotations.key;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.MessageDigest;
@@ -28,24 +29,129 @@ import java.security.MessageDigest;
  * @version $Revision$
  */
 public class MessageDigestOutputStream extends OutputStream {
+    private final DataOutputStream dataOutputStream;
     private final MessageDigest messageDigest;
     
     public MessageDigestOutputStream(MessageDigest messageDigest) {
         this.messageDigest = messageDigest;
+        this.dataOutputStream = new DataOutputStream(this);
+    }
+    
+    public MessageDigest getMessageDigest() {
+        return this.messageDigest;
+    }
+    
+    public final void writeBoolean(boolean v) {
+        try {
+            this.dataOutputStream.writeBoolean(v);
+        }
+        catch (IOException e) {
+            //Ignore, not possible with this class
+        }
+    }
+
+    public final void writeByte(int v) {
+        try {
+            this.dataOutputStream.writeByte(v);
+        }
+        catch (IOException e) {
+            //Ignore, not possible with this class
+        }
+    }
+
+    public final void writeBytes(String s) {
+        try {
+            this.dataOutputStream.writeBytes(s);
+        }
+        catch (IOException e) {
+            //Ignore, not possible with this class
+        }
+    }
+
+    public final void writeChar(int v) {
+        try {
+            this.dataOutputStream.writeChar(v);
+        }
+        catch (IOException e) {
+            //Ignore, not possible with this class
+        }
+    }
+
+    public final void writeChars(String s) {
+        try {
+            this.dataOutputStream.writeChars(s);
+        }
+        catch (IOException e) {
+            //Ignore, not possible with this class
+        }
+    }
+
+    public final void writeDouble(double v) {
+        try {
+            this.dataOutputStream.writeDouble(v);
+        }
+        catch (IOException e) {
+            //Ignore, not possible with this class
+        }
+    }
+
+    public final void writeFloat(float v) {
+        try {
+            this.dataOutputStream.writeFloat(v);
+        }
+        catch (IOException e) {
+            //Ignore, not possible with this class
+        }
+    }
+
+    public final void writeInt(int v) {
+        try {
+            this.dataOutputStream.writeInt(v);
+        }
+        catch (IOException e) {
+            //Ignore, not possible with this class
+        }
+    }
+
+    public final void writeLong(long v) {
+        try {
+            this.dataOutputStream.writeLong(v);
+        }
+        catch (IOException e) {
+            //Ignore, not possible with this class
+        }
+    }
+
+    public final void writeShort(int v) {
+        try {
+            this.dataOutputStream.writeShort(v);
+        }
+        catch (IOException e) {
+            //Ignore, not possible with this class
+        }
+    }
+
+    public final void writeUTF(String str) {
+        try {
+            this.dataOutputStream.writeUTF(str);
+        }
+        catch (IOException e) {
+            //Ignore, not possible with this class
+        }
     }
 
     @Override
-    public void write(byte[] b, int off, int len) throws IOException {
+    public void write(byte[] b, int off, int len) {
         this.messageDigest.update(b, off, len);
     }
 
     @Override
-    public void write(byte[] b) throws IOException {
+    public void write(byte[] b) {
         this.messageDigest.update(b);
     }
 
     @Override
-    public void write(int b) throws IOException {
+    public void write(int b) {
         this.messageDigest.update((byte)b);
     }
 }

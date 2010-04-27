@@ -16,37 +16,8 @@
 
 package com.googlecode.ehcache.annotations.key;
 
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Collection;
-
-import org.springframework.util.ReflectionUtils;
 
 /**
- * An extension of {@link HashCodeCacheKeyGenerator} that uses reflection to generate hash codes
- * for objects that don't implement hashCode. All of the same key uniqueness issues affect this
- * generator as affect {@link HashCodeCacheKeyGenerator}
- * 
- * 
- * <table>
- *  <tr>
- *      <th>Pros</th>
- *      <th>Cons</th>
- *  </tr>
- *  <tr>
- *      <td>
- *          Don't have to modify/implement argument object hashCode methods to get a non-colliding
- *          key generated.
- *      </td>
- *      <td>
- *          The slowest key generation strategy available due to use of reflection and complete object
- *          graph traversal.
- *      </td>
- *  </tr>
- * </table>
- * 
  * @author Eric Dalquist
  * @version $Revision$
  */
@@ -60,6 +31,7 @@ public class ReflectionHashCodeCacheKeyGenerator extends HashCodeCacheKeyGenerat
      * @see AbstractCacheKeyGenerator#AbstractCacheKeyGenerator() 
      */
     public ReflectionHashCodeCacheKeyGenerator() {
+        this.setUseReflection(true);
     }
 
     /**
@@ -67,60 +39,6 @@ public class ReflectionHashCodeCacheKeyGenerator extends HashCodeCacheKeyGenerat
      */
     public ReflectionHashCodeCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) {
         super(includeMethod, includeParameterTypes);
-    }
-
-    @Override
-    protected long getHashCode(Object o) {
-        //Resolve the class for the object
-        final Class<?> clazz;
-        if (o instanceof Class<?>) {
-            clazz = (Class<?>) o;
-        }
-        else {
-            clazz = o.getClass();
-        }
-        
-        //Resolve the hashCode method to call
-        final Method hashCodeMethod = ReflectionUtils.findMethod(clazz, "hashCode");
-        
-        //hashCode method on the class, simply call it
-        if (hashCodeMethod != null && hashCodeMethod.getDeclaringClass() != Object.class) {
-            return o.hashCode();
-        }
-
-        // could not find a hashCode other than the one declared by java.lang.Object
-        long result = INITIAL_HASH;
-
-        try {
-            for (Class<?> targetClass = o.getClass(); targetClass != null; targetClass = targetClass.getSuperclass()) {
-                final Field[] fields = targetClass.getDeclaredFields();
-                AccessibleObject.setAccessible(fields, true);
-
-                for (int i = 0; i < fields.length; i++) {
-                    final Field field = fields[i];
-                    final int modifiers = field.getModifiers();
-
-                    if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers) && !field.getName().startsWith("this$")) {
-                        final Object fieldValue = field.get(o);
-                        result = MULTIPLIER * result + this.hashCode(fieldValue);
-                    }
-                }
-            }
-        }
-        catch (IllegalAccessException exception) {
-            ReflectionUtils.handleReflectionException(exception);
-        }
-
-        return result;
-    }
-
-    protected long hashCode(Collection<?> collection) {
-        long result = INITIAL_HASH;
-        
-        for (final Object element : collection) {
-            result = MULTIPLIER * result + this.hashCode(element);
-        }
-
-        return result;
+        this.setUseReflection(true);
     }
 }

@@ -21,25 +21,41 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.util.ReflectionUtils;
 
 /**
+ * Base class for key generators that do deep inspection of the key data for generation. Arrays and Collections are
+ * iterated over and their values recursively inspected. Also supports reflective recursion which can be useful for
+ * objects that may not support the hashCode, equals or other methods required by the key generation implementation.
  * 
+ * Reflective recursion add significant overhead to the deep inspection process.
  * 
  * @author Eric Dalquist
  * @version $Revision$
  */
 public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> extends AbstractCacheKeyGenerator<T> {
-    
     private boolean useReflection = false;
     
-    public boolean isUseReflection() {
+    public AbstractDeepCacheKeyGenerator() {
+        super();
+    }
+
+    public AbstractDeepCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) {
+        super(includeMethod, includeParameterTypes);
+    }
+
+    public final boolean isUseReflection() {
         return this.useReflection;
     }
 
-    public void setUseReflection(boolean useReflection) {
+    /**
+     * Sets if reflection should be used when recursing over 
+     */
+    public final void setUseReflection(boolean useReflection) {
         this.useReflection = useReflection;
     }
 
@@ -57,11 +73,6 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
      * Calls {@link #deepHashCode(KeyGenerationStream, Object)} on each element in the array
      */
     protected final void deepHashCode(G generator, Object a[]) {
-        if (a == null) {
-            this.appendNull(generator);
-            return;
-        }
-
         for (final Object element : a) {
             this.deepHashCode(generator, element);
         }
@@ -72,11 +83,6 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
      * Calls {@link #deepHashCode(KeyGenerationStream, Object)} on each element in the {@link Iterable}
      */
     protected final void deepHashCode(G generator, Iterable<?> a) {
-        if (a == null) {
-            this.appendNull(generator);
-            return;
-        }
-
         for (final Object element : a) {
             this.deepHashCode(generator, element);
         }
@@ -86,38 +92,34 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
      * Calls {@link #deepHashCode(KeyGenerationStream, Object)} on both the key and the value.
      */
     protected final void deepHashCode(G generator, Map.Entry<?, ?> e) {
-        if (e == null) {
-            this.appendNull(generator);
-            return;
-        }
-        
         this.deepHashCode(generator, e.getKey());
         this.deepHashCode(generator, e.getValue());
     }
     
-    protected final void reflectionDeepHashCode(G generator, Object element) {
+    /**
+     * If {@link #shouldReflect(Object)} returns true it uses reflection to call
+     * {@link #deepHashCode(Object, Object)} on each non-transient, non-static field.
+     */
+    protected final void reflectionDeepHashCode(G generator, final Object element) {
         //Special objects which shouldn't be reflected on due to lack of interesting fields
         if (element instanceof Class<?>) {
             this.append(generator, element);
             return;
         }
 
-        //Resolve the class for the object
-        final Class<?> clazz = element.getClass();
-        
-        //Resolve the hashCode method to call
-        final Method hashCodeMethod = ReflectionUtils.findMethod(clazz, "hashCode");
-        
-        //hashCode method on the class, simply call it
-        if (hashCodeMethod != null && hashCodeMethod.getDeclaringClass() != Object.class) {
+        //Determine if the element should be reflected on
+        if (!this.shouldReflect(element)) {
             this.append(generator, element);
             return;
         }
+        
+        //Accumulate the data that makes up the object being reflected on so it can be recursed on as a single grouping of data
+        final List<Object> reflectiveObject = new LinkedList<Object>();
+
+        //Write out the target class so that two classes with the same fields can't collide
+        reflectiveObject.add(element.getClass());
 
         try {
-            //Write out the target class so that two classes with the same fields can't collide
-            this.append(generator, clazz);
-            
             for (Class<?> targetClass = element.getClass(); targetClass != null; targetClass = targetClass.getSuperclass()) {
                 final Field[] fields = targetClass.getDeclaredFields();
                 AccessibleObject.setAccessible(fields, true);
@@ -129,7 +131,7 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
                     //Ignore static and transient fields
                     if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
                         final Object fieldValue = field.get(element);
-                        this.deepHashCode(generator, fieldValue);
+                        reflectiveObject.add(fieldValue);
                     }
                 }
             }
@@ -137,6 +139,32 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
         catch (IllegalAccessException exception) {
             ReflectionUtils.handleReflectionException(exception);
         }
+        
+        this.deepHashCode(generator, reflectiveObject);
+    }
+    
+    /**
+     * Default implementation returns true if the {@link Object} doesn't implement hashCode or
+     * doesn't implement equals. 
+     */
+    protected boolean shouldReflect(Object element) {
+        return !this.implementsHashCode(element) || !this.implementsEquals(element);
+    }
+    
+    /**
+     * Checks if the object implements hashCode
+     */
+    protected final boolean implementsHashCode(Object element) {
+        final Method hashCodeMethod = ReflectionUtils.findMethod(element.getClass(), "hashCode");
+        return hashCodeMethod != null && hashCodeMethod.getDeclaringClass() != Object.class;
+    }
+    
+    /**
+     * Checks if the object implements equals
+     */
+    protected final boolean implementsEquals(Object element) {
+        final Method equalsMethod = ReflectionUtils.findMethod(element.getClass(), "equals");
+        return equalsMethod != null && equalsMethod.getDeclaringClass() != Object.class;
     }
 
     /**
@@ -189,29 +217,35 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
         }
     }
     
+    /**
+     * Create the object used to generate the key.
+     */
     public abstract G getGenerator(Object... data);
     
+    /**
+     * Generate the key from the generator
+     */
     public abstract T generateKey(G generator);
 
-    public abstract void append(G generator, boolean a[]);
+    protected abstract void append(G generator, boolean a[]);
 
-    public abstract void append(G generator, byte a[]);
+    protected abstract void append(G generator, byte a[]);
     
-    public abstract void append(G generator, char a[]);
+    protected abstract void append(G generator, char a[]);
     
-    public abstract void append(G generator, double a[]);
+    protected abstract void append(G generator, double a[]);
     
-    public abstract void append(G generator, float a[]);
+    protected abstract void append(G generator, float a[]);
     
-    public abstract void append(G generator, int a[]);
+    protected abstract void append(G generator, int a[]);
     
-    public abstract void append(G generator, long a[]);
+    protected abstract void append(G generator, long a[]);
     
-    public abstract void append(G generator, short a[]);
+    protected abstract void append(G generator, short a[]);
     
-    public abstract void append(G generator, Object e);
+    protected abstract void append(G generator, Object e);
 
-    public abstract void appendGraphCycle(G generator, Object o);
+    protected abstract void appendGraphCycle(G generator, Object o);
 
-    public abstract void appendNull(G generator);
+    protected abstract void appendNull(G generator);
 }

@@ -54,7 +54,7 @@ public class MessageDigestCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
         
         final String key = generator.generateKey(invocation);
-        final String expectedKey = "tFOlrpBVee4gmdnwd7L-9LoIJcJf8c3HqssUURGQxFEZAb31WSswkWPhDcZMP9byXFnBqCLd4t02csJwXAlKeQ";
+        final String expectedKey = "xOfGg9p4DZKQSKgGEspgXqUDTrm36ks-yD00przj1qMR1Ba1LU4JnHmAt2DvRT8lkFXz9kCXli9DnmUZyvIBgw";
         
         Assert.assertEquals(expectedKey, key);
         
@@ -75,7 +75,7 @@ public class MessageDigestCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
         
         final String key = generator.generateKey(invocation);
-        final String expectedKey = "C45-E3ptVV3dSkoFYwakb44EjhU";
+        final String expectedKey = "hmJe_DeMMYOwcAurgREvm1ZLq0w";
         
         Assert.assertEquals(expectedKey, key);
         
@@ -137,7 +137,7 @@ public class MessageDigestCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
         
         final String key = generator.generateKey(invocation);
-        final String expectedKey = "ot8QS38FbTmuTyyjINgue90M58o";
+        final String expectedKey = "_WbnuoQPJpA3QBUAXMmcuXA9RKo";
         
         Assert.assertEquals(expectedKey, key);
         
@@ -163,7 +163,7 @@ public class MessageDigestCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
         
         final String key = generator.generateKey(invocation);
-        final String expectedKey = "8bnDbflY3hQKyvbB6VAP8iPyIfb3Ia9tmgDXJ7tLP-q8fA13-mpDkRyh2jmsBny00GschmkRP8Eg5NlvN8FniQ";
+        final String expectedKey = "RcGfbn-jtB09A-XTgzBOQpuuX4Aa81syGSfrYfiapMH1Bp34uFmgYD7zryTB90xmO2uo_J7lPsc3-TL9nj-1iw";
         
         Assert.assertEquals(expectedKey, key);
         

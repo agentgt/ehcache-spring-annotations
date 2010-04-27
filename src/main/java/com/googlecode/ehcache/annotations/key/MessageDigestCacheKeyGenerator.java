@@ -16,44 +16,18 @@
 
 package com.googlecode.ehcache.annotations.key;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This key generator is a good option when a secure hash of the arguments is needed or when a
- * larger final key space is desired. As with {@link HashCodeCacheKeyGenerator} the argument
- * hashCode is used for key generation data but instead of the simple Java hash algorithm being
- * used any {@link MessageDigest} can be used, SHA-1 is used by default. The generated hash is
- * base64 encoded using {@link Base64#encodeBase64URLSafeString(byte[])}
- * 
- * <table>
- *  <tr>
- *      <th>Pros</th>
- *      <th>Cons</th>
- *  </tr>
- *  <tr>
- *      <td>
- *          Better assurance than {@link HashCodeCacheKeyGenerator} against key collisions though
- *          with the argument hashCodes being the source of the data it is still not perfect.
- *      </td>
- *      <td>
- *          Slower than {@link HashCodeCacheKeyGenerator}
- *      </td>
- *  </tr>
- * </table>
- * 
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<String> {
+public class MessageDigestCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<MessageDigestOutputStream, String> {
     /**
      * Name of the bean this generator is registered under using the default constructor.
      */
@@ -99,20 +73,16 @@ public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<St
     }
     
 
-    @Override
-    public String generateKey(Object... data) {
-        final MessageDigest messageDigest = this.getMessageDigest();
-        
-        final MessageDigestOutputStream messageDigestOutputStream = new MessageDigestOutputStream(messageDigest);
-        final DataOutputStream dataOutputStream = new DataOutputStream(messageDigestOutputStream);
-        
-        try {
-            this.deepDigest(dataOutputStream, data);
-        }
-        catch (IOException ioe) {
-            throw new IllegalStateException("IOExceptions should not be possible from this key generator");
-        }
 
+    @Override
+    public MessageDigestOutputStream getGenerator(Object... data) {
+        final MessageDigest messageDigest = this.getMessageDigest();
+        return new MessageDigestOutputStream(messageDigest);
+    }
+
+    @Override
+    public String generateKey(MessageDigestOutputStream generator) {
+        final MessageDigest messageDigest = generator.getMessageDigest();
         final byte[] digest = messageDigest.digest();
         return this.encodeHash(digest);
     }
@@ -151,105 +121,115 @@ public class MessageDigestCacheKeyGenerator extends AbstractCacheKeyGenerator<St
             return this.getMessageDigest();
         }
     }
-
-    /**
-     * Does a deep traversal, iterating over arrays, collections and maps and map entries. When
-     * a leaf in the object graph is found the appropriate digest method is called.
-     * 
-     * If {@link #setCheckforCycles(boolean)} is true and a cycle is found nothing is appended
-     * to the {@link MessageDigest} the second time the object is encountered.
-     * 
-     * @param o The object to inspect
-     */
-    protected final void deepDigest(DataOutputStream dataOutputStream, Object o) throws IOException {
-        if (o == null || !register(o)) {
-            dataOutputStream.write(0);
-            return;
-        }
-        
-        try {
-            if (o instanceof Class<?>) {
-                this.digest(dataOutputStream, (Class<?>) o);
-            }
-            else if (o instanceof Enum<?>) {
-                this.digest(dataOutputStream, (Enum<?>) o);
-            }
-            else if (o.getClass().isArray()) {
-                final int length = Array.getLength(o);
-                for (int index = 0; index < length; index++) {
-                    final Object arrayValue = Array.get(o, index);
-                    this.deepDigest(dataOutputStream, arrayValue);
-                }
-            }
-            else if (o instanceof Iterable<?>) {
-                for (final Object e : ((Iterable<?>) o)) {
-                    this.deepDigest(dataOutputStream, e);
-                }
-            }
-            else if (o instanceof Map<?, ?>) {
-                this.deepDigest(dataOutputStream, ((Map<?, ?>) o).entrySet());
-            }
-            else if (o instanceof Map.Entry<?, ?>) {
-                final Map.Entry<?, ?> entry = (Map.Entry<?, ?>) o;
-                this.deepDigest(dataOutputStream, entry.getKey());
-                this.deepDigest(dataOutputStream, entry.getValue());
-            }
-            else if (o instanceof String) {
-                dataOutputStream.writeUTF((String)o);
-            }
-            else if (o instanceof Boolean) {
-                dataOutputStream.writeBoolean(((Boolean)o).booleanValue());
-            }
-            else if (o instanceof Byte) {
-                dataOutputStream.writeByte(((Byte)o).byteValue());
-            }
-            else if (o instanceof Character) {
-                dataOutputStream.writeChar(((Character)o).charValue());
-            }
-            else if (o instanceof Double) {
-                dataOutputStream.writeDouble(((Double)o).doubleValue());
-            }
-            else if (o instanceof Float) {
-                dataOutputStream.writeFloat(((Float)o).floatValue());
-            }
-            else if (o instanceof Integer) {
-                dataOutputStream.writeInt(((Integer)o).intValue());
-            }
-            else if (o instanceof Long) {
-                dataOutputStream.writeLong(((Long)o).longValue());
-            }
-            else if (o instanceof Short) {
-                dataOutputStream.writeShort(((Short)o).shortValue());
-            }
-            else {
-                this.digest(dataOutputStream, o);
-            }
-        }
-        finally {
-            unregister(o);
-        }
-    }
-
-    /**
-     * Special handling for digesting a {@link Class} which does not implement hashCode.
-     * 
-     * Default implementation is to digest {@link Class#getName()}
-     */
-    protected void digest(DataOutputStream dataOutputStream, Class<?> c) throws IOException {
-        this.digest(dataOutputStream, c.getName());
-    }
     
-    /**
-     * Generate hash code for an Enum, uses a combination of the Class and name to generate a consistent hash code
-     */
-    protected void digest(DataOutputStream dataOutputStream, Enum<?> e) throws IOException {
-        this.deepDigest(dataOutputStream, new Object[] { e.getClass(), e.name() });
+
+    @Override
+    protected void append(MessageDigestOutputStream generator, boolean[] a) {
+        for (final boolean element : a) {
+            generator.writeBoolean(element);
+        }
     }
 
-    /**
-     * Add an object to the digest. Default adds the object's hashCode to the digest
-     */
-    protected void digest(DataOutputStream dataOutputStream, Object o) throws IOException {
-        dataOutputStream.writeInt(o.hashCode());
+    @Override
+    protected void append(MessageDigestOutputStream generator, byte[] a) {
+        generator.write(a);
+    }
+
+    @Override
+    protected void append(MessageDigestOutputStream generator, char[] a) {
+        for (final char element : a) {
+            generator.writeChar(element);
+        }
+    }
+
+    @Override
+    protected void append(MessageDigestOutputStream generator, double[] a) {
+        for (final double element : a) {
+            generator.writeDouble(element);
+        }
+    }
+
+    @Override
+    protected void append(MessageDigestOutputStream generator, float[] a) {
+        for (final float element : a) {
+            generator.writeFloat(element);
+        }
+    }
+
+    @Override
+    protected void append(MessageDigestOutputStream generator, int[] a) {
+        for (final int element : a) {
+            generator.writeInt(element);
+        }
+    }
+
+    @Override
+    protected void append(MessageDigestOutputStream generator, long[] a) {
+        for (final long element : a) {
+            generator.writeLong(element);
+        }
+    }
+
+    @Override
+    protected void append(MessageDigestOutputStream generator, short[] a) {
+        for (final short element : a) {
+            generator.writeShort(element);
+        }        
+    }
+
+    @Override
+    protected void appendGraphCycle(MessageDigestOutputStream generator, Object o) {
+        generator.write(0);        
+    }
+
+    @Override
+    protected void appendNull(MessageDigestOutputStream generator) {
+        generator.write(0);
+    }
+
+    @Override
+    protected boolean shouldReflect(Object element) {
+        return !super.implementsHashCode(element);
+    }
+
+    @Override
+    protected void append(MessageDigestOutputStream generator, Object e) {
+        if (e instanceof Class<?>) {
+            this.append(generator, ((Class<?>)e).getName());
+        }
+        else if (e instanceof Enum<?>) {
+            this.append(generator, ((Enum<?>)e).getClass().getName());
+            this.append(generator, ((Enum<?>)e).name());
+        }
+        else if (e instanceof String) {
+            generator.writeUTF((String)e);
+        }
+        else if (e instanceof Boolean) {
+            generator.writeBoolean((Boolean)e);
+        }
+        else if (e instanceof Byte) {
+            generator.write((Byte)e);
+        }
+        else if (e instanceof Character) {
+            generator.writeChar((Character)e);
+        }
+        else if (e instanceof Double) {
+            generator.writeDouble((Double)e);
+        }
+        else if (e instanceof Float) {
+            generator.writeFloat((Float)e);
+        }
+        else if (e instanceof Integer) {
+            generator.writeInt((Integer)e);
+        }
+        else if (e instanceof Long) {
+            generator.writeLong((Long)e);
+        }
+        else if (e instanceof Short) {
+            generator.writeShort((Short)e);
+        }
+        else {        
+            generator.write(e.hashCode());
+        }
     }
 }

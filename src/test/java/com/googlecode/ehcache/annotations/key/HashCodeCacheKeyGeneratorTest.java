@@ -50,7 +50,7 @@ public class HashCodeCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
         
         final Long key = generator.generateKey(invocation);
-        Assert.assertEquals(Long.valueOf(55143651163l), key);
+        Assert.assertEquals(Long.valueOf(55143650171l), key);
         
         EasyMock.verify(invocation);
     }
@@ -69,7 +69,7 @@ public class HashCodeCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
         
         final Long key = generator.generateKey(invocation);
-        Assert.assertEquals(Long.valueOf(-78777307802699l), key);
+        Assert.assertEquals(Long.valueOf(-78777307803691l), key);
         
         EasyMock.verify(invocation);
     }
@@ -130,7 +130,7 @@ public class HashCodeCacheKeyGeneratorTest {
         EasyMock.replay(invocation);
         
         final Long key = generator.generateKey(invocation);
-        Assert.assertEquals(Long.valueOf(-53035962820l), key);
+        Assert.assertEquals(Long.valueOf(-53035962851l), key);
         
         EasyMock.verify(invocation);
     }
@@ -154,7 +154,7 @@ public class HashCodeCacheKeyGeneratorTest {
         
         final Long key = generator.generateKey(invocation);
         
-        Assert.assertEquals(Long.valueOf(-43138117840462l), key);
+        Assert.assertEquals(Long.valueOf(-1232013994612058878l), key);
         
         EasyMock.verify(invocation);
     }
@@ -178,7 +178,7 @@ public class HashCodeCacheKeyGeneratorTest {
         
         final Long key = generator.generateKey(invocation);
         
-        Assert.assertEquals(Long.valueOf(-78616304309326l), key);
+        Assert.assertEquals(Long.valueOf(5594489449397831184l), key);
         
         EasyMock.verify(invocation);
     }

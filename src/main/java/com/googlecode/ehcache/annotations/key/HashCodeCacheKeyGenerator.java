@@ -16,35 +16,12 @@
 
 package com.googlecode.ehcache.annotations.key;
 
-import java.util.Arrays;
-import java.util.Map;
 
 /**
- * This key generator is a good option for fast but rough comparison of method invocations. The standard Java
- * hashCode method is used on the arguments to generate identity information. Essentially {@link Arrays#deepHashCode(Object[])}
- * is used except with a long instead of an int for a hash accumulator to provide a larger key space. This is
- * not a secure hashing algorithm.
- * 
- * <table>
- *  <tr>
- *      <th>Pros</th>
- *      <th>Cons</th>
- *  </tr>
- *  <tr>
- *      <td>
- *          This is the fastest of the included key generation techniques by over 150%
- *      </td>
- *      <td>
- *          The generated hash code is only a long so the key is only 64bits long. It is possible for different
- *          arguments to have the same hash code which would result in a key collision.
- *      </td>
- *  </tr>
- * </table>
- * 
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
+public class HashCodeCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<HashCodeCacheKeyGenerator.LongGenerator, Long> {
     /**
      * Name of the bean this generator is registered under using the default constructor.
      */
@@ -52,6 +29,13 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
     
     protected static final int INITIAL_HASH = 1;
     protected static final int MULTIPLIER = 31;
+    
+    /**
+     * Little utility class to fake a mutable long
+     */
+    public static class LongGenerator {
+        private long hash = INITIAL_HASH;
+    }
     
     /**
      * @see AbstractCacheKeyGenerator#AbstractCacheKeyGenerator() 
@@ -66,248 +50,104 @@ public class HashCodeCacheKeyGenerator extends AbstractCacheKeyGenerator<Long> {
         super(includeMethod, includeParameterTypes);
     }
 
+    @Override
+    public LongGenerator getGenerator(Object... data) {
+        return new LongGenerator();
+    }
 
     @Override
-    public Long generateKey(Object... data) {
-        return this.deepHashCode(data);
+    public Long generateKey(LongGenerator generator) {
+        return generator.hash;
     }
-
-    /**
-     * @see Arrays#hashCode(long[])
-     */
-    protected final long hashCode(long a[]) {
-        if (a == null)
-            return 0;
-
-        long result = INITIAL_HASH;
+    
+    @Override
+    protected void append(LongGenerator generator, long a[]) {
         for (final long element : a) {
-            int elementHash = (int)(element ^ (element >>> 32));
-            result = MULTIPLIER * result + elementHash;
+            generator.hash = MULTIPLIER * generator.hash + element;
         }
-
-        return result;
     }
 
-    /**
-     * @see Arrays#hashCode(int[])
-     */
-    protected final long hashCode(int a[]) {
-        if (a == null)
-            return 0;
-
-        long result = INITIAL_HASH;
-        for (final int element : a)
-            result = MULTIPLIER * result + element;
-
-        return result;
+    @Override
+    protected void append(LongGenerator generator, int a[]) {
+        for (final int element : a) {
+            generator.hash = MULTIPLIER * generator.hash + element;
+        }
     }
 
-    /**
-     * @see Arrays#hashCode(short[])
-     */
-    protected final long hashCode(short a[]) {
-        if (a == null)
-            return 0;
-
-        long result = INITIAL_HASH;
-        for (final short element : a)
-            result = MULTIPLIER * result + element;
-
-        return result;
+    @Override
+    protected void append(LongGenerator generator, short a[]) {
+        for (final short element : a) {
+            generator.hash = MULTIPLIER * generator.hash + element;
+        }
     }
 
-    /**
-     * @see Arrays#hashCode(char[])
-     */
-    protected final long hashCode(char a[]) {
-        if (a == null)
-            return 0;
-
-        long result = INITIAL_HASH;
-        for (final char element : a)
-            result = MULTIPLIER * result + element;
-
-        return result;
+    @Override
+    protected void append(LongGenerator generator, char a[]) {
+        for (final char element : a) {
+            generator.hash = MULTIPLIER * generator.hash + element;
+        }
     }
 
-    /**
-     * @see Arrays#hashCode(byte[])
-     */
-    protected final long hashCode(byte a[]) {
-        if (a == null)
-            return 0;
-
-        long result = INITIAL_HASH;
-        for (final byte element : a)
-            result = MULTIPLIER * result + element;
-
-        return result;
+    @Override
+    protected void append(LongGenerator generator, byte a[]) {
+        for (final byte element : a) {
+            generator.hash = MULTIPLIER * generator.hash + element;
+        }
     }
 
-    /**
-     * @see Arrays#hashCode(boolean[])
-     */
-    protected final long hashCode(boolean a[]) {
-        if (a == null)
-            return 0;
-
-        long result = INITIAL_HASH;
-        for (final boolean element : a)
-            result = MULTIPLIER * result + (element ? 1231 : 1237);
-
-        return result;
+    @Override
+    protected void append(LongGenerator generator, boolean a[]) {
+        for (final boolean element : a) {
+            generator.hash = MULTIPLIER * generator.hash + (element ? 1231 : 1237);
+        }
     }
 
-    /**
-     * @see Arrays#hashCode(float[])
-     */
-    protected final long hashCode(float a[]) {
-        if (a == null)
-            return 0;
-
-        long result = INITIAL_HASH;
-        for (final float element : a)
-            result = MULTIPLIER * result + Float.floatToIntBits(element);
-
-        return result;
+    @Override
+    protected void append(LongGenerator generator, float a[]) {
+        for (final float element : a) {
+            generator.hash = MULTIPLIER * generator.hash + Float.floatToIntBits(element);
+        }
     }
 
-    /**
-     * @see Arrays#hashCode(double[])
-     */
-    protected final long hashCode(double a[]) {
-        if (a == null)
-            return 0;
-
-        long result = INITIAL_HASH;
+    @Override
+    protected void append(LongGenerator generator, double a[]) {
         for (final double element : a) {
-            long bits = Double.doubleToLongBits(element);
-            result = MULTIPLIER * result + (int)(bits ^ (bits >>> 32));
-        }
-        return result;
-    }
-
-    /**
-     * @see Arrays#deepHashCode(Object[])
-     */
-    protected final long deepHashCode(Object a[]) {
-        if (a == null)
-            return 0;
-
-        long result = INITIAL_HASH;
-
-        for (final Object element : a) {
-            final long elementHash = this.hashCode(element);
-            result = MULTIPLIER * result + elementHash;
-        }
-
-        return result;
-    }
-
-
-    /**
-     * @see Arrays#deepHashCode(Object[])
-     */
-    protected final long deepHashCode(Iterable<?> a) {
-        if (a == null)
-            return 0;
-
-        long result = INITIAL_HASH;
-
-        for (final Object element : a) {
-            final long elementHash = this.hashCode(element);
-            result = MULTIPLIER * result + elementHash;
-        }
-
-        return result;
-    }
-    
-    protected final long hashCode(Map.Entry<?, ?> e) {
-        if (e == null)
-            return 0;
-        
-        long result = INITIAL_HASH;
-
-        final long keyHash = this.hashCode(e.getKey());
-        result = MULTIPLIER * result + keyHash;
-
-        final long valueHash = this.hashCode(e.getValue());
-        result = MULTIPLIER * result + valueHash;
-
-        return result;
-    }
-
-    protected final long hashCode(Object element) {
-        if (element == null || !register(element)) {
-            //Return 0 in place of the actual hash code in the case of null or a circular reference
-            return 0;
-        }
-        try {
-            long elementHash = 0;
-            if (element instanceof Object[])
-                elementHash = deepHashCode((Object[]) element);
-            else if (element instanceof byte[])
-                elementHash = hashCode((byte[]) element);
-            else if (element instanceof short[])
-                elementHash = hashCode((short[]) element);
-            else if (element instanceof int[])
-                elementHash = hashCode((int[]) element);
-            else if (element instanceof long[])
-                elementHash = hashCode((long[]) element);
-            else if (element instanceof char[])
-                elementHash = hashCode((char[]) element);
-            else if (element instanceof float[])
-                elementHash = hashCode((float[]) element);
-            else if (element instanceof double[])
-                elementHash = hashCode((double[]) element);
-            else if (element instanceof boolean[])
-                elementHash = hashCode((boolean[]) element);
-            else if (element instanceof Class<?>)
-                elementHash = getHashCode((Class<?>)element);
-            else if (element instanceof Number)
-                elementHash = getHashCode((Number)element);
-            else if (element instanceof Enum<?>)
-                elementHash = getHashCode((Enum<?>)element);
-            else if (element instanceof Iterable<?>)
-                elementHash = deepHashCode((Iterable<?>)element);
-            else if (element instanceof Map<?, ?>)
-                elementHash = deepHashCode(((Map<?, ?>)element).entrySet());
-            else if (element instanceof Map.Entry<?, ?>)
-                elementHash = hashCode((Map.Entry<?, ?>)element);
-            else
-                elementHash = getHashCode(element);
-            return elementHash;
-        }
-        finally {
-            unregister(element);
+            generator.hash = MULTIPLIER * generator.hash + Double.doubleToLongBits(element);
         }
     }
-    
-    /**
-     * Generate hash code for an Class which by default uses object identity hash codes
-     */
-    protected long getHashCode(Class<?> c) {
-        return c.getName().hashCode();
+
+    @Override
+    protected void appendGraphCycle(LongGenerator generator, Object o) {
+        generator.hash = MULTIPLIER * generator.hash;
     }
-    
-    /**
-     * Generate hash code for a Number, getting the more precise long value.
-     */
-    protected long getHashCode(Number n) {
-        return n.longValue();
+
+    @Override
+    protected void appendNull(LongGenerator generator) {
+        generator.hash = MULTIPLIER * generator.hash;
     }
-    
-    /**
-     * Generate hash code for an Enum, uses a combination of the Class and name to generate a consistent hash code
-     */
-    protected long getHashCode(Enum<?> e) {
-        return this.hashCode(new Object[] { e.getClass(), e.name() });
+
+    @Override
+    protected void append(LongGenerator generator, Object e) {
+        if (e instanceof Class<?>) {
+            this.append(generator, ((Class<?>)e).getName());
+        }
+        else if (e instanceof Enum<?>) {
+            this.append(generator, ((Enum<?>)e).getClass().getName());
+            this.append(generator, ((Enum<?>)e).name());
+        }
+        else if (e instanceof Double) {
+            generator.hash = MULTIPLIER * generator.hash + Double.doubleToLongBits(((Double)e).doubleValue());
+        }
+        else if (e instanceof Long) {
+            generator.hash = MULTIPLIER * generator.hash + ((Long)e).longValue();
+        }
+        else {        
+            generator.hash = MULTIPLIER * generator.hash + e.hashCode();
+        }
     }
-    
-    /**
-     * Generate hash code for an object
-     */
-    protected long getHashCode(Object o) {
-        return o.hashCode();
+
+    @Override
+    protected boolean shouldReflect(Object element) {
+        return !this.implementsHashCode(element);
     }
 }
