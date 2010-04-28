@@ -229,7 +229,7 @@ public class MessageDigestCacheKeyGenerator extends AbstractDeepCacheKeyGenerato
             generator.writeShort((Short)e);
         }
         else {        
-            generator.write(e.hashCode());
+            generator.writeInt(e.hashCode());
         }
     }
 }

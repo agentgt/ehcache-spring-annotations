@@ -72,28 +72,84 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
     /**
      * Calls {@link #deepHashCode(KeyGenerationStream, Object)} on each element in the array
      */
-    protected final void deepHashCode(G generator, Object a[]) {
+    protected void deepHashCode(G generator, Object a[]) {
+        this.beginRecursion(generator, a);
         for (final Object element : a) {
             this.deepHashCode(generator, element);
         }
+        this.endRecursion(generator, a);
     }
 
 
     /**
      * Calls {@link #deepHashCode(KeyGenerationStream, Object)} on each element in the {@link Iterable}
      */
-    protected final void deepHashCode(G generator, Iterable<?> a) {
+    protected void deepHashCode(G generator, Iterable<?> a) {
+        this.beginRecursion(generator, a);
         for (final Object element : a) {
             this.deepHashCode(generator, element);
         }
+        this.endRecursion(generator, a);
     }
     
     /**
      * Calls {@link #deepHashCode(KeyGenerationStream, Object)} on both the key and the value.
      */
-    protected final void deepHashCode(G generator, Map.Entry<?, ?> e) {
+    protected void deepHashCode(G generator, Map.Entry<?, ?> e) {
+        this.beginRecursion(generator, e);
         this.deepHashCode(generator, e.getKey());
         this.deepHashCode(generator, e.getValue());
+        this.endRecursion(generator, e);
+    }
+
+    /**
+     * Does instanceof checks to determine the correct deepHashCode to call or 
+     * {@link #write(KeyGenerationStream, Object)} is called.
+     */
+    protected final void deepHashCode(G generator, Object element) {
+        if (element == null) {
+            this.appendNull(generator);
+            return;
+        }
+        
+        if (!register(element)) {
+            this.appendGraphCycle(generator, element);
+            return;
+        }
+        
+        try {
+            if (element instanceof byte[])
+                this.append(generator, (byte[]) element);
+            else if (element instanceof short[])
+                this.append(generator, (short[]) element);
+            else if (element instanceof int[])
+                this.append(generator, (int[]) element);
+            else if (element instanceof long[])
+                this.append(generator, (long[]) element);
+            else if (element instanceof char[])
+                this.append(generator, (char[]) element);
+            else if (element instanceof float[])
+                this.append(generator, (float[]) element);
+            else if (element instanceof double[])
+                this.append(generator, (double[]) element);
+            else if (element instanceof boolean[])
+                this.append(generator, (boolean[]) element);
+            else if (element instanceof Object[])
+                this.deepHashCode(generator, (Object[]) element);
+            else if (element instanceof Iterable<?>)
+                this.deepHashCode(generator, (Iterable<?>)element);
+            else if (element instanceof Map<?, ?>)
+                this.deepHashCode(generator, ((Map<?, ?>)element).entrySet());
+            else if (element instanceof Map.Entry<?, ?>)
+                this.deepHashCode(generator, (Map.Entry<?, ?>)element);
+            else if (this.useReflection)
+                this.reflectionDeepHashCode(generator, element);
+            else
+                this.append(generator, element);
+        }
+        finally {
+            unregister(element);
+        }
     }
     
     /**
@@ -166,86 +222,89 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
         final Method equalsMethod = ReflectionUtils.findMethod(element.getClass(), "equals");
         return equalsMethod != null && equalsMethod.getDeclaringClass() != Object.class;
     }
-
-    /**
-     * Does instanceof checks to determine the correct deepHashCode to call or 
-     * {@link #write(KeyGenerationStream, Object)} is called.
-     */
-    protected final void deepHashCode(G generator, Object element) {
-        if (element == null) {
-            this.appendNull(generator);
-            return;
-        }
-        
-        if (!register(element)) {
-            this.appendGraphCycle(generator, element);
-            return;
-        }
-        
-        try {
-            if (element instanceof byte[])
-                this.append(generator, (byte[]) element);
-            else if (element instanceof short[])
-                this.append(generator, (short[]) element);
-            else if (element instanceof int[])
-                this.append(generator, (int[]) element);
-            else if (element instanceof long[])
-                this.append(generator, (long[]) element);
-            else if (element instanceof char[])
-                this.append(generator, (char[]) element);
-            else if (element instanceof float[])
-                this.append(generator, (float[]) element);
-            else if (element instanceof double[])
-                this.append(generator, (double[]) element);
-            else if (element instanceof boolean[])
-                this.append(generator, (boolean[]) element);
-            else if (element instanceof Object[])
-                this.deepHashCode(generator, (Object[]) element);
-            else if (element instanceof Iterable<?>)
-                this.deepHashCode(generator, (Iterable<?>)element);
-            else if (element instanceof Map<?, ?>)
-                this.deepHashCode(generator, ((Map<?, ?>)element).entrySet());
-            else if (element instanceof Map.Entry<?, ?>)
-                this.deepHashCode(generator, (Map.Entry<?, ?>)element);
-            else if (this.useReflection)
-                this.reflectionDeepHashCode(generator, element);
-            else
-                this.append(generator, element);
-        }
-        finally {
-            unregister(element);
-        }
-    }
     
     /**
      * Create the object used to generate the key.
      */
-    public abstract G getGenerator(Object... data);
+    protected abstract G getGenerator(Object... data);
     
     /**
-     * Generate the key from the generator
+     * Generate the cache key from the generator
      */
-    public abstract T generateKey(G generator);
-
-    protected abstract void append(G generator, boolean a[]);
-
-    protected abstract void append(G generator, byte a[]);
-    
-    protected abstract void append(G generator, char a[]);
-    
-    protected abstract void append(G generator, double a[]);
-    
-    protected abstract void append(G generator, float a[]);
-    
-    protected abstract void append(G generator, int a[]);
-    
-    protected abstract void append(G generator, long a[]);
-    
-    protected abstract void append(G generator, short a[]);
+    protected abstract T generateKey(G generator);
     
     protected abstract void append(G generator, Object e);
 
     protected abstract void appendGraphCycle(G generator, Object o);
 
     protected abstract void appendNull(G generator);
+
+    protected void append(G generator, boolean a[]) {
+        this.beginRecursion(generator, a);
+        for (final boolean element : a) {
+            this.append(generator, element);
+        }
+        this.endRecursion(generator, a);
+    }
+
+    protected void append(G generator, byte a[]) {
+        this.beginRecursion(generator, a);
+        for (final byte element : a) {
+            this.append(generator, element);
+        }
+        this.endRecursion(generator, a);
+    }
+    
+    protected void append(G generator, char a[]) {
+        this.beginRecursion(generator, a);
+        for (final char element : a) {
+            this.append(generator, element);
+        }
+        this.endRecursion(generator, a);
+    }
+    protected void append(G generator, double a[]) {
+        this.beginRecursion(generator, a);
+        for (final double element : a) {
+            this.append(generator, element);
+        }
+        this.endRecursion(generator, a);
+    }
+    
+    protected void append(G generator, float a[]) {
+        this.beginRecursion(generator, a);
+        for (final float element : a) {
+            this.append(generator, element);
+        }
+        this.endRecursion(generator, a);
+    }
+    
+    protected void append(G generator, int a[]) {
+        this.beginRecursion(generator, a);
+        for (final int element : a) {
+            this.append(generator, element);
+        }
+        this.endRecursion(generator, a);
+    }
+    
+    protected void append(G generator, long a[]) {
+        this.beginRecursion(generator, a);
+        for (final long element : a) {
+            this.append(generator, element);
+        }
+        this.endRecursion(generator, a);
+    }
+    
+    protected void append(G generator, short a[]) {
+        this.beginRecursion(generator, a);
+        for (final short element : a) {
+            this.append(generator, element);
+        }
+        this.endRecursion(generator, a);
+    }
+    
+    protected void beginRecursion(G generator, Object e) {
+    }
+    
+    protected void endRecursion(G generator, Object e) {
+    }
 }

@@ -50,15 +50,15 @@ public class ListCacheKeyGeneratorTest {
         
         EasyMock.replay(invocation);
         
-        final ReadOnlyList<Serializable> key = generator.generateKey(invocation);
+        final ReadOnlyList<?> key = generator.generateKey(invocation);
         final List<?> expectedKey = Arrays.asList(
                 Arrays.asList(
                     Arrays.asList(null, "childArgString"),
                     "argString")
                 );
         
-        Assert.assertEquals(expectedKey, key);
         Assert.assertEquals(expectedKey.hashCode(), key.hashCode());
+        Assert.assertEquals(expectedKey, key);
         
         EasyMock.verify(invocation);
     }
@@ -76,7 +76,7 @@ public class ListCacheKeyGeneratorTest {
         
         EasyMock.replay(invocation);
         
-        final ReadOnlyList<Serializable> key = generator.generateKey(invocation);
+        final ReadOnlyList<?> key = generator.generateKey(invocation);
         final List<?> expected = Arrays.asList(
                 MethodInvocationHelper.class,
                 "testMethod1",
@@ -102,7 +102,7 @@ public class ListCacheKeyGeneratorTest {
         
         EasyMock.replay(invocation);
         
-        final ReadOnlyList<Serializable> key = generator.generateKey(invocation);
+        final ReadOnlyList<?> key = generator.generateKey(invocation);
         final List<Object> expectedKey = Arrays.asList(
                 Arrays.asList(1, 2, 3, 4),
                 "foo",
@@ -124,7 +124,7 @@ public class ListCacheKeyGeneratorTest {
         
         EasyMock.replay(invocation);
         
-        final ReadOnlyList<Serializable> key = generator.generateKey(invocation);
+        final ReadOnlyList<?> key = generator.generateKey(invocation);
         
         final List<?> expectedKey = Arrays.asList(TimeUnit.DAYS);
         
@@ -151,7 +151,7 @@ public class ListCacheKeyGeneratorTest {
         
         EasyMock.replay(invocation);
         
-        final ReadOnlyList<Serializable> key = generator.generateKey(invocation);
+        final ReadOnlyList<?> key = generator.generateKey(invocation);
         
         final List<Object> expectedKey = Arrays.asList(
                 MethodInvocationHelper.class,

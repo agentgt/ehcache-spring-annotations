@@ -33,7 +33,33 @@ import com.googlecode.ehcache.annotations.key.StringCacheKeyGenerator;
 public class StringCacheKeyGeneratorTest {
 
     @Test
-    public void testCircularReference() {
+    public void testCircularReferenceFails() {
+        final StringCacheKeyGenerator generator = new StringCacheKeyGenerator(false, false);
+        generator.setCheckforCycles(false);
+        
+        final Object[] arg = new Object[2];
+        final Object[] childArg = new Object[2];
+        arg[0] = childArg;
+        arg[1] = "argString";
+        childArg[0] = arg;
+        childArg[1] = "childArgString";
+        
+        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { arg });
+        
+        EasyMock.replay(invocation);
+
+        try {
+            generator.generateKey(invocation);
+            Assert.fail("Should have thrown error");
+        }
+        catch (StackOverflowError e) {
+            
+        }
+    }
+
+    @Test
+    public void testCircularReferenceWorks() {
         final StringCacheKeyGenerator generator = new StringCacheKeyGenerator(false, false);
         generator.setCheckforCycles(true);
         

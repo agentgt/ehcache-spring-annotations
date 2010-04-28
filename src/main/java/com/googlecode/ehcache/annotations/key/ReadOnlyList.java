@@ -30,7 +30,7 @@ import java.util.ListIterator;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class ReadOnlyList<E extends Serializable> implements List<E>, Serializable {
+public class ReadOnlyList<E> implements List<E>, Serializable {
     private static final long serialVersionUID = 1L;
     
     private final List<E> readOnlyDelegate;

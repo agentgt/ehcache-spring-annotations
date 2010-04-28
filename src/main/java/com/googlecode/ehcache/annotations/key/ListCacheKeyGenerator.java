@@ -16,52 +16,29 @@
 
 package com.googlecode.ehcache.annotations.key;
 
-import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Map;
 
 /**
- * This key generator is a good option when you want to be 100% sure that two sets of method invocation arguments
- * are the same.  It does depend on all arguments correctly implementing the hashCode and equals methods.  All of
- * the objects involved in the invocation arguments are put into {@link List}s and arrays are converted to
- * {@link List}s to provide better equals and hashCode behavior. 
- * 
- * <table>
- *  <tr>
- *      <th>Pros</th>
- *      <th>Cons</th>
- *  </tr>
- *  <tr>
- *      <td>
- *          100% assurance that generated keys will never collide.
- *      </td>
- *      <td>
- *          All method arguments must be completely {@link Serializable} if disk storage or any replication
- *          operations will be used. A {@link ClassCastException} may be thrown if any argument does not
- *          implement {@link Serializable}.
- *      </td>
- *  </tr>
- *  <tr>
- *      <td>
- *      </td>
- *      <td>
- *          Each time the key is compared using equals or has its hash generated via hashCode all arguments will
- *          be visited and have their equals and hashCode methods called. This results in a higher expense after
- *          key generation each time the key is inspected.
- *      </td>
- *  </tr>
- * </table>
- * 
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class ListCacheKeyGenerator extends AbstractCacheKeyGenerator<ReadOnlyList<Serializable>> {
+public class ListCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<ListCacheKeyGenerator.ListKeyGenerator, ReadOnlyList<?>> {
     /**
      * Name of the bean this generator is registered under using the default constructor.
      */
     public static final String DEFAULT_BEAN_NAME = "com.googlecode.ehcache.annotations.key.ListCacheKeyGenerator.DEFAULT_BEAN_NAME";
+    
+    public static class ListKeyGenerator {
+        private final LinkedList<ArrayList<Object>> keyStack = new LinkedList<ArrayList<Object>>();
+        private ArrayList<Object> current;
+        
+        private ListKeyGenerator() {
+        }
+    }
     
     /**
      * @see AbstractCacheKeyGenerator#AbstractCacheKeyGenerator() 
@@ -75,40 +52,72 @@ public class ListCacheKeyGenerator extends AbstractCacheKeyGenerator<ReadOnlyLis
     public ListCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) {
         super(includeMethod, includeParameterTypes);
     }
-    
+
     @Override
-    public ReadOnlyList<Serializable> generateKey(Object... data) {
-        final ArrayList<Serializable> keyList = new ArrayList<Serializable>(data.length);
-        
-        for (final Object arg : data) {
-            keyList.add(this.arrayCheck((Serializable)arg));
-        }
-        
-        return new ReadOnlyList<Serializable>(keyList);
+    public ListKeyGenerator getGenerator(Object... data) {
+        return new ListKeyGenerator();
     }
     
-    protected Serializable arrayCheck(Serializable object) {
-        if (object == null || !register(object)) {
-            //Return null in place of the actual hash code in the case of a circular reference
-            return null;
-        }
-        try {
-            final Class<? extends Object> c = object.getClass();
-            if (!c.isArray()) {
-                return object;
-            }
+    @Override
+    public ReadOnlyList<?> generateKey(ListKeyGenerator generator) {
+        final ArrayList<Object> key = generator.keyStack.peekFirst();
+        return new ReadOnlyList<Object>(key);
+    }
     
-            final int length = Array.getLength(object);
-            final ArrayList<Object> objArray = new ArrayList<Object>(length);
-            for (int index = 0; index < length; index++) {
-                final Object arrayValue = Array.get(object, index);
-                objArray.add(this.arrayCheck((Serializable)arrayValue));
-            }
-            
-            return (Serializable)Collections.unmodifiableList(objArray);
+    @Override
+    protected void beginRecursion(ListKeyGenerator generator, Object e) {
+        //Track the previous list
+        final ArrayList<Object> previous = generator.current;
+        
+        //Create the new list doing best effort to create it with the correct size
+        if (e.getClass().isArray()) {
+            final int size = Array.getLength(e);
+            generator.current = new ArrayList<Object>(size);
         }
-        finally {
-            unregister(object);
+        else if (e instanceof Collection<?>) {
+            final int size = ((Collection<?>)e).size();
+            generator.current = new ArrayList<Object>(size);
         }
+        else if (e instanceof Map.Entry<?, ?>) {
+            generator.current = new ArrayList<Object>(2);
+        }
+        else {
+            generator.current = new ArrayList<Object>();
+        }
+        
+        //Stick the new list on the stack
+        generator.keyStack.push(generator.current);
+        
+        //If there was a previous list add the new list to it
+        if (previous != null) {
+            previous.add(generator.current);
+        }
+    }
+
+    @Override
+    protected void endRecursion(ListKeyGenerator generator, Object e) {
+        if (generator.keyStack.size() > 1) {
+            generator.keyStack.pop();
+            generator.current = generator.keyStack.peek();
+        }
+    }
+
+    @Override
+    protected void appendGraphCycle(ListKeyGenerator generator, Object o) {
+        this.append(generator, (Object)null);
+    }
+
+    @Override
+    protected void appendNull(ListKeyGenerator generator) {
+        this.append(generator, (Object)null);
+    }
+
+    @Override
+    protected void append(ListKeyGenerator generator, Object e) {
+        if (generator.current == null) {
+            this.beginRecursion(generator, e);
+        }
+        
+        generator.current.add(e);
     }
 }

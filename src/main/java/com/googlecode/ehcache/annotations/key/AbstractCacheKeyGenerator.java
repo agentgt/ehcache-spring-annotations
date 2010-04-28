@@ -126,20 +126,16 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
         if (this.includeMethod) {
             final Method method = methodInvocation.getMethod();
             
+            final Class<?> declaringClass = method.getDeclaringClass();
+            final String name = method.getName();
+            final Class<?> returnType = method.getReturnType();
+
             if (this.includeParameterTypes) {
-                return this.generateKey(
-                        method.getDeclaringClass(),
-                        method.getName(),
-                        method.getReturnType(),
-                        method.getParameterTypes(),
-                        arguments);
+                final Class<?>[] parameterTypes = method.getParameterTypes();
+                return this.generateKey(declaringClass, name, returnType, parameterTypes, arguments);
             }
             
-            return this.generateKey(
-                    method.getDeclaringClass(),
-                    method.getName(),
-                    method.getReturnType(),
-                    arguments);
+            return this.generateKey(declaringClass, name, returnType, arguments);
         }
         
         try {

@@ -35,6 +35,9 @@ public class HashCodeCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<Has
      */
     public static class LongGenerator {
         private long hash = INITIAL_HASH;
+        
+        private LongGenerator() {
+        }
     }
     
     /**
