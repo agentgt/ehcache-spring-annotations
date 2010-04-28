@@ -153,12 +153,12 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         cacheAttributeSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         
         final MutablePropertyValues propertyValues = cacheAttributeSource.getPropertyValues();
-        propertyValues.add("cacheManagerBeanName", element.getAttribute(XSD_ATTR__CACHE_MANAGER));
-        propertyValues.add("createCaches", Boolean.parseBoolean(element.getAttribute(XSD_ATTR__CREATE_MISSING_CACHES)));
-        propertyValues.add("defaultCacheKeyGenerator", defaultCacheKeyGenerator);
+        propertyValues.addPropertyValue("cacheManagerBeanName", element.getAttribute(XSD_ATTR__CACHE_MANAGER));
+        propertyValues.addPropertyValue("createCaches", Boolean.parseBoolean(element.getAttribute(XSD_ATTR__CREATE_MISSING_CACHES)));
+        propertyValues.addPropertyValue("defaultCacheKeyGenerator", defaultCacheKeyGenerator);
         final String blockingCacheScope = element.getAttribute(XSD_ATTR__SELF_POPULATING_CACHE_SCOPE);
         if (blockingCacheScope != null) {
-            propertyValues.add("selfPopulatingCacheScope", SelfPopulatingCacheScope.valueOf(blockingCacheScope.toUpperCase()));
+            propertyValues.addPropertyValue("selfPopulatingCacheScope", SelfPopulatingCacheScope.valueOf(blockingCacheScope.toUpperCase()));
         }
 
         final XmlReaderContext readerContext = parserContext.getReaderContext();
@@ -177,7 +177,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         pointcut.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         
         final MutablePropertyValues propertyValues = pointcut.getPropertyValues();
-        propertyValues.add("cacheAttributeSource", cacheAttributeSource);
+        propertyValues.addPropertyValue("cacheAttributeSource", cacheAttributeSource);
         
         final XmlReaderContext readerContext = parserContext.getReaderContext();
         final String pointcutBeanName = readerContext.registerWithGeneratedName(pointcut);
@@ -195,7 +195,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         interceptor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         
         final MutablePropertyValues propertyValues = interceptor.getPropertyValues();
-        propertyValues.add("cacheAttributeSource", cacheableAttributeSourceRuntimeReference);
+        propertyValues.addPropertyValue("cacheAttributeSource", cacheableAttributeSourceRuntimeReference);
         
         final XmlReaderContext readerContext = parserContext.getReaderContext();
         final String interceptorBeanName = readerContext.registerWithGeneratedName(interceptor);
@@ -213,8 +213,8 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         pointcutAdvisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
         final MutablePropertyValues propertyValues = pointcutAdvisor.getPropertyValues();
-        propertyValues.add("adviceBeanName", cachingInterceptorBeanReference.getBeanName());
-        propertyValues.add("pointcut", cacheablePointcutBeanReference);
+        propertyValues.addPropertyValue("adviceBeanName", cachingInterceptorBeanReference.getBeanName());
+        propertyValues.addPropertyValue("pointcut", cacheablePointcutBeanReference);
         if (element.hasAttribute("order")) {
             propertyValues.addPropertyValue("order", element.getAttribute("order"));
         }
