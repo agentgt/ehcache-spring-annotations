@@ -47,7 +47,9 @@ public @interface Cacheable {
     boolean selfPopulating() default false;
     
     /**
-     * The name of the {@link CacheKeyGenerator} to use. If not specified a default generator will be used.
+     * The Spring Bean name of the {@link CacheKeyGenerator} to use.
+     * Ignored if {@link #keyGenerator()} is specified. 
+     * If this and {@link #keyGenerator()} are not specified the default generator will be used.
      */
     String keyGeneratorName() default "";
     
@@ -56,4 +58,10 @@ public @interface Cacheable {
      * exceptions will result in no caching taking place. 
      */
     String exceptionCacheName() default "";
+    
+    /**
+     * Used the specify and configure the {@link CacheKeyGenerator} to use.
+     * If this and {@link #keyGeneratorName()} are not specified the default generator will be used.  
+     */
+    KeyGenerator keyGenerator() default @KeyGenerator(name = "");
 }
