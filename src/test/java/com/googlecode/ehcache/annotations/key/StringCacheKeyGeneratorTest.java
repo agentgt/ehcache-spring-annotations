@@ -79,7 +79,7 @@ public class StringCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTe
     @Override
     protected void verifyTestCollectionHandling(MethodInvocation invocation, String key) {
         Assert.assertEquals(
-                "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [[[bop, foo, bar], [[A, 123], [B, [hello, world]]]]]]",
+                "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [[[foo, bar, bop], [[A, 123], [B, [hello, world]]]]]]",
                 key);        
     }
 
