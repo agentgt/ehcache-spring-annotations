@@ -30,6 +30,7 @@ class MethodInvocationHelper {
         return Arrays.asList(arg1, arg2, arg3, arg4);
     }
     
+    @SuppressWarnings("unchecked")
     public Object testMethod3(int arg1, long arg2, boolean arg3, Integer arg4) {
         return Arrays.asList(arg1, arg2, arg3, arg4);
     }

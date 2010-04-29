@@ -16,157 +16,70 @@
 
 package com.googlecode.ehcache.annotations.key;
 
-import java.lang.reflect.Method;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.concurrent.TimeUnit;
+
+import junit.framework.Assert;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.easymock.EasyMock;
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class MessageDigestCacheKeyGeneratorTest {
-
-    @Test
-    public void testCircularReference() throws NoSuchAlgorithmException, SecurityException, NoSuchMethodException {
-        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator("SHA-512", true, true);
-        generator.setCheckforCycles(true);
-        
-        final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
-        
-        final Object[] arg = new Object[2];
-        final Object[] childArg = new Object[2];
-        arg[0] = childArg;
-        arg[1] = "argString";
-        childArg[0] = arg;
-        childArg[1] = "childArgString";
-        
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { arg });
-        
-        EasyMock.replay(invocation);
-        
-        final String key = generator.generateKey(invocation);
-        final String expectedKey = "xOfGg9p4DZKQSKgGEspgXqUDTrm36ks-yD00przj1qMR1Ba1LU4JnHmAt2DvRT8lkFXz9kCXli9DnmUZyvIBgw";
-        
-        Assert.assertEquals(expectedKey, key);
-        
-        EasyMock.verify(invocation);
+public class MessageDigestCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest<String> {
+    
+    @Override
+    protected AbstractDeepCacheKeyGenerator<?, String> getCacheKeyGenerator() {
+        try {
+            return new MessageDigestCacheKeyGenerator();
+        }
+        catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    @Test
-    public void testForDocs() throws SecurityException, NoSuchMethodException, NoSuchAlgorithmException {
-        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator();
-        generator.setCheckforCycles(true);
-        
-        final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
-        
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { "49931" });
-        
-        EasyMock.replay(invocation);
-        
-        final String key = generator.generateKey(invocation);
-        final String expectedKey = "hmJe_DeMMYOwcAurgREvm1ZLq0w";
-        
-        Assert.assertEquals(expectedKey, key);
-        
-        EasyMock.verify(invocation);
+    @Override
+    protected void verifyClassHashCode(MethodInvocation invocation, String key) {
+        Assert.assertEquals("RWY43pjj6hHCdz5FWOWps0NYwvk", key);
     }
-    
-    @Test
-    public void testNegativeOne() throws NoSuchAlgorithmException {
-        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator(false, false);
-        
-        final MethodInvocation negOneCall = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(negOneCall.getArguments()).andReturn(new Object[] { -1 });
-        
-        EasyMock.replay(negOneCall);
-        
-        final String key = generator.generateKey(negOneCall);
-        Assert.assertEquals("2b5lJKX1BH21hmgTrPMneJKnowo", key.toString());
-        
-        EasyMock.verify(negOneCall);
+
+    @Override
+    protected void verifyTestCircularReference(MethodInvocation invocation, String key) {
+        Assert.assertEquals("o4DJ4OzLnJe8pcAtkSmlCBMDgoo", key);        
     }
-    
-    @Test
-    public void testMinimumInt() throws NoSuchAlgorithmException {
-        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator(false, false);
-        
-        final MethodInvocation negOneCall = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(negOneCall.getArguments()).andReturn(new Object[] { Integer.MIN_VALUE });
-        
-        EasyMock.replay(negOneCall);
-        
-        final String key = generator.generateKey(negOneCall);
-        Assert.assertEquals("4XmDZ9Gx7VRCXpn3kKmGwf6TlBQ", key.toString());
-        
-        EasyMock.verify(negOneCall);
+
+    @Override
+    protected void verifyTestCircularReferenceWithReflection(MethodInvocation invocation, String key) {
+        Assert.assertEquals("U6ls2IuYhBvXnh1ZpM0ttVnFgmY", key);        
     }
-    
-    @Test
-    public void testMaximumInt() throws NoSuchAlgorithmException {
-        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator(false, false);
-        
-        final MethodInvocation negOneCall = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(negOneCall.getArguments()).andReturn(new Object[] { Integer.MAX_VALUE });
-        
-        EasyMock.replay(negOneCall);
-        
-        final String key = generator.generateKey(negOneCall);
-        Assert.assertEquals("bCghfuzbdaxTeNICQwKWlvXmM6E", key.toString());
-        
-        EasyMock.verify(negOneCall);
+
+    @Override
+    protected void verifyTestComplexHashCode(MethodInvocation invocation, String key) {
+        Assert.assertEquals("326jSKXsAXS6d-aPum3Z4P30sCw", key);
     }
-    
-    @Test
-    public void testEnumHashCode() throws NoSuchAlgorithmException {
-        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator(false, false);
-        
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { TimeUnit.DAYS });
-        
-        EasyMock.replay(invocation);
-        
-        final String key = generator.generateKey(invocation);
-        final String expectedKey = "_WbnuoQPJpA3QBUAXMmcuXA9RKo";
-        
-        Assert.assertEquals(expectedKey, key);
-        
-        EasyMock.verify(invocation);
+
+    @Override
+    protected void verifyTestEnumHashCode(MethodInvocation invocation, String key) {
+        Assert.assertEquals("_WbnuoQPJpA3QBUAXMmcuXA9RKo", key);
     }
-    
-    @Test
-    public void testComplexDigest() throws NoSuchAlgorithmException, SecurityException, NoSuchMethodException {
-        final MessageDigestCacheKeyGenerator generator = new MessageDigestCacheKeyGenerator("SHA-512", true, true);
-        
-        final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod2", int[].class, String.class, boolean[].class, Object.class);
-        
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { 
-                new int[] {1, 2, 3, 4}, 
-                "foo", 
-                null,
-                Arrays.asList(new boolean[] {false, true},
-                        new HashSet<Object>(Arrays.asList("1", "2", "3")))
-                });
-        
-        EasyMock.replay(invocation);
-        
-        final String key = generator.generateKey(invocation);
-        final String expectedKey = "RcGfbn-jtB09A-XTgzBOQpuuX4Aa81syGSfrYfiapMH1Bp34uFmgYD7zryTB90xmO2uo_J7lPsc3-TL9nj-1iw";
-        
-        Assert.assertEquals(expectedKey, key);
-        
-        EasyMock.verify(invocation);
+
+    @Override
+    protected void verifyTestForDocs(MethodInvocation invocation, String key) {
+        Assert.assertEquals("hmJe_DeMMYOwcAurgREvm1ZLq0w", key);
+    }
+
+    @Override
+    protected void verifyTestPrimitiveArrayHandling(MethodInvocation invocation, String key) {
+        Assert.assertEquals("1OqPbM7S7WC511hbTG3b8Op3KJM", key);        
+    }
+
+    @Override
+    protected void verifyTestCollectionHandling(MethodInvocation invocation, String key) {
+        Assert.assertEquals("COK2BDcqUEfuYRsdHHqxmqq2Pj8", key);        
+    }
+
+    @Override
+    protected void verifyTestPrimitiveHandling(MethodInvocation invocation, String key) {
+        Assert.assertEquals("ftUXRV1MFSDsWdDqD7ubwy55Wh8", key);        
     }
 }

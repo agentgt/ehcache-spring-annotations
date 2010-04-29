@@ -60,7 +60,7 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
         this.includeParameterTypes = includeParameterTypes;
     }
 
-    public boolean isIncludeMethod() {
+    public final boolean isIncludeMethod() {
         return includeMethod;
     }
     /**
@@ -79,11 +79,11 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
      *                      included in the generated key, defaults to true.
      * @see #setIncludeParameterTypes(boolean)
      */
-    public void setIncludeMethod(boolean includeMethod) {
+    public final void setIncludeMethod(boolean includeMethod) {
         this.includeMethod = includeMethod;
     }
     
-    public boolean isIncludeParameterTypes() {
+    public final boolean isIncludeParameterTypes() {
         return includeParameterTypes;
     }
     /**
@@ -99,11 +99,11 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
      *                              the generated key, defaults to false.
      * @see #setIncludeMethod(boolean)
      */
-    public void setIncludeParameterTypes(boolean includeParameterTypes) {
+    public final void setIncludeParameterTypes(boolean includeParameterTypes) {
         this.includeParameterTypes = includeParameterTypes;
     }
     
-    public boolean isCheckforCycles() {
+    public final boolean isCheckforCycles() {
         return checkforCycles;
     }
     /**
@@ -113,7 +113,7 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
      * 
      * @param checkforCycles Defaults to false.
      */
-    public void setCheckforCycles(boolean checkforCycles) {
+    public final void setCheckforCycles(boolean checkforCycles) {
         this.checkforCycles = checkforCycles;
     }
 

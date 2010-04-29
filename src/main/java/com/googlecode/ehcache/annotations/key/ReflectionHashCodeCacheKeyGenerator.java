@@ -20,7 +20,9 @@ package com.googlecode.ehcache.annotations.key;
 /**
  * @author Eric Dalquist
  * @version $Revision$
+ * @deprecated {@link HashCodeCacheKeyGenerator} includes support for reflection by setting {@link #setUseReflection(boolean)} to true. Use that class directly.
  */
+@Deprecated
 public class ReflectionHashCodeCacheKeyGenerator extends HashCodeCacheKeyGenerator {
     /**
      * Name of the bean this generator is registered under using the default constructor.

@@ -59,27 +59,9 @@ public class MessageDigestOutputStream extends OutputStream {
         }
     }
 
-    public final void writeBytes(String s) {
-        try {
-            this.dataOutputStream.writeBytes(s);
-        }
-        catch (IOException e) {
-            //Ignore, not possible with this class
-        }
-    }
-
     public final void writeChar(int v) {
         try {
             this.dataOutputStream.writeChar(v);
-        }
-        catch (IOException e) {
-            //Ignore, not possible with this class
-        }
-    }
-
-    public final void writeChars(String s) {
-        try {
-            this.dataOutputStream.writeChars(s);
         }
         catch (IOException e) {
             //Ignore, not possible with this class

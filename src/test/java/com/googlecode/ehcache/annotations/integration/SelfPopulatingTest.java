@@ -141,8 +141,7 @@ public class SelfPopulatingTest {
         
         // wait for both threads to get going
         threadRunningLatch.await();
-        
-        //TODO is a sleep needed here? The Latch doesn't guarantee that the second thread is actually waiting within the self populating ehcache decorator
+        Thread.sleep(100);
         
         // Let both threads complete
         proccedLatch.countDown();

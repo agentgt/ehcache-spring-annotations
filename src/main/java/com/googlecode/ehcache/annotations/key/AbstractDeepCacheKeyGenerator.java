@@ -219,7 +219,7 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
      * Checks if the object implements equals
      */
     protected final boolean implementsEquals(Object element) {
-        final Method equalsMethod = ReflectionUtils.findMethod(element.getClass(), "equals");
+        final Method equalsMethod = ReflectionUtils.findMethod(element.getClass(), "equals", Object.class);
         return equalsMethod != null && equalsMethod.getDeclaringClass() != Object.class;
     }
     

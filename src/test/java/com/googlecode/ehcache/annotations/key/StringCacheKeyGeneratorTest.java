@@ -16,155 +16,77 @@
 
 package com.googlecode.ehcache.annotations.key;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
-
 import org.aopalliance.intercept.MethodInvocation;
-import org.easymock.EasyMock;
 import org.junit.Assert;
-import org.junit.Test;
-
-import com.googlecode.ehcache.annotations.key.StringCacheKeyGenerator;
 
 /**
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class StringCacheKeyGeneratorTest {
+public class StringCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest<String> {
 
-    @Test
-    public void testCircularReferenceFails() {
-        final StringCacheKeyGenerator generator = new StringCacheKeyGenerator(false, false);
-        generator.setCheckforCycles(false);
-        
-        final Object[] arg = new Object[2];
-        final Object[] childArg = new Object[2];
-        arg[0] = childArg;
-        arg[1] = "argString";
-        childArg[0] = arg;
-        childArg[1] = "childArgString";
-        
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { arg });
-        
-        EasyMock.replay(invocation);
-
-        try {
-            generator.generateKey(invocation);
-            Assert.fail("Should have thrown error");
-        }
-        catch (StackOverflowError e) {
-            
-        }
+    @Override
+    protected AbstractDeepCacheKeyGenerator<?, String> getCacheKeyGenerator() {
+        return new StringCacheKeyGenerator();
     }
 
-    @Test
-    public void testCircularReferenceWorks() {
-        final StringCacheKeyGenerator generator = new StringCacheKeyGenerator(false, false);
-        generator.setCheckforCycles(true);
+    @Override
+    protected void verifyClassHashCode(MethodInvocation invocation, String key) {
+        Assert.assertEquals("[class java.lang.Integer]", key);
         
-        final Object[] arg = new Object[2];
-        final Object[] childArg = new Object[2];
-        arg[0] = childArg;
-        arg[1] = "argString";
-        childArg[0] = arg;
-        childArg[1] = "childArgString";
-        
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { arg });
-        
-        EasyMock.replay(invocation);
-
-        final String key = generator.generateKey(invocation);
-        final String expectedKey = "[[[[...], childArgString], argString]]";
-        
-        Assert.assertEquals(expectedKey, key);
-        
-        EasyMock.verify(invocation);
     }
 
-    @Test
-    public void testForDocs() throws SecurityException, NoSuchMethodException {
-        final StringCacheKeyGenerator generator = new StringCacheKeyGenerator();
-        generator.setCheckforCycles(true);
-        
-        final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
-        
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { "49931" });
-        
-        EasyMock.replay(invocation);
-        
-        final String key = generator.generateKey(invocation);
-        Assert.assertEquals("[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [49931]]", key);
-        
-        EasyMock.verify(invocation);
+    @Override
+    protected void verifyTestCircularReference(MethodInvocation invocation, String key) {
+        Assert.assertEquals(
+                "[[[[...], childArgString], argString]]",
+                key);
     }
-    
-    
-    @Test
-    public void testGenerateArgumentWithoutMethodKey() {
-        final StringCacheKeyGenerator generator = new StringCacheKeyGenerator(false, false);
-        
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { 
-                new int[] {1, 2, 3, 4}, 
-                "foo", 
-                new boolean[] {false, true},
-                null
-                });
-        
-        EasyMock.replay(invocation);
-        
-        final String key = generator.generateKey(invocation);
-        final String expectedKey = "[[1, 2, 3, 4], foo, [false, true], null]";
-        
-        Assert.assertEquals(expectedKey, key);
-        
-        EasyMock.verify(invocation);
+
+    @Override
+    protected void verifyTestCircularReferenceWithReflection(MethodInvocation invocation, String key) {
+        Assert.assertEquals(
+                "[[[[class com.googlecode.ehcache.annotations.key.RequiresReflectionKey, [...]], childArgString], argString]]", 
+                key);
     }
-    
-    @Test
-    public void testGenerateArgumentWithMethodKey() throws SecurityException, NoSuchMethodException {
-        final StringCacheKeyGenerator generator = new StringCacheKeyGenerator(true, true);
-        
-        final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod2", int[].class, String.class, boolean[].class, Object.class);
-        
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { 
-                new int[] {1, 2, 3, 4}, 
-                "foo", 
-                new boolean[] {false, true},
-                null
-                });
-        
-        EasyMock.replay(invocation);
-        
-        final String key = generator.generateKey(invocation);
-        final String expectedKey = "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod2, class java.lang.Object, [class [I, class java.lang.String, class [Z, class java.lang.Object], [[1, 2, 3, 4], foo, [false, true], null]]";
-        
-        Assert.assertEquals(expectedKey, key);
-        
-        EasyMock.verify(invocation);
+
+    @Override
+    protected void verifyTestComplexHashCode(MethodInvocation invocation, String key) {
+        Assert.assertEquals(
+                "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod2, class java.lang.Object, [class [I, class java.lang.String, class [Z, class java.lang.Object], [[1, 2, 3, 4], foo, [false, true], null]]",
+                key);
     }
-    
-    @Test
-    public void testEnumHashCode() {
-        final StringCacheKeyGenerator generator = new StringCacheKeyGenerator(false, false);
-        
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { TimeUnit.DAYS });
-        
-        EasyMock.replay(invocation);
-        
-        final String key = generator.generateKey(invocation);
-        final String expectedKey = "[DAYS]";
-        
-        Assert.assertEquals(expectedKey, key);
-        
-        
-        EasyMock.verify(invocation);
+
+    @Override
+    protected void verifyTestEnumHashCode(MethodInvocation invocation, String key) {
+        Assert.assertEquals("[DAYS]", key);
+    }
+
+    @Override
+    protected void verifyTestForDocs(MethodInvocation invocation, String key) {
+        Assert.assertEquals(
+                "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [49931]]",
+                key);
+    }
+
+    @Override
+    protected void verifyTestPrimitiveArrayHandling(MethodInvocation invocation, String key) {
+        Assert.assertEquals(
+                "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [[[], [], [], [], [], [], [], [], [1], [2], [3], [4], [a], [6.8], [7.9], [true], [1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12], [a, b, c], [16.1, 17.2, 18.3], [19.4, 20.5, 21.6], [true, false, false]]]]",
+                key);
+    }
+
+    @Override
+    protected void verifyTestCollectionHandling(MethodInvocation invocation, String key) {
+        Assert.assertEquals(
+                "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [[[bop, foo, bar], [[A, 123], [B, [hello, world]]]]]]",
+                key);        
+    }
+
+    @Override
+    protected void verifyTestPrimitiveHandling(MethodInvocation invocation, String key) {
+        Assert.assertEquals(
+                "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [[1, 2, 3, 4, a, 6.8, 7.9, true]]]",
+                key);        
     }
 }
