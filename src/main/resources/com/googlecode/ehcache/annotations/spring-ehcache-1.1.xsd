@@ -105,19 +105,19 @@
         </xsd:complexType>
     </xsd:element>
     
-    <xsd:element name="config">
+    <xsd:element name="annotation-config">
     	<xsd:complexType>
     		<xsd:sequence>
-    			<xsd:element ref="clear-expired" minOccurs="0" maxOccurs="unbounded"></xsd:element>
+    			<xsd:element ref="evict-expired-elements"/>
     		</xsd:sequence>
     	</xsd:complexType>
     </xsd:element>
     
-    <xsd:element name="clear-expired">
+    <xsd:element name="evict-expired-elements">
     	<xsd:complexType>
     		<xsd:sequence>
-    			<xsd:element name="include" type="include"></xsd:element>
-    			<xsd:element name="exclude" type="exclude"></xsd:element>
+    			<xsd:element name="include" type="include"/>
+    			<xsd:element name="exclude" type="exclude"/>
     		</xsd:sequence>
     		<xsd:attribute name="intervalMinutes" type="xsd:int">
     			<xsd:annotation>
