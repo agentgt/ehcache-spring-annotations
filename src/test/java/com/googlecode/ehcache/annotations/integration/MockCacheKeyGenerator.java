@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 
@@ -19,7 +20,7 @@ import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class MockCacheKeyGenerator implements CacheKeyGenerator<Serializable> {
+public class MockCacheKeyGenerator implements CacheKeyGenerator<Serializable>, InitializingBean {
     private static final List<MockCacheKeyGenerator> INSTANCES = new LinkedList<MockCacheKeyGenerator>();
     
     public static List<MockCacheKeyGenerator> getInstances() {
@@ -34,7 +35,20 @@ public class MockCacheKeyGenerator implements CacheKeyGenerator<Serializable> {
     
     private List<Object> listProperty;
     private TimeUnit enumProperty;
+    private boolean initialized = false;
     
+    public void setInitialized(boolean initialized) {
+        this.initialized = initialized;
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        this.initialized = true;
+    }
+    
+    public boolean isInitialized() {
+        return this.initialized;
+    }
+
     public void setListProperty(List<Object> listProperty) {
         this.listProperty = listProperty;
     }

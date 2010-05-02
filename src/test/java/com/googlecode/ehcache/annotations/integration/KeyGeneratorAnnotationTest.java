@@ -52,18 +52,12 @@ public class KeyGeneratorAnnotationTest {
         Assert.assertEquals(1, keyGeneratorAnnotationTestInterface.listCacheKeyGeneratorCount());
     }
     
-//    @Before
-//    public void setup() {
-//        MockCacheKeyGenerator.getInstances().clear();
-//    }
-
     @Test
     public void testCustomKeyGenerator() {
         keyGeneratorAnnotationTestInterface.customGeneratorOne();
         keyGeneratorAnnotationTestInterface.customGeneratorTwo();
         keyGeneratorAnnotationTestInterface.customGeneratorThree();
         keyGeneratorAnnotationTestInterface.customGeneratorFour();
-        
         
         final List<MockCacheKeyGenerator> instances = MockCacheKeyGenerator.getInstances();
         
@@ -73,6 +67,7 @@ public class KeyGeneratorAnnotationTest {
         boolean foundTwoThree = false;
         boolean foundFour = false;
         for (final MockCacheKeyGenerator generator : instances) {
+            Assert.assertTrue(generator.isInitialized());
             final TimeUnit enumProperty = generator.getEnumProperty();
             final List<Object> listProperty = generator.getListProperty();
             if (enumProperty == null && listProperty == null) {
