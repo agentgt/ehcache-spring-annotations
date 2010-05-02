@@ -17,6 +17,7 @@
 package com.googlecode.ehcache.annotations.key;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -76,13 +77,12 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
                 MethodInvocationHelper.class,
                 "testMethod2",
                 Object.class,
-                Arrays.asList(int[].class, String.class, boolean[].class, Object.class),
                 Arrays.asList(
                     Arrays.asList(1, 2, 3, 4),
                     "foo",
                     Arrays.asList(false, true),
-                    null)
-                );
+                    Arrays.asList(null, new Date(0))
+                ));
         
         Assert.assertEquals(expected, key);
         Assert.assertEquals(expected.hashCode(), key.hashCode());

@@ -55,7 +55,7 @@ public class MessageDigestCacheKeyGeneratorTest extends AbstractDeepCacheKeyGene
 
     @Override
     protected void verifyTestComplexHashCode(MethodInvocation invocation, String key) {
-        Assert.assertEquals("326jSKXsAXS6d-aPum3Z4P30sCw", key);
+        Assert.assertEquals("tz4aboTBWKBo4BCRaXXgoR82Zls", key);
     }
 
     @Override

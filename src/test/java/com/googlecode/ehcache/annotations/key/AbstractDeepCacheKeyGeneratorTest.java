@@ -19,6 +19,7 @@ package com.googlecode.ehcache.annotations.key;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -219,7 +220,7 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         final AbstractDeepCacheKeyGenerator<?, T> generator = this.getCacheKeyGenerator();
         
         generator.setIncludeMethod(true);
-        generator.setIncludeParameterTypes(true);
+        generator.setIncludeParameterTypes(false);
         generator.setCheckforCycles(true);
         generator.setUseReflection(false);
         
@@ -231,7 +232,7 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
                 new int[] {1, 2, 3, 4}, 
                 "foo", 
                 new boolean[] {false, true},
-                null
+                new Object[] { null, new Date(0) }
                 });
         
         EasyMock.replay(invocation);
