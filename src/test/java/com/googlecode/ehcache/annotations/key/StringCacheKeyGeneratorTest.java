@@ -89,4 +89,13 @@ public class StringCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTe
                 "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [[1, 2, 3, 4, a, 6.8, 7.9, true]]]",
                 key);        
     }
+
+    @Override
+    protected void verifyTestNoArguments(MethodInvocation invocation, String key) {
+        Assert.assertEquals(
+                "[]",
+                key);              
+    }
+    
+    
 }

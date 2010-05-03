@@ -18,7 +18,7 @@ package com.googlecode.ehcache.annotations.integration;
 
 import com.googlecode.ehcache.annotations.Cacheable;
 import com.googlecode.ehcache.annotations.KeyGenerator;
-import com.googlecode.ehcache.annotations.Parameter;
+import com.googlecode.ehcache.annotations.Property;
 
 /**
  * @author Eric Dalquist
@@ -29,10 +29,10 @@ public interface KeyGeneratorAnnotationTestInterface {
     @Cacheable(cacheName="interfaceAnnotatedCache", 
             keyGenerator = @KeyGenerator (
                         name = "ListCacheKeyGenerator",
-                        parameters = {
-                                @Parameter( name="useReflection", value="true" ),
-                                @Parameter( name="checkforCycles", value="true" ),
-                                @Parameter( name="includeMethod", value="false" )
+                        properties = {
+                                @Property( name="useReflection", value="true" ),
+                                @Property( name="checkforCycles", value="true" ),
+                                @Property( name="includeMethod", value="false" )
                         }
                     )
             )
@@ -49,9 +49,9 @@ public interface KeyGeneratorAnnotationTestInterface {
     @Cacheable(cacheName="interfaceAnnotatedCache", 
             keyGenerator = @KeyGenerator (
                         name = "com.googlecode.ehcache.annotations.integration.MockCacheKeyGenerator",
-                        parameters = {
-                                @Parameter( name="enumProperty", value="DAYS"),
-                                @Parameter( name="listProperty", ref="listBean" )
+                        properties = {
+                                @Property( name="enumProperty", value="DAYS"),
+                                @Property( name="listProperty", ref="listBean" )
                         }
                     )
             )
@@ -60,9 +60,9 @@ public interface KeyGeneratorAnnotationTestInterface {
     @Cacheable(cacheName="interfaceAnnotatedCache", 
             keyGenerator = @KeyGenerator (
                         name = "com.googlecode.ehcache.annotations.integration.MockCacheKeyGenerator",
-                        parameters = {
-                                @Parameter( name="listProperty", ref="listBean" ),
-                                @Parameter( name="enumProperty", value="DAYS")
+                        properties = {
+                                @Property( name="listProperty", ref="listBean" ),
+                                @Property( name="enumProperty", value="DAYS")
                         }
                     )
             )
@@ -71,8 +71,8 @@ public interface KeyGeneratorAnnotationTestInterface {
     @Cacheable(cacheName="interfaceAnnotatedCache", 
             keyGenerator = @KeyGenerator (
                         name = "com.googlecode.ehcache.annotations.integration.MockCacheKeyGenerator",
-                        parameters = {
-                                @Parameter( name="enumProperty", value="DAYS")
+                        properties = {
+                                @Property( name="enumProperty", value="DAYS")
                         }
                     )
             )

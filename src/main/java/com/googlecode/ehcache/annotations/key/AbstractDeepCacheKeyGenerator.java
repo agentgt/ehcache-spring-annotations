@@ -28,9 +28,10 @@ import java.util.Map;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Base class for key generators that do deep inspection of the key data for generation. Arrays and Collections are
- * iterated over and their values recursively inspected. Also supports reflective recursion which can be useful for
- * objects that may not support the hashCode, equals or other methods required by the key generation implementation.
+ * Base class for key generators that do deep inspection of the key data for generation. Arrays, 
+ * {@link Iterable} and {@link Map} are iterated over and their values recursively inspected. Also
+ * supports reflective recursion which can be useful for objects that may not support the hashCode,
+ * equals or other methods required by the key generation implementation.
  * 
  * Reflective recursion add significant overhead to the deep inspection process.
  * 
@@ -53,7 +54,11 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
     }
 
     /**
-     * Sets if reflection should be used when recursing over 
+     * Determines if reflection should be used on each object that is used in key generation. If true
+     * each object that is added to the key has {@link #shouldReflect(Object)} called on it. If that
+     * returns true reflection is used to recurse on all of the fields of the object.
+     * 
+     * @param Defaults to false.
      */
     public final void setUseReflection(boolean useReflection) {
         this.useReflection = useReflection;
@@ -70,7 +75,8 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
     }
     
     /**
-     * Calls {@link #deepHashCode(KeyGenerationStream, Object)} on each element in the array
+     * Calls {@link #deepHashCode(KeyGenerationStream, Object)} on each element in the array.
+     * @param a will never be null
      */
     protected void deepHashCode(G generator, Object a[]) {
         this.beginRecursion(generator, a);
@@ -83,6 +89,7 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
 
     /**
      * Calls {@link #deepHashCode(KeyGenerationStream, Object)} on each element in the {@link Iterable}
+     * @param a will never be null
      */
     protected void deepHashCode(G generator, Iterable<?> a) {
         this.beginRecursion(generator, a);
@@ -94,6 +101,7 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
     
     /**
      * Calls {@link #deepHashCode(KeyGenerationStream, Object)} on both the key and the value.
+     * @param a will never be null
      */
     protected void deepHashCode(G generator, Map.Entry<?, ?> e) {
         this.beginRecursion(generator, e);
@@ -103,8 +111,10 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
     }
 
     /**
-     * Does instanceof checks to determine the correct deepHashCode to call or 
-     * {@link #write(KeyGenerationStream, Object)} is called.
+     * Does instanceof checks to determine the correct {@link #deepHashCode} method to call or 
+     * {@link #write(KeyGenerationStream, Object)} is called if no other recursion is needed or
+     * {@link #reflectionDeepHashCode(Object, Object)} is called if {@link #setUseReflection(boolean)}
+     * is true.
      */
     protected final void deepHashCode(G generator, Object element) {
         if (element == null) {
@@ -153,8 +163,10 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
     }
     
     /**
-     * If {@link #shouldReflect(Object)} returns true it uses reflection to call
-     * {@link #deepHashCode(Object, Object)} on each non-transient, non-static field.
+     * Calls {@link #shouldReflect(Object)} to determine if the object needs to be reflected on to
+     * generate a good key. If so {@link AccessibleObject#setAccessible(AccessibleObject[], boolean)} is
+     * used to enable access to private, protected and default fields. Each non-transient, non-static field
+     * has {@link #deepHashCode(Object, Object)} called on it.
      */
     protected final void reflectionDeepHashCode(G generator, final Object element) {
         //Special objects which shouldn't be reflected on due to lack of interesting fields
@@ -202,6 +214,7 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
     /**
      * Default implementation returns true if the {@link Object} doesn't implement hashCode or
      * doesn't implement equals. 
+     * @param element will never be null
      */
     protected boolean shouldReflect(Object element) {
         return !this.implementsHashCode(element) || !this.implementsEquals(element);
@@ -209,6 +222,7 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
     
     /**
      * Checks if the object implements hashCode
+     * @param element will never be null
      */
     protected final boolean implementsHashCode(Object element) {
         final Method hashCodeMethod = ReflectionUtils.findMethod(element.getClass(), "hashCode");
@@ -217,6 +231,7 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
     
     /**
      * Checks if the object implements equals
+     * @param element will never be null
      */
     protected final boolean implementsEquals(Object element) {
         final Method equalsMethod = ReflectionUtils.findMethod(element.getClass(), "equals", Object.class);
@@ -224,7 +239,8 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
     }
     
     /**
-     * Create the object used to generate the key.
+     * Create the object used to generate the key. This object is passed into every {@link #deepHashCode} and
+     * {@link #append} call.
      */
     protected abstract G getGenerator(Object... data);
     
@@ -233,12 +249,27 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
      */
     protected abstract T generateKey(G generator);
     
+    /**
+     * Append an object to the key.
+     */
     protected abstract void append(G generator, Object e);
 
+    /**
+     * Called if a graph cycle is detected.
+     * @param o The object that started the cycle
+     */
     protected abstract void appendGraphCycle(G generator, Object o);
 
+    /**
+     * Called if a null value is found in the object graph
+     */
     protected abstract void appendNull(G generator);
 
+    /**
+     * Append a boolean array. Calls {@link #append(Object, Object)} on each value in
+     * the array. If the implementing class can handle boolean or boolean array primitives 
+     * directly this should be overridden to avoid auto-boxing each array element.
+     */
     protected void append(G generator, boolean a[]) {
         this.beginRecursion(generator, a);
         for (final boolean element : a) {
@@ -247,6 +278,11 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
         this.endRecursion(generator, a);
     }
 
+    /**
+     * Append a byte array. Calls {@link #append(Object, Object)} on each value in
+     * the array. If the implementing class can handle byte or byte array primitives 
+     * directly this should be overridden to avoid auto-boxing each array element.
+     */
     protected void append(G generator, byte a[]) {
         this.beginRecursion(generator, a);
         for (final byte element : a) {
@@ -255,6 +291,11 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
         this.endRecursion(generator, a);
     }
     
+    /**
+     * Append a char array. Calls {@link #append(Object, Object)} on each value in
+     * the array. If the implementing class can handle char or char array primitives 
+     * directly this should be overridden to avoid auto-boxing each array element.
+     */
     protected void append(G generator, char a[]) {
         this.beginRecursion(generator, a);
         for (final char element : a) {
@@ -262,6 +303,12 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
         }
         this.endRecursion(generator, a);
     }
+    
+    /**
+     * Append a double array. Calls {@link #append(Object, Object)} on each value in
+     * the array. If the implementing class can handle double or double array primitives 
+     * directly this should be overridden to avoid auto-boxing each array element.
+     */
     protected void append(G generator, double a[]) {
         this.beginRecursion(generator, a);
         for (final double element : a) {
@@ -270,6 +317,11 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
         this.endRecursion(generator, a);
     }
     
+    /**
+     * Append a float array. Calls {@link #append(Object, Object)} on each value in
+     * the array. If the implementing class can handle float or float array primitives 
+     * directly this should be overridden to avoid auto-boxing each array element.
+     */
     protected void append(G generator, float a[]) {
         this.beginRecursion(generator, a);
         for (final float element : a) {
@@ -278,6 +330,11 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
         this.endRecursion(generator, a);
     }
     
+    /**
+     * Append a int array. Calls {@link #append(Object, Object)} on each value in
+     * the array. If the implementing class can handle int or int array primitives 
+     * directly this should be overridden to avoid auto-boxing each array element.
+     */
     protected void append(G generator, int a[]) {
         this.beginRecursion(generator, a);
         for (final int element : a) {
@@ -286,6 +343,11 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
         this.endRecursion(generator, a);
     }
     
+    /**
+     * Append a long array. Calls {@link #append(Object, Object)} on each value in
+     * the array. If the implementing class can handle long or long array primitives 
+     * directly this should be overridden to avoid auto-boxing each array element.
+     */
     protected void append(G generator, long a[]) {
         this.beginRecursion(generator, a);
         for (final long element : a) {
@@ -294,6 +356,11 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
         this.endRecursion(generator, a);
     }
     
+    /**
+     * Append a short array. Calls {@link #append(Object, Object)} on each value in
+     * the array. If the implementing class can handle short or short array primitives 
+     * directly this should be overridden to avoid auto-boxing each array element.
+     */
     protected void append(G generator, short a[]) {
         this.beginRecursion(generator, a);
         for (final short element : a) {
@@ -302,9 +369,17 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
         this.endRecursion(generator, a);
     }
     
+    /**
+     * Called before each array/{@link Iterable}/{@link Map} is handled. Useful for sub-classes that
+     * want to be aware of the tree structure of the object graph.
+     */
     protected void beginRecursion(G generator, Object e) {
     }
     
+    /**
+     * Called after each array/{@link Iterable}/{@link Map} is handled. Useful for sub-classes that
+     * want to be aware of the tree structure of the object graph.
+     */
     protected void endRecursion(G generator, Object e) {
     }
 }

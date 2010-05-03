@@ -69,8 +69,8 @@ public class StringCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<Strin
 
     @Override
     protected void endRecursion(StringCacheKeyGenerator.StringGenerator generator, Object e) {
-        if (generator.depth > 0) {
-            final int length = generator.builder.length();
+        final int length = generator.builder.length();
+        if (generator.depth > 0 && length > 2) {
             generator.builder.delete(length - 2, length);
         }
         

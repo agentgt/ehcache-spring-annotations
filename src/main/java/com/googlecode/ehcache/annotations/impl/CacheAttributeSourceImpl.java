@@ -55,7 +55,7 @@ import com.googlecode.ehcache.annotations.Cacheable;
 import com.googlecode.ehcache.annotations.CacheableAttribute;
 import com.googlecode.ehcache.annotations.KeyGenerator;
 import com.googlecode.ehcache.annotations.MethodAttribute;
-import com.googlecode.ehcache.annotations.Parameter;
+import com.googlecode.ehcache.annotations.Property;
 import com.googlecode.ehcache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ehcache.annotations.TriggersRemove;
 import com.googlecode.ehcache.annotations.TriggersRemoveAttribute;
@@ -430,20 +430,20 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         
         final MutablePropertyValues mutablePropertyValues = new MutablePropertyValues();
         
-        //Sort the parameters array first so bean name generation is always consistent
-        final Parameter[] parameters = keyGenerator.parameters();
-        Arrays.sort(parameters, ParameterComparator.INSTANCE);
+        //Sort the properties array first so bean name generation is always consistent
+        final Property[] properties = keyGenerator.properties();
+        Arrays.sort(properties, PropertyComparator.INSTANCE);
         
-        for (Parameter parameter : parameters) {
-            final String name = parameter.name();
-            final String value = parameter.value();
-            final String ref = parameter.ref();
+        for (Property property : properties) {
+            final String name = property.name();
+            final String value = property.value();
+            final String ref = property.ref();
             
             beanNameBuilder.append("[").append(name).append(",").append(value).append(",").append(ref).append("]");
             
             if (value.length() > 0) {
                 if (ref.length() > 0) {
-                    throw new IllegalArgumentException("Only one of value or ref must be specified no both on Parameter with name: " + name);
+                    throw new IllegalArgumentException("Only one of value or ref must be specified no both on Property with name: " + name);
                 }
                 
                 mutablePropertyValues.addPropertyValue(name, value);
@@ -452,16 +452,18 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
                 mutablePropertyValues.addPropertyValue(name, new RuntimeBeanReference(ref));
             }
             else {
-                throw new IllegalArgumentException("Either value or ref must be specified on Parameter with name: " + name);
+                throw new IllegalArgumentException("Either value or ref must be specified on Property with name: " + name);
             }
         }
         
         final String beanName = beanNameBuilder.toString();
         
+        //See if the generator is already registered using the compiled bean name, if so just use that instance
         if (this.cacheKeyBeanFactory.containsBean(beanName)) {
             return this.cacheKeyBeanFactory.getBean(beanName, CacheKeyGenerator.class);
         }
 
+        //Create and register the bean if it didn't already exist
         final AbstractBeanDefinition beanDefinition;
         try {
             beanDefinition = BeanDefinitionReaderUtils.createBeanDefinition(null, keyGeneratorClassName, null);

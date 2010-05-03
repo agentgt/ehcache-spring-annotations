@@ -49,6 +49,7 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
      * Default constructor, same as calling {@link #AbstractCacheKeyGenerator(boolean, boolean)} with (true, true) 
      */
     public AbstractCacheKeyGenerator() {
+        this(true, true);
     }
     
     /**
@@ -71,9 +72,7 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
      * in the same class with the same name and return value you may want to enable {@link #setIncludeParameterTypes(boolean)}
      * for even more specific key generation.
      * 
-     * Note that including the method signature in key generation reduces key generation speed between
-     * 14% and 197% depending on the key generator implementation. See the full documentation on more
-     * details on key generation approaches.
+     * Note that including the method signature in key generation reduces key generation speed.
      * 
      * @param includeMethod true If the {@link Method} from the {@link MethodInvocation} should be
      *                      included in the generated key, defaults to true.
@@ -90,8 +89,7 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
      * Determines if the method parameter types returned by {@link Method#getParameterTypes()} should be
      * included in the generated key. This is broken out into a separate option because the call results
      * in a clone() call on the Class[] every time {@link Method#getParameterTypes()} which reduces key
-     * generation speed by between 5% and 22% depending on the key generator implementation. See the full
-     * documentation on more details on key generation approaches.
+     * generation speed.
      * 
      * This is option is only used if {@link #setIncludeMethod(boolean)} is true.
      * 
@@ -156,6 +154,7 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
      * </p>
      * 
      * @param element The object to register.
+     * @return true if the object is not currently registered
      */
     protected final boolean register(Object element) {
         if (!this.checkforCycles) {
@@ -168,11 +167,8 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
 
     /**
      * <p>
-     * Unregisters the given object.
+     * Unregisters the given object. Used by the reflection methods to avoid infinite loops.
      * </p>
-     * 
-     * <p>
-     * Used by the reflection methods to avoid infinite loops.
      */
     protected final void unregister(Object element) {
         if (!this.checkforCycles) {

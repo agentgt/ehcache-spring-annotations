@@ -199,6 +199,11 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
         Assert.assertEquals(expected, key);        
         Assert.assertEquals(expected.hashCode(), key.hashCode());            
     }
-    
-    
+
+    @Override
+    protected void verifyTestNoArguments(MethodInvocation invocation, ReadOnlyList<?> key) {
+        final List<?> expected = Arrays.asList();
+        Assert.assertEquals(expected, key);        
+        Assert.assertEquals(expected.hashCode(), key.hashCode());
+    }
 }

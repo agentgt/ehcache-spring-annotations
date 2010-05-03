@@ -80,23 +80,12 @@ public class CacheKeyGeneratorPerformanceTest {
     
     @Test
     public void testCacheKeyGeneratorPerformance() throws NoSuchAlgorithmException, InterruptedException, BrokenBarrierException {
-        final Map<String, CacheKeyGenerator<? extends Serializable>> generators = new LinkedHashMap<String, CacheKeyGenerator<? extends Serializable>>();
+        final Map<String, AbstractDeepCacheKeyGenerator<?, ? extends Serializable>> generators = new LinkedHashMap<String, AbstractDeepCacheKeyGenerator<?, ? extends Serializable>>();
         
-        generators.put("ListCacheKeyGenerator|true|true", new ListCacheKeyGenerator(true, true));
-        generators.put("ListCacheKeyGenerator|true|false", new ListCacheKeyGenerator(true, false));
-        generators.put("ListCacheKeyGenerator|false|false", new ListCacheKeyGenerator(false, false));
-        generators.put("StringCacheKeyGenerator|true|true", new StringCacheKeyGenerator(true, true));
-        generators.put("StringCacheKeyGenerator|true|false", new StringCacheKeyGenerator(true, false));
-        generators.put("StringCacheKeyGenerator|false|false", new StringCacheKeyGenerator(false, false));
-        generators.put("MessageDigestCacheKeyGenerator_\"MD5\"|true|true", new MessageDigestCacheKeyGenerator("MD5", true, true));
-        generators.put("MessageDigestCacheKeyGenerator_\"MD5\"|true|false", new MessageDigestCacheKeyGenerator("MD5", true, false));
-        generators.put("MessageDigestCacheKeyGenerator_\"MD5\"|false|false", new MessageDigestCacheKeyGenerator("MD5", false, false));
-        generators.put("HashCodeCacheKeyGenerator|true|true", new HashCodeCacheKeyGenerator(true, true));
-        generators.put("HashCodeCacheKeyGenerator|true|false", new HashCodeCacheKeyGenerator(true, false));
-        generators.put("HashCodeCacheKeyGenerator|false|false", new HashCodeCacheKeyGenerator(false, false));
-        generators.put("ReflectionHashCodeCacheKeyGenerator|true|true", new ReflectionHashCodeCacheKeyGenerator(true, true));
-        generators.put("ReflectionHashCodeCacheKeyGenerator|true|false", new ReflectionHashCodeCacheKeyGenerator(true, false));
-        generators.put("ReflectionHashCodeCacheKeyGenerator|false|false", new ReflectionHashCodeCacheKeyGenerator(false, false));
+        generators.put("ListCacheKeyGenerator", new ListCacheKeyGenerator());
+        generators.put("StringCacheKeyGenerator", new StringCacheKeyGenerator());
+        generators.put("MessageDigestCacheKeyGenerator_\"MD5\"", new MessageDigestCacheKeyGenerator("MD5"));
+        generators.put("HashCodeCacheKeyGenerator", new HashCodeCacheKeyGenerator());
         
         final ThreadGroupRunner threadGroupRunner = new ThreadGroupRunner("CacheKeyGeneratorPerformanceTest-", true);
 
@@ -106,27 +95,60 @@ public class CacheKeyGeneratorPerformanceTest {
         threadGroupRunner.start();
         
         
-        for (int totalLoopCount = 1; totalLoopCount <= 10; totalLoopCount+=1) {
+        for (int totalLoopCount = 1; totalLoopCount <= 4; totalLoopCount+=1) {
             final long duration = 1000 * totalLoopCount;
             System.out.println("Sleeping 5s Before: " + duration);
             Thread.sleep(5*1000);
             
-            for (final Map.Entry<String, CacheKeyGenerator<? extends Serializable>> generatorEntry : generators.entrySet()) {
-                //Setup state and start threads
-                this.totalKeyCount.set(0);
-                this.generator = generatorEntry.getValue();
-                this.runTest = true;
-                this.testThreadStateLatch.await();
+            for (final Map.Entry<String, AbstractDeepCacheKeyGenerator<?, ? extends Serializable>> generatorEntry : generators.entrySet()) {
                 
-                //Sleep main thread for duration of test
-                Thread.sleep(duration);
-                
-                //Switch the test running flag and wait for threads to update the key count
-                this.runTest = false;
-                this.testThreadStateLatch.await();
-                
-                final long keyCount = this.totalKeyCount.get();
-                System.out.println(keyCount + "|" + duration + "|" + keyCount/((double)duration) + "|" + generatorEntry.getKey());
+                for (int configIndex = 0; configIndex < 3; configIndex++) {
+                    //Setup state and start threads
+                    this.totalKeyCount.set(0);
+                    this.generator = generatorEntry.getValue();
+                    this.runTest = true;
+                    this.testThreadStateLatch.await();
+                    
+                    final String generatorConfig;
+                    switch (configIndex) {
+                        case 0:
+                            this.generator.setCheckforCycles(false);
+                            this.generator.setIncludeMethod(false);
+                            this.generator.setIncludeParameterTypes(false);
+                            this.generator.setUseReflection(false);
+                            generatorConfig = ",setIncludeMethod(false),setIncludeParameterTypes(false),setUseReflection(false)";
+                        break;
+                        
+                        case 1:
+                            this.generator.setCheckforCycles(false);
+                            this.generator.setIncludeMethod(true);
+                            this.generator.setIncludeParameterTypes(true);
+                            this.generator.setUseReflection(false);
+                            generatorConfig = ",setIncludeMethod(true),setIncludeParameterTypes(true),setUseReflection(false)";
+                        break;
+                        
+                        case 2:
+                            this.generator.setCheckforCycles(false);
+                            this.generator.setIncludeMethod(true);
+                            this.generator.setIncludeParameterTypes(true);
+                            this.generator.setUseReflection(true);
+                            generatorConfig = ",setIncludeMethod(true),setIncludeParameterTypes(true),setUseReflection(true)";
+                        break;
+                        
+                        default:
+                            throw new IllegalStateException();
+                    }
+                    
+                    //Sleep main thread for duration of test
+                    Thread.sleep(duration);
+                    
+                    //Switch the test running flag and wait for threads to update the key count
+                    this.runTest = false;
+                    this.testThreadStateLatch.await();
+                    
+                    final long keyCount = this.totalKeyCount.get();
+                    System.out.println(keyCount + "|" + duration + "|" + keyCount/((double)duration) + "|" + generatorEntry.getKey() + generatorConfig);
+                }
             }
         }
         
@@ -140,7 +162,7 @@ public class CacheKeyGeneratorPerformanceTest {
     
     //Class scoped variables used to control the test threads
     private final AtomicLong totalKeyCount = new AtomicLong();
-    private CacheKeyGenerator<? extends Serializable> generator;
+    private AbstractDeepCacheKeyGenerator<?, ? extends Serializable> generator;
     private CyclicBarrier testThreadStateLatch;
     private volatile boolean runTest = false;
     

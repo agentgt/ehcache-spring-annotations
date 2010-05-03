@@ -74,4 +74,9 @@ public class HashCodeCacheKeyGeneratorTest extends AbstractDeepCacheKeyGenerator
     protected void verifyTestPrimitiveHandling(MethodInvocation invocation, Long key) {
         Assert.assertEquals(Long.valueOf(6372426439346797389l), key);        
     }
+    
+    @Override
+    protected void verifyTestNoArguments(MethodInvocation invocation, Long key) {
+        Assert.assertEquals(Long.valueOf(1l), key);        
+    }
 }

@@ -23,28 +23,25 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
-import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
-
 /**
- * Specifies and configures a {@link CacheKeyGenerator} in a Spring {@link org.springframework.context.ApplicationContext} that is a
- * child of the application's context. All beans available in the application's context can be refernced
- * by a {@link CacheKeyGenerator} configured this way.
+ * A bean property used to configure the generator. Either {@link #value()} or {@link #ref()} must be specified
+ * but not both.
  */
 @Target( { ElementType.ANNOTATION_TYPE } )
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface KeyGenerator {
+public @interface Property {
     /**
-     * The class name of the generator to use. If one of the included generators in the <code>com.googlecode.ehcache.annotations.key</code>
-     * package is used only the class name is required. If a class outside that package is used the fully qualified class name
-     * must be specified.
+     * Name of the bean property
      */
     String name();
-    
     /**
-     * Bean properties used to configure the generator.
+     * Value of the bean property.
      */
-    Property[] properties() default {};
+    String value() default "";
+    /**
+     * Name of a bean in the Spring application context to inject a reference to.
+     */
+    String ref() default "";
 }

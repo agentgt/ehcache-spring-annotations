@@ -43,7 +43,7 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
      * Test circular reference handling
      */
     @Test
-    public final void testCircularReferenceNoChecl() {
+    public final void testCircularReferenceNoCheck() {
         final AbstractDeepCacheKeyGenerator<?, T> generator = this.getCacheKeyGenerator();
         
         generator.setIncludeMethod(false);
@@ -365,4 +365,25 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         EasyMock.verify(invocation);
     }
     protected abstract void verifyTestCollectionHandling(MethodInvocation invocation, T key);
+    
+    @Test
+    public final void testNoArguments() throws SecurityException {
+        final AbstractDeepCacheKeyGenerator<?, T> generator = this.getCacheKeyGenerator();
+        
+        generator.setIncludeMethod(false);
+        generator.setIncludeParameterTypes(false);
+        generator.setCheckforCycles(false);
+        generator.setUseReflection(false);
+        
+        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { });
+        
+        EasyMock.replay(invocation);
+        
+        final T key = generator.generateKey(invocation);
+        this.verifyTestNoArguments(invocation, key);
+        
+        EasyMock.verify(invocation);
+    }
+    protected abstract void verifyTestNoArguments(MethodInvocation invocation, T key);
 }
