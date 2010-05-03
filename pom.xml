@@ -352,6 +352,7 @@
 					<excludes>
 						<exclude>LICENSE</exclude>
 						<exclude>NOTICE</exclude>
+                        <exclude>src/main/java/com/googlecode/ehcache/annotations/util/guice/*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -398,6 +399,13 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>
 				<version>2.4</version>
+                <configuration>
+                    <instrumentation>
+                        <ignores>
+                            <ignore>com.googlecode.ehcache.annotations.util.guice.*</ignore>
+                        </ignores>
+                    </instrumentation>
+                </configuration>
 			</plugin>
 		</plugins>
 	</reporting>

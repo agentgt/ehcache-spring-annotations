@@ -22,6 +22,7 @@ This project includes:
         Ehcache Core
         Log4j
         Spring Framework
+        Code from Google Guice in the package com.googlecode.ehcache.annotations.util.guice
 
     Under the Public Domain License
         AOP Alliance

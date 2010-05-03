@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -44,9 +45,15 @@ public class CacheKeyGeneratorPerformanceTest {
     private final List<MethodInvocation> invocations = new LinkedList<MethodInvocation>();
     
     @Before
+    @SuppressWarnings("unused")
     public void setup() throws SecurityException, NoSuchMethodException {
         final Method testMethod0 = MethodInvocationHelper.class.getMethod("testMethod0");
+        final Method testMethod1 = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
+        final Method testMethod2 = MethodInvocationHelper.class.getMethod("testMethod2", int[].class, String.class, boolean[].class, Object.class);
+        final Method testMethod3 = MethodInvocationHelper.class.getMethod("testMethod3", int.class, long.class, boolean.class, Integer.class);
         
+        
+        /* ********** Invocation 0 ********** */ 
         final MockMethodInvocation invocation0 = new MockMethodInvocation();
         invocation0.setMethod(testMethod0);
         invocation0.setArguments(new Object[] { });
@@ -54,8 +61,7 @@ public class CacheKeyGeneratorPerformanceTest {
         this.invocations.add(invocation0); 
         
         
-        final Method testMethod1 = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
-        
+        /* ********** Invocation 1 ********** */
         final MockMethodInvocation invocation1 = new MockMethodInvocation();
         invocation1.setMethod(testMethod1);
         invocation1.setArguments(new Object[] { new StringBuilder("foobar") });
@@ -63,9 +69,7 @@ public class CacheKeyGeneratorPerformanceTest {
         this.invocations.add(invocation1); 
         
         
-        
-        final Method testMethod2 = MethodInvocationHelper.class.getMethod("testMethod2", int[].class, String.class, boolean[].class, Object.class);
-        
+        /* ********** Invocation 2 ********** */
         final MockMethodInvocation invocation2 = new MockMethodInvocation();
         invocation2.setMethod(testMethod2);
         invocation2.setArguments(new Object[] { 
@@ -76,6 +80,88 @@ public class CacheKeyGeneratorPerformanceTest {
                 });
         
         this.invocations.add(invocation2); 
+        
+        
+        /* ********** Invocation 3 ********** */
+        final MockMethodInvocation invocation3 = new MockMethodInvocation();
+        invocation3.setMethod(testMethod1);
+        invocation3.setArguments(new Object[] { 
+                    new Object[] { 
+                        new byte[] {},
+                        new short[] {},
+                        new int[] {},
+                        new long[] {},
+                        new char[] {},
+                        new float[] {},
+                        new double[] {},
+                        new boolean[] {},
+
+                        new byte[] {1},
+                        new short[] {2},
+                        new int[] {3},
+                        new long[] {4l},
+                        new char[] {'a'},
+                        new float[] {6.8f},
+                        new double[] {7.9d},
+                        new boolean[] {true},
+                        
+                        new byte[] {1, 2, 3},
+                        new short[] {4, 5, 6},
+                        new int[] {7, 8, 9},
+                        new long[] {10l, 11l, 12l},
+                        new char[] {'a', 'b', 'c'},
+                        new float[] {16.1f, 17.2f, 18.3f},
+                        new double[] {19.4, 20.5, 21.6},
+                        new boolean[] {true, false, false}
+                    }
+                });
+        this.invocations.add(invocation3); 
+        
+        
+        /* ********** Invocation 4 ********** */
+        final MockMethodInvocation invocation4 = new MockMethodInvocation();
+        invocation4.setMethod(testMethod1);
+        invocation4.setArguments(new Object[] { 
+                    new Object[] { 
+                        (byte)1,
+                        (short)2,
+                        (int)3,
+                        (long)4l,
+                        (char)'a',
+                        (float)6.8f,
+                        (double)7.9d,
+                        (boolean)true
+                    }
+                });
+        this.invocations.add(invocation4); 
+        
+        
+        /* ********** Invocation 5 ********** */
+        final Map<Object, Object> testMap = new HashMap<Object, Object>();
+        testMap.put("A", 123);
+        testMap.put("B", new String[] {"hello", "world"});
+        
+        final MockMethodInvocation invocation5 = new MockMethodInvocation();
+        invocation5.setMethod(testMethod1);
+        invocation5.setArguments(new Object[] { 
+                    new Object[] { 
+                        new LinkedHashSet<Object>(Arrays.asList("foo", "bar", "bop")),
+                        testMap
+                    }
+                });
+        this.invocations.add(invocation5);  
+        
+        
+        /* ********** Invocation 6 ********** */
+        final MockMethodInvocation invocation6 = new MockMethodInvocation();
+        invocation6.setMethod(testMethod1);
+        invocation6.setArguments(new Object[] { 
+                    new Object[] { 
+                        new LinkedHashSet<Object>(Arrays.asList("foo", "bar", "bop")),
+                        new RequiresReflectionKey(testMap)
+                    }
+                });
+        this.invocations.add(invocation6); 
     }
     
     @Test
@@ -95,7 +181,7 @@ public class CacheKeyGeneratorPerformanceTest {
         threadGroupRunner.start();
         
         
-        for (int totalLoopCount = 1; totalLoopCount <= 4; totalLoopCount+=1) {
+        for (int totalLoopCount = 2; totalLoopCount <= 8; totalLoopCount*=2) {
             final long duration = 1000 * totalLoopCount;
             System.out.println("Sleeping 5s Before: " + duration);
             Thread.sleep(5*1000);
@@ -128,6 +214,7 @@ public class CacheKeyGeneratorPerformanceTest {
                         break;
                         
                         case 2:
+                            AbstractDeepCacheKeyGenerator.IMPLEMENTS_CACHE.clear();
                             this.generator.setCheckforCycles(false);
                             this.generator.setIncludeMethod(true);
                             this.generator.setIncludeParameterTypes(true);

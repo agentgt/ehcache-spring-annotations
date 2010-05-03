@@ -16,9 +16,6 @@
 
 package com.googlecode.ehcache.annotations.key;
 
-import java.lang.reflect.Method;
-
-import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Eric Dalquist
@@ -215,14 +212,6 @@ public class StringCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<Strin
     @Override
     protected boolean shouldReflect(Object element) {
         return !this.implementsToString(element);
-    }
-    
-    /**
-     * Checks if the object implements equals
-     */
-    protected final boolean implementsToString(Object element) {
-        final Method toStringMethod = ReflectionUtils.findMethod(element.getClass(), "toString");
-        return toStringMethod != null && toStringMethod.getDeclaringClass() != Object.class;
     }
     
 }

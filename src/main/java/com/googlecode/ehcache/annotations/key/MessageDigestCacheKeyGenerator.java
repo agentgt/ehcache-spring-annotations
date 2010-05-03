@@ -208,7 +208,7 @@ public class MessageDigestCacheKeyGenerator extends AbstractDeepCacheKeyGenerato
             generator.writeBoolean((Boolean)e);
         }
         else if (e instanceof Byte) {
-            generator.write((Byte)e);
+            generator.writeByte((Byte)e);
         }
         else if (e instanceof Character) {
             generator.writeChar((Character)e);
