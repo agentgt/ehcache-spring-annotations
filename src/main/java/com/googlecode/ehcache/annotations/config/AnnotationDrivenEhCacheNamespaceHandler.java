@@ -30,6 +30,7 @@ public class AnnotationDrivenEhCacheNamespaceHandler extends NamespaceHandlerSup
 	 */
 	public void init() {
 		this.registerBeanDefinitionParser("annotation-driven", new AnnotationDrivenEhCacheBeanDefinitionParser());
+		this.registerBeanDefinitionParser("config", new EhCacheConfigBeanDefinitionParser());
 	}
 
 }

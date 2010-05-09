@@ -15,6 +15,7 @@
  */
 package com.googlecode.ehcache.annotations.config;
 
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -29,24 +30,37 @@ import org.w3c.dom.NodeList;
  * @author Nicholas Blair, npblair@wisc.edu
  *
  */
-public final class AnnotationConfigEhCacheBeanDefinitionParser implements
+public final class EhCacheConfigBeanDefinitionParser implements
 		BeanDefinitionParser {
 
 	public static final String XSD_ELEMENT__EVICT_EXPIRED_ELEMENTS = "evict-expired-elements";
+	public static final String XSD_ATTRIBUTE__INTERVAL = "interval";
+	
 	/* (non-Javadoc)
 	 * @see org.springframework.beans.factory.xml.BeanDefinitionParser#parse(org.w3c.dom.Element, org.springframework.beans.factory.xml.ParserContext)
 	 */
 	public BeanDefinition parse(final Element element, final ParserContext parserContext) {
 		final Object elementSource = parserContext.extractSource(element);
-		NodeList evictExpiredElements = element.getElementsByTagName(XSD_ELEMENT__EVICT_EXPIRED_ELEMENTS);
-		if(evictExpiredElements.getLength() > 0) {
-			//
-
-			for(int i = 0; i < evictExpiredElements.getLength(); i++) {
-				Node evictExpiredElement = evictExpiredElements.item(i);
-			
-			}
+		
+		final NodeList evictExpiredElements = element.getElementsByTagName(XSD_ELEMENT__EVICT_EXPIRED_ELEMENTS);
+		if (evictExpiredElements.getLength() > 1) {
+		    throw new BeanCreationException("Only one '" + XSD_ELEMENT__EVICT_EXPIRED_ELEMENTS + "' is allowed");
 		}
+		
+		
+		if (evictExpiredElements.getLength() == 1) {
+		    final Element evictExpiredElement = (Element)evictExpiredElements.item(0);
+		    
+		    final int interval = Integer.parseInt(evictExpiredElement.getAttribute(XSD_ATTRIBUTE__INTERVAL));
+		    
+		    final NodeList childNodes = evictExpiredElement.getChildNodes();
+		    for (int index = 0; index < childNodes.getLength(); index++) {
+		        final Node childNode = childNodes.item(index);
+		        
+		        
+		    }
+		}
+		
 		return null;
 	}
 
