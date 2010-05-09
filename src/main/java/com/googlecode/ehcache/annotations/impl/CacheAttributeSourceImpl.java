@@ -227,7 +227,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     protected Ehcache getCache(String cacheName) {
         final CacheManager cacheManager = this.getCacheManager();
         
-        Ehcache cache = cacheManager.getCache(cacheName);
+        Ehcache cache = cacheManager.getEhcache(cacheName);
         if (cache == null) {
             if (this.createCaches) {
                 this.logger.warn("No cache named '{}' exists, it will be created from the defaultCache", cacheName);
