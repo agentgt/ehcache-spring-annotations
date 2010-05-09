@@ -16,6 +16,8 @@
 
 package com.googlecode.ehcache.annotations.key;
 
+import java.util.Date;
+
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Assert;
 
@@ -53,7 +55,7 @@ public class StringCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTe
     @Override
     protected void verifyTestComplexHashCode(MethodInvocation invocation, String key) {
         Assert.assertEquals(
-                "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod2, class java.lang.Object, [[1, 2, 3, 4], foo, [false, true], [null, Wed Dec 31 18:00:00 CST 1969]]]",
+                "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod2, class java.lang.Object, [[1, 2, 3, 4], foo, [false, true], [null, " + new Date(0) + "]]]",
                 key);
     }
 
