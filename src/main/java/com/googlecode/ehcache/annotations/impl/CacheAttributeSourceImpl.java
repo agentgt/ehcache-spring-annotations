@@ -237,7 +237,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
                 catch (ObjectExistsException oee) {
                     this.logger.trace("Race condition creating missing cache '{}', ignoring and retrieving existing cache", cacheName);
                 }
-                cache = cacheManager.getCache(cacheName);
+                cache = cacheManager.getEhcache(cacheName);
             }
             else {
                 throw new CacheNotFoundException(cacheName);
