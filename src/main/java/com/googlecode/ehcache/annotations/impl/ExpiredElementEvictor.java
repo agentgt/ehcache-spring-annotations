@@ -127,7 +127,7 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
 			throw new IllegalStateException("cacheManager reference must be set");
 		}
 		
-		cacheNames = calculateEvictableCacheNames();
+		cacheNames = calculateEvictableCacheNames(this.cacheManager.getCacheNames());
 		cacheNames = Collections.unmodifiableSet(cacheNames);
 		
 		timer = new Timer(this.cacheManager.getName() + "expiredElementEvictorTimer", true);
@@ -144,10 +144,9 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
 	 * 
 	 * @return
 	 */
-	protected Set<String> calculateEvictableCacheNames() {
+	protected Set<String> calculateEvictableCacheNames(final String [] cacheManagerCacheNames) {
 		Set<String> result = new HashSet<String>();
 		// from the list of matchers, calculate the cacheNames set
-		final String [] cacheManagerCacheNames = this.cacheManager.getCacheNames();
 		for(String cacheManagerCacheName: cacheManagerCacheNames) {
 			Boolean status = null;
 			for(CacheNameMatcher matcher : this.cacheNameMatchers) {
@@ -156,10 +155,8 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
 					continue;
 				} else if (status) {
 					result.add(cacheManagerCacheName);
-					break;
 				} else {
 					result.remove(cacheManagerCacheName);
-					break;
 				}
 			}
 		}
