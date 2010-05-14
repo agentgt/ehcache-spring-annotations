@@ -15,30 +15,38 @@
  */
 package com.googlecode.ehcache.annotations.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.TimerTask;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
+import com.googlecode.ehcache.annotations.config.CacheNameMatcher;
 
 /**
  * {@link Runnable} implementation that depends on a {@link CacheManager}
  * reference.
  * When {@link #run()} is invoked, {@link Ehcache#evictExpiredElements()}
- * is invoked on each cache.
+ * is invoked on each cache identified by the cacheNames field.
  * 
  * @author Nicholas Blair, npblair@wisc.edu
  *
  */
-public final class ExpiredElementEvictor implements Runnable {
+public final class ExpiredElementEvictor extends TimerTask implements InitializingBean {
 
 	private CacheManager cacheManager;
-	private Set<String> includedCacheNames = null;
-	private Set<String> excludedCacheNames = null;
+	private List<CacheNameMatcher> cacheNameMatchers = new ArrayList<CacheNameMatcher>();
+	private Set<String> cacheNames = new HashSet<String>();
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
+
 	/**
 	 * @param cacheManager the cacheManager to set
 	 */
@@ -46,47 +54,81 @@ public final class ExpiredElementEvictor implements Runnable {
 		this.cacheManager = cacheManager;
 	}
 	/**
-	 * @param includedCacheNames the includedCacheNames to set
+	 * @param cacheNameMatchers the cacheNameMatchers to set
 	 */
-	public void setIncludedCacheNames(Set<String> includedCacheNames) {
-		this.includedCacheNames = includedCacheNames;
-	}
-	/**
-	 * @param excludedCacheNames the excludedCacheNames to set
-	 */
-	public void setExcludedCacheNames(Set<String> excludedCacheNames) {
-		this.excludedCacheNames = excludedCacheNames;
+	public void setCacheNameMatchers(List<CacheNameMatcher> cacheNameMatchers) {
+		this.cacheNameMatchers = cacheNameMatchers;
 	}
 
-
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
+	/*
+	 * (non-Javadoc)
+	 * @see java.util.TimerTask#run()
 	 */
 	public void run() {
 		final long startTime = System.currentTimeMillis();
-		final String [] cacheNames = this.cacheManager.getCacheNames();
 
-		// TODO calculate union of cacheNames and includedCacheNames
-		// TODO and/or remove excludedCacheNames
-		
 		long evictedTotal = 0;
-		for(String cacheName : cacheNames) {
+		for(String cacheName : this.cacheNames) {
 			Ehcache cache = this.cacheManager.getEhcache(cacheName);
-			
-			long preEvictSize = cache.getMemoryStoreSize();
-			long evictStart = System.currentTimeMillis();
-			cache.evictExpiredElements();
-			
-			if(logger.isDebugEnabled()) {
-				long evicted = preEvictSize - cache.getMemoryStoreSize();
-				evictedTotal += evicted;
-				logger.debug("Evicted " + evicted + " elements from cache '" + cacheName + "' in " + (System.currentTimeMillis() - evictStart) + " ms");
+			if(null != cache) {
+				long preEvictSize = cache.getMemoryStoreSize();
+				long evictStart = System.currentTimeMillis();
+				cache.evictExpiredElements();
+				if(logger.isDebugEnabled()) {
+					long evicted = preEvictSize - cache.getMemoryStoreSize();
+					evictedTotal += evicted;
+					logger.debug("Evicted " + evicted + " elements from cache '" + cacheName + "' in " + (System.currentTimeMillis() - evictStart) + " ms");
+				}
+			} else {
+				if(logger.isDebugEnabled()) {
+					logger.debug("no cache found with name " + cacheName);
+				}
 			}
 		}
 
 		if(logger.isDebugEnabled()) {
-			logger.debug("Evicted " + evictedTotal + " elements from " + cacheNames.length + " caches  in " + (System.currentTimeMillis() - startTime) + " ms");
+			logger.debug("Evicted " + evictedTotal + " elements from " + cacheNames.size() + " caches  in " + (System.currentTimeMillis() - startTime) + " ms");
 		}
 	}
+	
+	/*
+	 * 
+	 */
+	public void afterPropertiesSet() throws Exception {
+		if(null == this.cacheManager) {
+			throw new IllegalStateException("cacheManager reference must be set");
+		}
+		
+		cacheNames = calculateEvictableCacheNames();
+			
+		cacheNames = Collections.unmodifiableSet(cacheNames);
+		
+	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	protected Set<String> calculateEvictableCacheNames() {
+		Set<String> result = new HashSet<String>();
+		// from the list of matchers, calculate the cacheNames set
+		final String [] cacheManagerCacheNames = this.cacheManager.getCacheNames();
+		for(String cacheManagerCacheName: cacheManagerCacheNames) {
+			Boolean status = null;
+			for(CacheNameMatcher matcher : this.cacheNameMatchers) {
+				status = matcher.matches(cacheManagerCacheName);
+				if(null == status) {
+					continue;
+				} else if (status) {
+					result.add(cacheManagerCacheName);
+					break;
+				} else {
+					result.remove(cacheManagerCacheName);
+					break;
+				}
+			}
+		}
+		
+		return result;
+	}
 }
