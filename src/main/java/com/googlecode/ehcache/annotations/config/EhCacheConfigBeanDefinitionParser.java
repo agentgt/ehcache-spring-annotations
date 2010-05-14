@@ -19,8 +19,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
@@ -32,14 +36,15 @@ import com.googlecode.ehcache.annotations.impl.ExpiredElementEvictor;
 
 /**
  * {@link BeanDefinitionParser} implementation to process the
- * "annotation-config" element.
+ * "config" element.
  * 
- * @author Nicholas Blair, npblair@wisc.edu
- *
+ * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @version $Id$
  */
 public final class EhCacheConfigBeanDefinitionParser implements
 BeanDefinitionParser {
 
+	private static final long MSEC_PER_MINUTE = 60000L;
 	public static final String XSD_ELEMENT__EVICT_EXPIRED_ELEMENTS = "evict-expired-elements";
 	public static final String XSD_ATTRIBUTE__INTERVAL = "interval";
 	public static final String XSD_ELEMENT__INCLUDE = "include";
@@ -47,30 +52,45 @@ BeanDefinitionParser {
 	public static final String XSD_ATTRIBUTE__NAME = "name";
 	public static final String XSD_ATTRIBUTE__PATTERN = "pattern";
 
-	public static final String EHCACHE_CONFIG_EVICTION_TIMER_BEAN_NAME = EhCacheConfigBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheEvictionTimer";
+	public static final String EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME = EhCacheConfigBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheEvictionTask";
 
-
+	public static final CacheNameMatcher INCLUDE_ALL_CACHE_NAME_MATCHER = new PatternCacheNameMatcherImpl(".*");
 	/* (non-Javadoc)
 	 * @see org.springframework.beans.factory.xml.BeanDefinitionParser#parse(org.w3c.dom.Element, org.springframework.beans.factory.xml.ParserContext)
 	 */
 	public BeanDefinition parse(final Element element, final ParserContext parserContext) {
 		final Object elementSource = parserContext.extractSource(element);
 
-		final NodeList evictExpiredElements = element.getElementsByTagName(XSD_ELEMENT__EVICT_EXPIRED_ELEMENTS);
+		final NodeList evictExpiredElements = element.getElementsByTagNameNS(element.getNamespaceURI(),XSD_ELEMENT__EVICT_EXPIRED_ELEMENTS);
 		if (evictExpiredElements.getLength() > 1) {
 			throw new BeanCreationException("Only one '" + XSD_ELEMENT__EVICT_EXPIRED_ELEMENTS + "' is allowed");
 		}
 
-		if (evictExpiredElements.getLength() == 1) {
+		final int evictExpiredElementsLength = evictExpiredElements.getLength();
+		if (evictExpiredElementsLength == 1) {
 			final Element evictExpiredElement = (Element)evictExpiredElements.item(0);
 
 			final int interval = Integer.parseInt(evictExpiredElement.getAttribute(XSD_ATTRIBUTE__INTERVAL));
+			final long longInterval = MSEC_PER_MINUTE * ((long) interval);
 
 			List<CacheNameMatcher> cacheNameMatchers = parseEvictExpiredElement(evictExpiredElement);
 
-			// make RuntimeBeanReference for cacheNameMatchers
-			// make RuntimeBeanReference for ExpiredElementEvictor instance, wire cacheNameMatchers reference and 
-			// make RuntimeBeanReference for Timer instance
+			// get RuntimeBeanReference for cacheManager
+			final RuntimeBeanReference cacheManagerReference = new RuntimeBeanReference(element.getAttribute(AnnotationDrivenEhCacheBeanDefinitionParser.XSD_ATTR__CACHE_MANAGER));
+
+			// make RootBeanDefinition, RuntimeBeanReference for ExpiredElementEvictor instance, wire cacheNameMatchers reference and 
+			final RootBeanDefinition expiredElementEvictor = new RootBeanDefinition(ExpiredElementEvictor.class);
+			expiredElementEvictor.setSource(elementSource);
+			expiredElementEvictor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+
+			final MutablePropertyValues propertyValues = expiredElementEvictor.getPropertyValues();
+			propertyValues.addPropertyValue("cacheManager", cacheManagerReference);
+			propertyValues.addPropertyValue("cacheNameMatchers", cacheNameMatchers);
+			propertyValues.addPropertyValue("interval", longInterval);
+
+			// register expiredElementEvictor
+			final BeanDefinitionRegistry registry = parserContext.getRegistry();
+			registry.registerBeanDefinition(EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME, expiredElementEvictor);
 		}
 
 		return null;
@@ -85,36 +105,52 @@ BeanDefinitionParser {
 		List<CacheNameMatcher> cacheNameMatchers = new ArrayList<CacheNameMatcher>();
 		final NodeList childNodes = evictExpiredElement.getChildNodes();
 		final int childNodesLength = childNodes.getLength();
-		if(0 == childNodesLength) {
-			CacheNameMatcher includeAll = new PatternCacheNameMatcherImpl(".*");
-			cacheNameMatchers = Collections.singletonList(includeAll);
-		} else {
-			for (int index = 0; index < childNodes.getLength(); index++) {
+		boolean configContainsExcludes = false;
+		boolean configContainsIncludes = false;
+		if(0 != childNodesLength) {
+			for (int index = 0; index < childNodesLength; index++) {
 				final Node childNode = childNodes.item(index);
-				final String childName = childNode.getLocalName();
-				NamedNodeMap childAttributes = childNode.getAttributes();
-				Node nameAttr = childAttributes.getNamedItem(XSD_ATTRIBUTE__NAME);
-				CacheNameMatcher matcher = null;
-				if(null != nameAttr) {
-					String matcherValue = nameAttr.getTextContent();
-					matcher = new ExactCacheNameMatcherImpl(matcherValue);
-				} else {
-					Node patternAttr = childAttributes.getNamedItem(XSD_ATTRIBUTE__PATTERN);
-					if(null != patternAttr) {
-						String matcherValue = patternAttr.getTextContent();
-						matcher = new PatternCacheNameMatcherImpl(matcherValue);
+				if(Node.ELEMENT_NODE == childNode.getNodeType()) {
+					final String childName = childNode.getLocalName();
+					NamedNodeMap childAttributes = childNode.getAttributes();
+					Node nameAttr = childAttributes.getNamedItem(XSD_ATTRIBUTE__NAME);
+					CacheNameMatcher matcher = null;
+					if(null != nameAttr) {
+						String matcherValue = nameAttr.getTextContent();
+						matcher = new ExactCacheNameMatcherImpl(matcherValue);
+					} else {
+						Node patternAttr = childAttributes.getNamedItem(XSD_ATTRIBUTE__PATTERN);
+						if(null != patternAttr) {
+							String matcherValue = patternAttr.getTextContent();
+							matcher = new PatternCacheNameMatcherImpl(matcherValue);
+						}
 					}
-				}
 
-				if(null != matcher) {
-					if(XSD_ELEMENT__INCLUDE.equals(childName)) {
-						cacheNameMatchers.add(matcher);
-					} else if(XSD_ELEMENT__EXCLUDE.equals(childName)) {
-						cacheNameMatchers.add(new NotCacheNameMatcherImpl(matcher));
+					if(null != matcher) {
+						if(XSD_ELEMENT__INCLUDE.equals(childName)) {
+							cacheNameMatchers.add(matcher);
+							configContainsIncludes = true;
+						} else if(XSD_ELEMENT__EXCLUDE.equals(childName)) {
+							cacheNameMatchers.add(new NotCacheNameMatcherImpl(matcher));
+							configContainsExcludes = true;
+						}
 					}
 				}
 			}
+		} 
+		
+		if(0 == cacheNameMatchers.size()) {
+			// no include/exclude elements found
+			cacheNameMatchers = Collections.singletonList(INCLUDE_ALL_CACHE_NAME_MATCHER);
+		} else if(!configContainsIncludes && configContainsExcludes) {
+			//config contains excludes only
+			// create a new list with a Include all matcher at the front
+			List<CacheNameMatcher> newList = new ArrayList<CacheNameMatcher>();
+			newList.add(INCLUDE_ALL_CACHE_NAME_MATCHER);
+			newList.addAll(cacheNameMatchers);
+			cacheNameMatchers = newList;
 		}
+		
 		return Collections.unmodifiableList(cacheNameMatchers);
 	}
 }
