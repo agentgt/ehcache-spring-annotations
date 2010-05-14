@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
 import java.util.TimerTask;
 
 import net.sf.ehcache.CacheManager;
@@ -27,6 +28,7 @@ import net.sf.ehcache.Ehcache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.googlecode.ehcache.annotations.config.CacheNameMatcher;
@@ -40,10 +42,12 @@ import com.googlecode.ehcache.annotations.config.CacheNameMatcher;
  * @author Nicholas Blair, npblair@wisc.edu
  *
  */
-public final class ExpiredElementEvictor extends TimerTask implements InitializingBean {
+public final class ExpiredElementEvictor extends TimerTask implements InitializingBean, DisposableBean {
 
 	private CacheManager cacheManager;
 	private List<CacheNameMatcher> cacheNameMatchers = new ArrayList<CacheNameMatcher>();
+	private Timer timer;
+	private long interval;
 	private Set<String> cacheNames = new HashSet<String>();
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -59,7 +63,30 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
 	public void setCacheNameMatchers(List<CacheNameMatcher> cacheNameMatchers) {
 		this.cacheNameMatchers = cacheNameMatchers;
 	}
-
+	/**
+	 * @param interval the interval to set
+	 */
+	public void setInterval(long interval) {
+		this.interval = interval;
+	}
+	/**
+	 * @return the cacheNames
+	 */
+	public Set<String> getCacheNames() {
+		return cacheNames;
+	}
+	/**
+	 * @return the cacheNameMatchers
+	 */
+	public List<CacheNameMatcher> getCacheNameMatchers() {
+		return cacheNameMatchers;
+	}
+	/**
+	 * @return the interval
+	 */
+	public long getInterval() {
+		return interval;
+	}
 	/*
 	 * (non-Javadoc)
 	 * @see java.util.TimerTask#run()
@@ -92,7 +119,8 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
 	}
 	
 	/*
-	 * 
+	 * (non-Javadoc)
+	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
 	 */
 	public void afterPropertiesSet() throws Exception {
 		if(null == this.cacheManager) {
@@ -100,11 +128,18 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
 		}
 		
 		cacheNames = calculateEvictableCacheNames();
-			
 		cacheNames = Collections.unmodifiableSet(cacheNames);
 		
+		timer = new Timer(this.cacheManager.getName() + "expiredElementEvictorTimer", true);
+		timer.schedule(this, interval, interval);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.springframework.beans.factory.DisposableBean#destroy()
+	 */
+	public void destroy() throws Exception {
+		this.timer.cancel();
+	}
 	/**
 	 * 
 	 * @return
