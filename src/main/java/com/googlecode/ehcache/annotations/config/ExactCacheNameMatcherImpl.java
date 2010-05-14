@@ -47,7 +47,8 @@ public class ExactCacheNameMatcherImpl implements CacheNameMatcher {
 	 * @see com.googlecode.ehcache.annotations.config.CacheNameMatcher#matches(java.lang.String)
 	 */
 	public Boolean matches(String cacheName) {
-		return this.name.equals(cacheName) ? true : null;
+		boolean result = this.name.equals(cacheName);
+		return result ? Boolean.TRUE : null;
 	}
 	
 	/**

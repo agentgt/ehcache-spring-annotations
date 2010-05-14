@@ -56,7 +56,8 @@ public class PatternCacheNameMatcherImpl implements CacheNameMatcher {
 	 */
 	public Boolean matches(String cacheName) {
 		Matcher m = this.pattern.matcher(cacheName);
-		return m.matches() ? true : null;
+		boolean result = m.matches();
+		return result ? Boolean.TRUE : null;
 	}
 
 	/**
