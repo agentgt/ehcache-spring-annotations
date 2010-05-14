@@ -154,7 +154,8 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         cacheAttributeSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         
         final MutablePropertyValues propertyValues = cacheAttributeSource.getPropertyValues();
-        propertyValues.addPropertyValue("cacheManagerBeanName", element.getAttribute(XSD_ATTR__CACHE_MANAGER));
+        RuntimeBeanReference cacheManagerReference = new RuntimeBeanReference(element.getAttribute(XSD_ATTR__CACHE_MANAGER));
+        propertyValues.addPropertyValue("cacheManager", cacheManagerReference);
         propertyValues.addPropertyValue("createCaches", Boolean.parseBoolean(element.getAttribute(XSD_ATTR__CREATE_MISSING_CACHES)));
         propertyValues.addPropertyValue("defaultCacheKeyGenerator", defaultCacheKeyGenerator);
         final String blockingCacheScope = element.getAttribute(XSD_ATTR__SELF_POPULATING_CACHE_SCOPE);

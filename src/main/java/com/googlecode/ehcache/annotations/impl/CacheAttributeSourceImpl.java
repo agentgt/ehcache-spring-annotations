@@ -39,7 +39,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
@@ -69,7 +68,7 @@ import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFactoryAware {
+public class CacheAttributeSourceImpl implements CacheAttributeSource {
     /**
      * Logger available to subclasses.
      */
@@ -86,7 +85,6 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     
     private CacheManager cacheManager;
     private BeanFactory beanFactory;
-    private String cacheManagerBeanName;
     private boolean createCaches = false;
     private CacheKeyGenerator<? extends Serializable> defaultCacheKeyGenerator;
     private SelfPopulatingCacheScope selfPopulatingCacheScope = SelfPopulatingCacheScope.SHARED;
@@ -94,9 +92,6 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
         this.cacheKeyBeanFactory = new DefaultListableBeanFactory(this.beanFactory);
-    }
-    public void setCacheManagerBeanName(String cacheManagerBeanName) {
-        this.cacheManagerBeanName = cacheManagerBeanName;
     }
     public void setCreateCaches(boolean createCaches) {
         this.createCaches = createCaches;
@@ -107,9 +102,10 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
 	public void setSelfPopulatingCacheScope(SelfPopulatingCacheScope selfPopulatingCacheScope) {
         this.selfPopulatingCacheScope = selfPopulatingCacheScope;
     }
-	
-	
-    /* (non-Javadoc)
+	public void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
+	}
+	/* (non-Javadoc)
      * @see com.googlecode.ehcache.annotations.CacheAttributeSource#getAdviceType(java.lang.reflect.Method, java.lang.Class)
      */
     public AdviceType getAdviceType(Method method, Class<?> targetClass) {
@@ -199,21 +195,9 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     }
     
     /**
-     * Looks up the CacheManager by the configured cacheManagerBeanName if set. If not set calls
-     * {@link BeanFactory#getBean(Class)} to locate a CacheManager.
-     * 
-     * @return The lazy-loaded CacheManager.
+     * @return The injected CacheManager.
      */
     protected CacheManager getCacheManager() {
-        if (this.cacheManager == null) {
-            if (this.cacheManagerBeanName != null) {
-                this.cacheManager = this.beanFactory.getBean(this.cacheManagerBeanName, CacheManager.class);
-            }
-            else {
-                this.cacheManager = this.beanFactory.getBean(CacheManager.class);
-            }
-        }
-        
         return this.cacheManager;
     }
 
