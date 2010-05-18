@@ -43,15 +43,15 @@ public class PatternCacheNameMatcherImplTest {
 	@Test
 	public void testControl() {
 		PatternCacheNameMatcherImpl m = new PatternCacheNameMatcherImpl("foo");
-		Assert.assertTrue(m.matches("foo"));
-		Assert.assertNull(m.matches("bar"));
+		Assert.assertEquals(Vote.YEA, m.matches("foo"));
+		Assert.assertEquals(Vote.ABSTAIN, m.matches("bar"));
 	}
 	
 	@Test
 	public void testMatches() {
 		PatternCacheNameMatcherImpl m = new PatternCacheNameMatcherImpl("(foo)|(bar)");
-		Assert.assertTrue(m.matches("foo"));
-		Assert.assertTrue(m.matches("bar"));
-		Assert.assertNull(m.matches("baz"));
+		Assert.assertEquals(Vote.YEA, m.matches("foo"));
+		Assert.assertEquals(Vote.YEA, m.matches("bar"));
+		Assert.assertEquals(Vote.ABSTAIN, m.matches("baz"));
 	}
 }

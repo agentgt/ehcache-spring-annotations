@@ -13,25 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/**
- * 
- */
 package com.googlecode.ehcache.annotations.config;
 
 /**
- * Interface that defines a voting mechanism for matching cache names.
+ * Enum to represent the result of the {@link CacheNameMatcher#matches(String)} method.
  * 
  * @author Nicholas Blair, nblair@doit.wisc.edu
  * @version $Id$
  */
-public interface CacheNameMatcher {
+public enum Vote {
 
+	YEA,
+	NAY,
+	ABSTAIN;
+	
 	/**
+	 * If the argument equals {@link Vote#ABSTAIN}, return {@link Vote#ABSTAIN}.
+	 * Otherwise, return the opposite:
+	 * <ul>
+	 * <li>{@link Vote#YEA} returns {@link Vote#NAY}</li>
+	 * <li>{@link Vote#NAY} returns {@link Vote#YEA}</li>
+	 * </ul>
 	 * 
-	 * 
-	 * @param cacheName
-	 * @return {@link Vote#YEA} if this should definitely be included, {@link Vote#NAY} if definitely excluded, or {@link Vote#ABSTAIN} if impl has no opinion
+	 * @param vote
+	 * @return
 	 */
-	Vote matches(String cacheName);
+	public static Vote not(final Vote vote) {
+		if(ABSTAIN.equals(vote)) {
+			return ABSTAIN;
+		}
+		else if (YEA.equals(vote)) {
+			return NAY;
+		}
+		else {
+			return YEA;
+		}
+	}
 }

@@ -21,11 +21,11 @@ package com.googlecode.ehcache.annotations.config;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * {@link CacheNameMatcher} that delegates to a {@link Pattern}.
  * 
+ * @see Pattern
  * @author Nicholas Blair, nblair@doit.wisc.edu
  * @version $Id$
  */
@@ -45,7 +45,7 @@ public class PatternCacheNameMatcherImpl implements CacheNameMatcher {
 	 * 
 	 * @see Pattern#compile(String)
 	 * @param regex
-	 * @throws PatternSyntaxException 
+	 * @throws java.util.regex.PatternSyntaxException if the regex is invalid
 	 */
 	public PatternCacheNameMatcherImpl(String regex) {
 		this.pattern = Pattern.compile(regex);
@@ -54,10 +54,10 @@ public class PatternCacheNameMatcherImpl implements CacheNameMatcher {
 	/* (non-Javadoc)
 	 * @see com.googlecode.ehcache.annotations.config.CacheNameMatcher#matches(java.lang.String)
 	 */
-	public Boolean matches(String cacheName) {
+	public Vote matches(String cacheName) {
 		Matcher m = this.pattern.matcher(cacheName);
 		boolean result = m.matches();
-		return result ? Boolean.TRUE : null;
+		return result ? Vote.YEA : Vote.ABSTAIN;
 	}
 
 	/**

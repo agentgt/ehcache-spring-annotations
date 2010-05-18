@@ -41,14 +41,15 @@ public class ExactCacheNameMatcherImpl implements CacheNameMatcher {
 		this.name = name;
 	}
 	/**
-	 * Returns true if the name field {@link String#equals(Object)} the cacheName argument,
-	 * null otherwise.
+	 * Returns {@link Vote#YEA} if the name field {@link String#equals(Object)} the cacheName argument,
+	 * {@link Vote#ABSTAIN} otherwise.
+	 * 
 	 * @see String#equals(Object)
 	 * @see com.googlecode.ehcache.annotations.config.CacheNameMatcher#matches(java.lang.String)
 	 */
-	public Boolean matches(String cacheName) {
+	public Vote matches(String cacheName) {
 		boolean result = this.name.equals(cacheName);
-		return result ? Boolean.TRUE : null;
+		return result ? Vote.YEA : Vote.ABSTAIN;
 	}
 	
 	/**

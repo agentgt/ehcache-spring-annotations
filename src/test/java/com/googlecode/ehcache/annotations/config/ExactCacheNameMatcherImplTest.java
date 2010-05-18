@@ -30,7 +30,7 @@ public class ExactCacheNameMatcherImplTest {
 	@Test
 	public void testMatches() {
 		ExactCacheNameMatcherImpl m = new ExactCacheNameMatcherImpl("foo");
-		Assert.assertTrue(m.matches("foo"));
-		Assert.assertNull(m.matches("bar"));
+		Assert.assertEquals(Vote.YEA, m.matches("foo"));
+		Assert.assertEquals(Vote.ABSTAIN, m.matches("bar"));
 	}
 }

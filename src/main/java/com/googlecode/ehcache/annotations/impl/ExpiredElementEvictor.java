@@ -32,9 +32,10 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.googlecode.ehcache.annotations.config.CacheNameMatcher;
+import com.googlecode.ehcache.annotations.config.Vote;
 
 /**
- * {@link Runnable} implementation that depends on a {@link CacheManager}
+ * {@link TimerTask} implementation that depends on a {@link CacheManager}
  * reference.
  * When {@link #run()} is invoked, {@link Ehcache#evictExpiredElements()}
  * is invoked on each cache identified by the cacheNames field.
@@ -149,12 +150,12 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
 		Set<String> result = new HashSet<String>();
 		// from the list of matchers, calculate the cacheNames set
 		for(String cacheManagerCacheName: cacheManagerCacheNames) {
-			Boolean status = null;
+			Vote vote = null;
 			for(CacheNameMatcher matcher : this.cacheNameMatchers) {
-				status = matcher.matches(cacheManagerCacheName);
-				if(null == status) {
+				vote = matcher.matches(cacheManagerCacheName);
+				if(Vote.ABSTAIN.equals(vote)) {
 					continue;
-				} else if (status) {
+				} else if (Vote.YEA.equals(vote)) {
 					result.add(cacheManagerCacheName);
 				} else {
 					result.remove(cacheManagerCacheName);
