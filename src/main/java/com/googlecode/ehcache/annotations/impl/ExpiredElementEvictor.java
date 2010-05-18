@@ -91,7 +91,8 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
 	 * (non-Javadoc)
 	 * @see java.util.TimerTask#run()
 	 */
-	public void run() {
+	@Override
+    public void run() {
 		final long startTime = System.currentTimeMillis();
 
 		long evictedTotal = 0;
