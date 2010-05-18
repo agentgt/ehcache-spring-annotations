@@ -71,7 +71,7 @@ BeanDefinitionParser {
 			final Element evictExpiredElement = (Element)evictExpiredElements.item(0);
 
 			final int interval = Integer.parseInt(evictExpiredElement.getAttribute(XSD_ATTRIBUTE__INTERVAL));
-			final long longInterval = MSEC_PER_MINUTE * ((long) interval);
+			final long longInterval = MSEC_PER_MINUTE * interval;
 
 			List<CacheNameMatcher> cacheNameMatchers = parseEvictExpiredElement(evictExpiredElement);
 
