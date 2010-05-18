@@ -39,6 +39,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
@@ -68,7 +69,7 @@ import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class CacheAttributeSourceImpl implements CacheAttributeSource {
+public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFactoryAware {
     /**
      * Logger available to subclasses.
      */
