@@ -50,9 +50,9 @@ public final class NotCacheNameMatcherImpl implements CacheNameMatcher {
 		Boolean result = this.wrapped.matches(cacheName);
 		if(null != result) {
 			return !result;
-		} else {
-			return null;
 		}
+		
+		return null;
 	}
 	/**
 	 * @return the wrapped {@link CacheNameMatcher}
