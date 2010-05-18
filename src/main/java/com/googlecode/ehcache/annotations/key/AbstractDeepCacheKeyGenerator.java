@@ -45,7 +45,7 @@ import com.googlecode.ehcache.annotations.util.guice.ReferenceType;
  * @version $Revision$
  */
 public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> extends AbstractCacheKeyGenerator<T> {
-    static final Map<Class<?>, Set<ImplementsMethod>> IMPLEMENTS_CACHE = new ReferenceMap<Class<?>, Set<ImplementsMethod>>(ReferenceType.WEAK, ReferenceType.STRONG);
+    private static final ReferenceMap<Class<?>, Set<ImplementsMethod>> IMPLEMENTS_CACHE = new ReferenceMap<Class<?>, Set<ImplementsMethod>>(ReferenceType.WEAK, ReferenceType.STRONG);
     private enum ImplementsMethod {
         HASH_CODE,
         EQUALS,
@@ -436,5 +436,15 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
      * want to be aware of the tree structure of the object graph.
      */
     protected void endRecursion(G generator, Object e) {
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + " [" +
+                "includeMethod=" + isIncludeMethod() + ", " +
+                "includeParameterTypes="+ isIncludeParameterTypes() + ", " + 
+                "useReflection=" + isUseReflection() + ", " +
+                "checkforCycles="+ isCheckforCycles() + 
+                "]";
     }
 }
