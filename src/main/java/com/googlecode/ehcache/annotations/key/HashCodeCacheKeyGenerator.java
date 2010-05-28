@@ -27,8 +27,8 @@ public class HashCodeCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<Has
      */
     public static final String DEFAULT_BEAN_NAME = "com.googlecode.ehcache.annotations.key.HashCodeCacheKeyGenerator.DEFAULT_BEAN_NAME";
     
-    protected static final int INITIAL_HASH = 1;
-    protected static final int MULTIPLIER = 31;
+    protected static final long INITIAL_HASH = 1;
+    protected static final long MULTIPLIER = 31;
     
     /**
      * Little utility class to fake a mutable long
