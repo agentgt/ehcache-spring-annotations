@@ -57,4 +57,13 @@ public @interface TriggersRemove {
      * If this and {@link #keyGeneratorName()} are not specified the default generator will be used.  
      */
     KeyGenerator keyGenerator() default @KeyGenerator(name = "");
+    
+    /**
+     * Used to specify 'when' to run the ehcache remove call:
+     * before or after method invocation.
+     * If you specify {@link When#AFTER_METHOD_INVOCATION} and your method invocation throws
+     * an exception, the ehcache remove call WILL NOT execute.
+     * Default value is {@link When#BEFORE_METHOD_INVOCATION}.
+     */
+    When when() default When.BEFORE_METHOD_INVOCATION;
 }

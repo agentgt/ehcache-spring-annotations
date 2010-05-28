@@ -14,32 +14,16 @@
  * limitations under the License.
  */
 
-/**
- * 
- */
 package com.googlecode.ehcache.annotations;
 
-
-import net.sf.ehcache.Ehcache;
-
-
 /**
- * Represents the objects needed to intercept calls to methods annotated
- * with {@link TriggersRemove}
+ * Simple enum to describe 'when' an action should occur (before or after method invocation).
  * 
- * @author Nicholas Blair, npblair@wisc.edu
- *
+ * @author Nicholas Blair, nicholas.blair@gmail.com
+ * @version $Id$
  */
-public interface TriggersRemoveAttribute extends MethodAttribute {
-    /**
-     * @return true if {@link Ehcache#removeAll()} should be called.
-     */
-    public boolean isRemoveAll();
-    
-    
-   /**
-    * 
-    * @return 'when' to run the removeall (before or after the method invocation)
-    */
-    public When when();
+public enum When {
+
+	BEFORE_METHOD_INVOCATION,
+	AFTER_METHOD_INVOCATION;
 }

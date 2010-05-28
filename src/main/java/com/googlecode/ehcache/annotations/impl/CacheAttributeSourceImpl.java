@@ -377,7 +377,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         final KeyGenerator keyGenerator = ann.keyGenerator();
         final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = getCacheKeyGenerator(keyGeneratorName, keyGenerator);
         
-        return new TriggersRemoveAttributeImpl(cache, cacheKeyGenerator, ann.removeAll());
+        return new TriggersRemoveAttributeImpl(cache, cacheKeyGenerator, ann.removeAll(), ann.when());
     }
     
     /**
