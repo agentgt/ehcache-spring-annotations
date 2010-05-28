@@ -22,7 +22,7 @@ package com.googlecode.ehcache.annotations.config;
 /**
  * Interface that defines a voting mechanism for matching cache names.
  * 
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 public interface CacheNameMatcher {

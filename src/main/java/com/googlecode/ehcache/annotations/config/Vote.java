@@ -18,7 +18,7 @@ package com.googlecode.ehcache.annotations.config;
 /**
  * Enum to represent the result of the {@link CacheNameMatcher#matches(String)} method.
  * 
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 public enum Vote {

@@ -32,7 +32,7 @@ import com.googlecode.ehcache.annotations.config.NotCacheNameMatcherImpl;
 /**
  * Tests for {@link ExpiredElementEvictor}.
  * 
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 public class ExpiredElementEvictorTest {

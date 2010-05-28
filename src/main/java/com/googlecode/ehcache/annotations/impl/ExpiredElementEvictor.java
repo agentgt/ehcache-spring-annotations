@@ -40,7 +40,7 @@ import com.googlecode.ehcache.annotations.config.Vote;
  * When {@link #run()} is invoked, {@link Ehcache#evictExpiredElements()}
  * is invoked on each cache identified by the cacheNames field.
  * 
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 public final class ExpiredElementEvictor extends TimerTask implements InitializingBean, DisposableBean {

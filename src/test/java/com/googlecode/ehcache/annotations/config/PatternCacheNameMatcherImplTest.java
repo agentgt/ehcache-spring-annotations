@@ -24,7 +24,7 @@ import org.junit.Test;
 /**
  * Tests for {@link PatternCacheNameMatcherImpl}.
  * 
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 public class PatternCacheNameMatcherImplTest {

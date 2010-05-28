@@ -20,7 +20,7 @@ package com.googlecode.ehcache.annotations;
 /**
  * Base runtime exception for this project.
  * 
- * @author Nicholas Blair, npblair@wisc.edu
+ * @author Nicholas Blair
  * @version $Revision$
  */
 public abstract class CacheException extends RuntimeException {

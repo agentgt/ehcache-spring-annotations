@@ -20,7 +20,7 @@ import com.googlecode.ehcache.annotations.Cacheable;
 
 /**
  *
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 public class MissingCacheNameImpl {

@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  * {@link CacheNameMatcher} that delegates to a {@link Pattern}.
  * 
  * @see Pattern
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 public class PatternCacheNameMatcherImpl implements CacheNameMatcher {

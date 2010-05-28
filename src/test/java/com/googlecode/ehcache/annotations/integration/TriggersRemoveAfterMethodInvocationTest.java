@@ -35,7 +35,7 @@ import com.googlecode.ehcache.annotations.util.ThreadGroupRunner;
 /**
  * Test harness for {@link TriggersRemove} with {@link When#AFTER_METHOD_INVOCATION}.
  * 
- * @author Nicholas Blair, nicholas.blair@gmail.com
+ * @author Nicholas Blair
  * @version $Id$
  */
 @RunWith(SpringJUnit4ClassRunner.class)

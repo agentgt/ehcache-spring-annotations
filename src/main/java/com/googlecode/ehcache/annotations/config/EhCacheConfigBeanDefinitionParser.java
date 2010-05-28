@@ -38,7 +38,7 @@ import com.googlecode.ehcache.annotations.impl.ExpiredElementEvictor;
  * {@link BeanDefinitionParser} implementation to process the
  * "config" element.
  * 
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 public final class EhCacheConfigBeanDefinitionParser implements

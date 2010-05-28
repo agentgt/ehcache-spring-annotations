@@ -21,7 +21,7 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  *
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {

@@ -55,7 +55,7 @@ import com.googlecode.ehcache.annotations.key.StringCacheKeyGenerator;
  * instances to wrap {@link EhCacheInterceptor}s around {@link Cacheable}s and {@link TriggersRemove}
  * advised methods.
  * 
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 @SuppressWarnings("deprecation")

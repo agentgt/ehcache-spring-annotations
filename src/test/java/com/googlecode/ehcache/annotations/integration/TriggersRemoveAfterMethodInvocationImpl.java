@@ -26,7 +26,7 @@ import com.googlecode.ehcache.annotations.When;
 /**
  * Single use test dao for {@link TriggersRemoveAfterMethodInvocationTest}.
  * 
- * @author Nicholas Blair, nicholas.blair@gmail.com
+ * @author Nicholas Blair
  * @version $Id$
  */
 public class TriggersRemoveAfterMethodInvocationImpl {

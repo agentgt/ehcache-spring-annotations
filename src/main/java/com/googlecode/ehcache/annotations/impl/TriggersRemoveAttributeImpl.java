@@ -31,7 +31,7 @@ import net.sf.ehcache.Ehcache;
 /**
  * Basic pojo style impl of {@link TriggersRemoveAttribute}
  * 
- * @author Nicholas Blair, npblair@wisc.edu
+ * @author Nicholas Blair
  * @version $Revision$
  */
 class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {

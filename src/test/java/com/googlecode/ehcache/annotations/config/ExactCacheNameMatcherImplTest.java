@@ -22,7 +22,7 @@ import org.junit.Test;
 /**
  * Tests for {@link ExactCacheNameMatcherImpl}.
  * 
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 public class ExactCacheNameMatcherImplTest {

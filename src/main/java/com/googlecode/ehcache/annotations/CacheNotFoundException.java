@@ -20,7 +20,7 @@ package com.googlecode.ehcache.annotations;
 /**
  * Raised when no cache can be found with the specified name.
  * 
- * @author Nicholas Blair, npblair@wisc.edu
+ * @author Nicholas Blair
  * @author Eric Dalquist
  * @version $Revision$
  */

@@ -37,7 +37,7 @@ import com.googlecode.ehcache.annotations.impl.ExpiredElementEvictor;
 /**
  * Tests for {@link EhCacheConfigBeanDefinitionParser}.
  * 
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 @RunWith(SpringJUnit4ClassRunner.class)

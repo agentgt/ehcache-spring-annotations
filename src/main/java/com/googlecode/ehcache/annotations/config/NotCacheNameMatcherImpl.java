@@ -24,7 +24,7 @@ package com.googlecode.ehcache.annotations.config;
  * and performs a logical NOT on the result of the wrapped {@link #matches(String)} method
  * if not null.
  * 
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 public final class NotCacheNameMatcherImpl implements CacheNameMatcher {

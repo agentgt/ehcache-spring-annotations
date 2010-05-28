@@ -19,7 +19,7 @@ package com.googlecode.ehcache.annotations;
 /**
  * Simple enum to describe 'when' an action should occur (before or after method invocation).
  * 
- * @author Nicholas Blair, nicholas.blair@gmail.com
+ * @author Nicholas Blair
  * @version $Id$
  */
 public enum When {

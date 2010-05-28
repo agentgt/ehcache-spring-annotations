@@ -27,7 +27,7 @@ import net.sf.ehcache.Ehcache;
  * Represents the objects needed to intercept calls to methods annotated
  * with {@link TriggersRemove}
  * 
- * @author Nicholas Blair, npblair@wisc.edu
+ * @author Nicholas Blair
  *
  */
 public interface TriggersRemoveAttribute extends MethodAttribute {

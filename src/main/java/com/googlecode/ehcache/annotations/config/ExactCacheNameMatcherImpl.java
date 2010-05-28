@@ -23,7 +23,7 @@ package com.googlecode.ehcache.annotations.config;
  * Implementation of {@link CacheNameMatcher} for
  * matching a specific name.
  * 
- * @author Nicholas Blair, nblair@doit.wisc.edu
+ * @author Nicholas Blair
  * @version $Id$
  */
 public class ExactCacheNameMatcherImpl implements CacheNameMatcher {
