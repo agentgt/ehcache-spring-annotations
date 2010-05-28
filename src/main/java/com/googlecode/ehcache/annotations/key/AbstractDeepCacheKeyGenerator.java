@@ -45,7 +45,7 @@ import com.googlecode.ehcache.annotations.util.guice.ReferenceType;
  * @version $Revision$
  */
 public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> extends AbstractCacheKeyGenerator<T> {
-    private static final ReferenceMap<Class<?>, Set<ImplementsMethod>> IMPLEMENTS_CACHE = new ReferenceMap<Class<?>, Set<ImplementsMethod>>(ReferenceType.WEAK, ReferenceType.STRONG);
+    static final ReferenceMap<Class<?>, Set<ImplementsMethod>> IMPLEMENTS_CACHE = new ReferenceMap<Class<?>, Set<ImplementsMethod>>(ReferenceType.WEAK, ReferenceType.STRONG);
     private enum ImplementsMethod {
         HASH_CODE,
         EQUALS,
