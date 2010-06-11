@@ -46,4 +46,8 @@ public interface CacheableTestInterface {
     public String enumParameter(TimeUnit timeUnit);
     public int enumParameterCount();
     
+    @Cacheable(cacheName="interfaceAnnotatedArrayReturn")
+    public String[] arrayReturn(String a, String b);
+    public int arrayReturnCount();
+    
 }

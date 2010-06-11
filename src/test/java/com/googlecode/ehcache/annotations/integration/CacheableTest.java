@@ -140,6 +140,29 @@ public class CacheableTest {
         Assert.assertEquals("enumParameter(MINUTES)", cacheableTestInterface.enumParameter(TimeUnit.MINUTES));
         Assert.assertEquals(3, cacheableTestInterface.enumParameterCount());
     }
+
+    @Test
+    public void testArrayReturnCaching() {
+        Assert.assertEquals(0, cacheableTestInterface.arrayReturnCount());
+        
+        Assert.assertArrayEquals(new String[] {"a", "b"}, cacheableTestInterface.arrayReturn("a", "b"));
+        Assert.assertEquals(1, cacheableTestInterface.arrayReturnCount());
+        
+        Assert.assertArrayEquals(new String[] {"a", "b"}, cacheableTestInterface.arrayReturn("a", "b"));
+        Assert.assertEquals(1, cacheableTestInterface.arrayReturnCount());
+        
+        Assert.assertArrayEquals(new String[] {"a", "c"}, cacheableTestInterface.arrayReturn("a", "c"));
+        Assert.assertEquals(2, cacheableTestInterface.arrayReturnCount());
+        
+        Assert.assertArrayEquals(new String[] {"a", "c"}, cacheableTestInterface.arrayReturn("a", "c"));
+        Assert.assertEquals(2, cacheableTestInterface.arrayReturnCount());
+        
+        Assert.assertArrayEquals(new String[] {null, "b"}, cacheableTestInterface.arrayReturn(null, "b"));
+        Assert.assertEquals(3, cacheableTestInterface.arrayReturnCount());
+        
+        Assert.assertArrayEquals(new String[] {null, "b"}, cacheableTestInterface.arrayReturn(null, "b"));
+        Assert.assertEquals(3, cacheableTestInterface.arrayReturnCount());
+    }
 }
 
 

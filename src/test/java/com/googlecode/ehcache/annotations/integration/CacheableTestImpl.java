@@ -32,6 +32,7 @@ public class CacheableTestImpl implements CacheableTestInterface {
     private int interfaceAnnotatedNoArgCachedCount = 0;
     private int interfaceDefinedCount = 0;
     private int enumParameterCount = 0;
+    private int arrayReturnCount = 0;
     
     public String interfaceAnnotatedExceptionCached(boolean throwsException) {
         if (throwsException) {
@@ -87,4 +88,15 @@ public class CacheableTestImpl implements CacheableTestInterface {
     public int enumParameterCount() {
         return this.enumParameterCount;
     }
+
+    public String[] arrayReturn(String a, String b) {
+        this.arrayReturnCount++;
+        return new String[] {a, b};
+    }
+
+    public int arrayReturnCount() {
+        return this.arrayReturnCount;
+    }
+    
+    
 }
