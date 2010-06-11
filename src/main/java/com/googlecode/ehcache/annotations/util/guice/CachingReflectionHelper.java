@@ -44,10 +44,9 @@ public final class CachingReflectionHelper implements DisposableBean, Reflection
     private final Map<Class<?>, Set<ImplementsMethod>> implementsCache = new ReferenceMap<Class<?>, Set<ImplementsMethod>>(ReferenceType.WEAK, ReferenceType.STRONG, this.referenceQueue);
     private final Thread cleanupThread;
     private final AtomicBoolean running = new AtomicBoolean(false);
-    private String threadName = null;
 
     public CachingReflectionHelper() {
-        this.cleanupThread = new Thread("CachingReflectionHelper_CleanupThread" + (this.threadName != null ? "-" + this.threadName : "")) {
+        this.cleanupThread = new Thread("CachingReflectionHelper_CleanupThread") {
             @Override
             public void run() {
                 while (running.get()) {
@@ -68,12 +67,9 @@ public final class CachingReflectionHelper implements DisposableBean, Reflection
         this.cleanupThread.setDaemon(true);
     }
     
-    public String getThreadName() {
-        return threadName;
-    }
 
     public void setThreadName(String threadName) {
-        this.threadName = threadName;
+        this.cleanupThread.setName("CachingReflectionHelper_CleanupThread" + (threadName != null ? "-" + threadName : ""));
     }
 
 
@@ -88,7 +84,7 @@ public final class CachingReflectionHelper implements DisposableBean, Reflection
     }
 
     @Override
-    public void finalize() throws Throwable {
+    protected void finalize() throws Throwable {
         this.destroy();
     }
 

@@ -384,7 +384,7 @@ public class ReferenceMap<K, V> implements ConcurrentMap<K, V>, Serializable {
     @Override
     public boolean equals(Object obj) {
       // defer to reference's equals() logic.
-      return obj.equals(this);
+      return obj != null && obj.equals(this);
     }
   }
 
@@ -400,6 +400,11 @@ public class ReferenceMap<K, V> implements ConcurrentMap<K, V>, Serializable {
     @Override
     public int hashCode() {
       return System.identityHashCode(wrapped);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
     }
   }
 
@@ -445,7 +450,7 @@ public class ReferenceMap<K, V> implements ConcurrentMap<K, V>, Serializable {
     }
 
     @Override public boolean equals(Object o) {
-      return referenceEquals(this, o);
+      return o != null && referenceEquals(this, o);
     }
   }
 
@@ -462,9 +467,16 @@ public class ReferenceMap<K, V> implements ConcurrentMap<K, V>, Serializable {
     public void finalizeReferent() {
       delegate.remove(keyReference, this);
     }
+    
+    @Override
+    public int hashCode() {
+        final Object ref = this.get();
+        return ref == null ? 0 : ref.hashCode();
+    }
 
-    @Override public boolean equals(Object obj) {
-      return referenceEquals(this, obj);
+    @Override 
+    public boolean equals(Object obj) {
+      return obj != null && referenceEquals(this, obj);
     }
   }
 
@@ -481,9 +493,16 @@ public class ReferenceMap<K, V> implements ConcurrentMap<K, V>, Serializable {
     public void finalizeReferent() {
       delegate.remove(keyReference, this);
     }
+    
+    @Override
+    public int hashCode() {
+        final Object ref = this.get();
+        return ref == null ? 0 : ref.hashCode();
+    }
 
-    @Override public boolean equals(Object obj) {
-      return referenceEquals(this, obj);
+    @Override
+    public boolean equals(Object obj) {
+      return obj != null && referenceEquals(this, obj);
     }
   }
 
@@ -526,12 +545,6 @@ public class ReferenceMap<K, V> implements ConcurrentMap<K, V>, Serializable {
       }
     };
   };
-
-  private static PutStrategy defaultPutStrategy;
-
-  protected PutStrategy getPutStrategy() {
-    return defaultPutStrategy;
-  }
 
 
   class Entry implements Map.Entry<K, V> {

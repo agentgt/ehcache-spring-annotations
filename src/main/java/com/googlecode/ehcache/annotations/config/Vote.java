@@ -39,14 +39,13 @@ public enum Vote {
 	 * @return
 	 */
 	public static Vote not(final Vote vote) {
-		if(ABSTAIN.equals(vote)) {
-			return ABSTAIN;
-		}
-		else if (YEA.equals(vote)) {
-			return NAY;
-		}
-		else {
-			return YEA;
-		}
+	    switch (vote) {
+	        case ABSTAIN:
+	            return ABSTAIN;
+	        case YEA:
+                return NAY;
+            default:
+                return YEA;
+	    }
 	}
 }
