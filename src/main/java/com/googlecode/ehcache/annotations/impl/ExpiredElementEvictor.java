@@ -45,6 +45,7 @@ import com.googlecode.ehcache.annotations.config.Vote;
  */
 public final class ExpiredElementEvictor extends TimerTask implements InitializingBean, DisposableBean {
 
+    private static final long MILLIS_PER_MINUTE = 60 * 1000L;
 	private CacheManager cacheManager;
 	private List<CacheNameMatcher> cacheNameMatchers = new ArrayList<CacheNameMatcher>();
 	private Timer timer;
@@ -65,10 +66,10 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
 		this.cacheNameMatchers = cacheNameMatchers;
 	}
 	/**
-	 * @param interval the interval to set
+	 * @param interval the interval evict expired elements, in minutes
 	 */
-	public void setInterval(long interval) {
-		this.interval = interval;
+	public void setInterval(int interval) {
+		this.interval = interval * MILLIS_PER_MINUTE;
 	}
 	/**
 	 * @return the cacheNames
@@ -85,8 +86,8 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
 	/**
 	 * @return the interval
 	 */
-	public long getInterval() {
-		return interval;
+	public int getInterval() {
+		return (int)(this.interval / MILLIS_PER_MINUTE);
 	}
 	/*
 	 * (non-Javadoc)

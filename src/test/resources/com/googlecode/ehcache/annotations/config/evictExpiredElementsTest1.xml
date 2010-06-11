@@ -26,7 +26,7 @@
     
     <ehcache:annotation-driven create-missing-caches="true"/>
     <ehcache:config>
-    	<ehcache:evict-expired-elements interval="20">
+    	<ehcache:evict-expired-elements interval="${interval}">
     		<ehcache:include name="foo"/>
     		<ehcache:include name="bar"/>
     		<ehcache:include name="baz"/>
@@ -36,4 +36,14 @@
     </bean>
     
     <bean id="cacheableTestImpl" class="com.googlecode.ehcache.annotations.integration.CacheableTestImpl"/>
+    
+    
+    
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="properties">
+            <props>
+                <prop key="interval">10</prop>
+            </props>
+        </property>
+    </bean>
 </beans>

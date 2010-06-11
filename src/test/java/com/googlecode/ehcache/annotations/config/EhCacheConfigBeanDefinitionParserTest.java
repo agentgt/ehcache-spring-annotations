@@ -151,7 +151,7 @@ public class EhCacheConfigBeanDefinitionParserTest {
 		ExpiredElementEvictor evictor = (ExpiredElementEvictor) applicationContext.getBean(EhCacheConfigBeanDefinitionParser.EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME);
 		Assert.assertNotNull(evictor);
 		// minutes from configuration gets converted into milliseconds
-		Assert.assertEquals(1200000L, evictor.getInterval());
+		Assert.assertEquals(20, evictor.getInterval());
 		Assert.assertEquals(1, evictor.getCacheNameMatchers().size());
 	}
 	
@@ -164,7 +164,7 @@ public class EhCacheConfigBeanDefinitionParserTest {
 		ExpiredElementEvictor evictor = (ExpiredElementEvictor) applicationContext.getBean(EhCacheConfigBeanDefinitionParser.EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME);
 		Assert.assertNotNull(evictor);
 		// minutes from configuration gets converted into milliseconds
-		Assert.assertEquals(1200000L, evictor.getInterval());
+		Assert.assertEquals(10, evictor.getInterval());
 		Assert.assertEquals(3, evictor.getCacheNameMatchers().size());
 	}
 	
@@ -177,7 +177,7 @@ public class EhCacheConfigBeanDefinitionParserTest {
 		ExpiredElementEvictor evictor = (ExpiredElementEvictor) applicationContext.getBean(EhCacheConfigBeanDefinitionParser.EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME);
 		Assert.assertNotNull(evictor);
 		// minutes from configuration gets converted into milliseconds
-		Assert.assertEquals(1200000L, evictor.getInterval());
+		Assert.assertEquals(20, evictor.getInterval());
 		Assert.assertEquals(4, evictor.getCacheNameMatchers().size());
 	}
 	
@@ -190,7 +190,7 @@ public class EhCacheConfigBeanDefinitionParserTest {
 		ExpiredElementEvictor evictor = (ExpiredElementEvictor) applicationContext.getBean(EhCacheConfigBeanDefinitionParser.EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME);
 		Assert.assertNotNull(evictor);
 		// minutes from configuration gets converted into milliseconds
-		Assert.assertEquals(1200000L, evictor.getInterval());
+		Assert.assertEquals(20, evictor.getInterval());
 		Assert.assertEquals(3, evictor.getCacheNameMatchers().size());
 	}
 }

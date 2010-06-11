@@ -134,7 +134,7 @@ is not 'cacheManager'.
             <xsd:element name="include" type="cache-filtering_type" minOccurs="0" maxOccurs="unbounded"/>
 			<xsd:element name="exclude" type="cache-filtering_type" minOccurs="0" maxOccurs="unbounded"/>
 		</xsd:choice>
-		<xsd:attribute name="interval" type="xsd:int" default="60">
+		<xsd:attribute name="interval" type="xsd:string" default="60">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
 				Declare how often Ehcache#evictExpiredElements() should be invoked; value

@@ -44,7 +44,6 @@ import com.googlecode.ehcache.annotations.impl.ExpiredElementEvictor;
 public final class EhCacheConfigBeanDefinitionParser implements
 BeanDefinitionParser {
 
-	private static final long MSEC_PER_MINUTE = 60000L;
 	public static final String XSD_ELEMENT__EVICT_EXPIRED_ELEMENTS = "evict-expired-elements";
 	public static final String XSD_ATTRIBUTE__INTERVAL = "interval";
 	public static final String XSD_ELEMENT__INCLUDE = "include";
@@ -70,8 +69,7 @@ BeanDefinitionParser {
 		if (evictExpiredElementsLength == 1) {
 			final Element evictExpiredElement = (Element)evictExpiredElements.item(0);
 
-			final int interval = Integer.parseInt(evictExpiredElement.getAttribute(XSD_ATTRIBUTE__INTERVAL));
-			final long longInterval = MSEC_PER_MINUTE * interval;
+			final String interval = evictExpiredElement.getAttribute(XSD_ATTRIBUTE__INTERVAL);
 
 			List<CacheNameMatcher> cacheNameMatchers = parseEvictExpiredElement(evictExpiredElement);
 
@@ -86,7 +84,7 @@ BeanDefinitionParser {
 			final MutablePropertyValues propertyValues = expiredElementEvictor.getPropertyValues();
 			propertyValues.addPropertyValue("cacheManager", cacheManagerReference);
 			propertyValues.addPropertyValue("cacheNameMatchers", cacheNameMatchers);
-			propertyValues.addPropertyValue("interval", longInterval);
+		    propertyValues.addPropertyValue("interval", interval);
 
 			// register expiredElementEvictor
 			final BeanDefinitionRegistry registry = parserContext.getRegistry();
