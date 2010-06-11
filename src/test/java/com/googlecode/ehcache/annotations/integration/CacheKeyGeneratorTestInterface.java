@@ -27,6 +27,7 @@ import com.googlecode.ehcache.annotations.key.StringCacheKeyGenerator;
  * @author Eric Dalquist
  * @version $Revision: 255 $
  */
+@SuppressWarnings("deprecation")
 public interface CacheKeyGeneratorTestInterface {
     
     @Cacheable(cacheName="singleCachedCall", keyGeneratorName="generatedHash")

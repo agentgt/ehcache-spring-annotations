@@ -16,6 +16,7 @@
 
 package com.googlecode.ehcache.annotations.util.guice;
 
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 
 /**
@@ -26,10 +27,9 @@ import java.lang.ref.WeakReference;
  *
  * @author crazybob@google.com (Bob Lee)
  */
-public abstract class FinalizableWeakReference<T> extends WeakReference<T>
-    implements FinalizableReference {
+public abstract class FinalizableWeakReference<T> extends WeakReference<T> implements FinalizableReference {
 
-  protected FinalizableWeakReference(T referent) {
-    super(referent, FinalizableReferenceQueue.getInstance());
-  }
+    protected FinalizableWeakReference(T referent, ReferenceQueue<? super T> q) {
+        super(referent, q);
+    }
 }

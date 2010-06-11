@@ -47,7 +47,9 @@ import com.googlecode.ehcache.annotations.key.HashCodeCacheKeyGenerator;
 import com.googlecode.ehcache.annotations.key.ListCacheKeyGenerator;
 import com.googlecode.ehcache.annotations.key.MessageDigestCacheKeyGenerator;
 import com.googlecode.ehcache.annotations.key.ReflectionHashCodeCacheKeyGenerator;
+import com.googlecode.ehcache.annotations.key.ReflectionHelperAware;
 import com.googlecode.ehcache.annotations.key.StringCacheKeyGenerator;
+import com.googlecode.ehcache.annotations.util.guice.CachingReflectionHelper;
 
 
 /**
@@ -67,7 +69,8 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
 
     public static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAdvisor";
     
-    public static final String DEFAULT_CACHE_KEY_GENERATOR = HashCodeCacheKeyGenerator.DEFAULT_BEAN_NAME;  
+    public static final String DEFAULT_CACHE_KEY_GENERATOR = HashCodeCacheKeyGenerator.DEFAULT_BEAN_NAME;
+    public static final String CACHING_REFLECTION_HELPER_BEAN_NAME = CachingReflectionHelper.class.getName();
     
     
     /* (non-Javadoc)
@@ -77,6 +80,8 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
         if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME)) {
             final Object elementSource = parserContext.extractSource(element);
+            
+            this.setupCachingReflectionHelper(parserContext, elementSource);
             
             final RuntimeBeanReference defaultCacheKeyGeneratorReference = 
                 this.setupDefaultCacheKeyGenerators(element, parserContext, elementSource);
@@ -94,6 +99,15 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
            
         }
         return null;
+    }
+
+    protected final void setupCachingReflectionHelper(ParserContext parserContext, Object elementSource) {
+        final RootBeanDefinition defaultKeyGenerator = new RootBeanDefinition(CachingReflectionHelper.class);
+        defaultKeyGenerator.setSource(elementSource);
+        defaultKeyGenerator.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        
+        final BeanDefinitionRegistry registry = parserContext.getRegistry();
+        registry.registerBeanDefinition(CACHING_REFLECTION_HELPER_BEAN_NAME, defaultKeyGenerator);
     }
 
     /**
@@ -137,6 +151,13 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         final RootBeanDefinition defaultKeyGenerator = new RootBeanDefinition(generatorClass);
         defaultKeyGenerator.setSource(elementSource);
         defaultKeyGenerator.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        
+        if (ReflectionHelperAware.class.isAssignableFrom(generatorClass)) {
+            final RuntimeBeanReference cacheManagerReference = new RuntimeBeanReference(CACHING_REFLECTION_HELPER_BEAN_NAME);
+            
+            final MutablePropertyValues propertyValues = defaultKeyGenerator.getPropertyValues();
+            propertyValues.addPropertyValue("reflectionHelper", cacheManagerReference);
+        }
         
         final BeanDefinitionRegistry registry = parserContext.getRegistry();
         registry.registerBeanDefinition(generatorName, defaultKeyGenerator);

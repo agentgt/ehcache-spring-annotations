@@ -19,19 +19,14 @@ package com.googlecode.ehcache.annotations.key;
 import java.io.Serializable;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.util.ReflectionUtils.MethodCallback;
 
-import com.googlecode.ehcache.annotations.util.guice.ReferenceMap;
-import com.googlecode.ehcache.annotations.util.guice.ReferenceType;
 
 /**
  * Base class for key generators that do deep inspection of the key data for generation. Arrays, 
@@ -44,14 +39,8 @@ import com.googlecode.ehcache.annotations.util.guice.ReferenceType;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> extends AbstractCacheKeyGenerator<T> {
-    static final ReferenceMap<Class<?>, Set<ImplementsMethod>> IMPLEMENTS_CACHE = new ReferenceMap<Class<?>, Set<ImplementsMethod>>(ReferenceType.WEAK, ReferenceType.STRONG);
-    private enum ImplementsMethod {
-        HASH_CODE,
-        EQUALS,
-        TO_STRING;
-    }
-    
+public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> extends AbstractCacheKeyGenerator<T> implements ReflectionHelperAware {
+    private ReflectionHelper reflectionHelper = new SimpleReflectionHelper();
     private boolean useReflection = false;
     
     public AbstractDeepCacheKeyGenerator() {
@@ -60,6 +49,15 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
 
     public AbstractDeepCacheKeyGenerator(boolean includeMethod, boolean includeParameterTypes) {
         super(includeMethod, includeParameterTypes);
+    }
+    
+    public ReflectionHelper getReflectionHelper() {
+        return reflectionHelper;
+    }
+
+    public void setReflectionHelper(ReflectionHelper reflectionHelper) {
+        Assert.notNull(reflectionHelper);
+        this.reflectionHelper = reflectionHelper;
     }
 
     public final boolean isUseReflection() {
@@ -230,66 +228,7 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
      * @param element will never be null
      */
     protected boolean shouldReflect(Object element) {
-        return !this.implementsHashCode(element) || !this.implementsEquals(element);
-    }
-    
-    /**
-     * Checks if the object implements hashCode
-     * @param element will never be null
-     */
-    protected final boolean implementsHashCode(Object element) {
-        return this.doesImplement(element.getClass(), ImplementsMethod.HASH_CODE);
-    }
-    
-    /**
-     * Checks if the object implements equals
-     * @param element will never be null
-     */
-    protected final boolean implementsEquals(Object element) {
-        return this.doesImplement(element.getClass(), ImplementsMethod.EQUALS);
-    }
-    
-    /**
-     * Checks if the object implements equals
-     * @param element will never be null
-     */
-    protected final boolean implementsToString(Object element) {
-        return this.doesImplement(element.getClass(), ImplementsMethod.TO_STRING);
-    }
-    
-    /**
-     * Scans a class to see if it implements the hashCode, toString and equals methods which are commonly
-     * used by key generators
-     */
-    private boolean doesImplement(final Class<?> elementClass, ImplementsMethod method) {
-        Set<ImplementsMethod> implementsCache = IMPLEMENTS_CACHE.get(elementClass);
-
-        if (implementsCache == null) {
-            implementsCache = EnumSet.noneOf(ImplementsMethod.class);
-            IMPLEMENTS_CACHE.put(elementClass, implementsCache);
-
-            //Create final reference for use by anonymous class
-            final Set<ImplementsMethod> implementsSet = implementsCache;
-            ReflectionUtils.doWithMethods(elementClass, new MethodCallback() {
-                public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
-                    if (method.getDeclaringClass() == Object.class) {
-                        return;
-                    }
-                    
-                    if (ReflectionUtils.isEqualsMethod(method)) {
-                        implementsSet.add(ImplementsMethod.EQUALS);
-                    }
-                    else if (ReflectionUtils.isHashCodeMethod(method)) {
-                        implementsSet.add(ImplementsMethod.HASH_CODE);
-                    }
-                    else if (ReflectionUtils.isToStringMethod(method)) {
-                        implementsSet.add(ImplementsMethod.TO_STRING);
-                    }
-                }
-            });
-        }
-        
-        return implementsCache.contains(method);
+        return !this.reflectionHelper.implementsHashCode(element) || !this.reflectionHelper.implementsEquals(element);
     }
     
     

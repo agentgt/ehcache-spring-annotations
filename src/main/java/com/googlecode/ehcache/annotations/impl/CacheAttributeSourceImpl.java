@@ -59,7 +59,9 @@ import com.googlecode.ehcache.annotations.Property;
 import com.googlecode.ehcache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ehcache.annotations.TriggersRemove;
 import com.googlecode.ehcache.annotations.TriggersRemoveAttribute;
+import com.googlecode.ehcache.annotations.config.AnnotationDrivenEhCacheBeanDefinitionParser;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
+import com.googlecode.ehcache.annotations.key.ReflectionHelperAware;
 
 
 /**
@@ -451,11 +453,17 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         //Create and register the bean if it didn't already exist
         final AbstractBeanDefinition beanDefinition;
         try {
-            beanDefinition = BeanDefinitionReaderUtils.createBeanDefinition(null, keyGeneratorClassName, null);
+            beanDefinition = BeanDefinitionReaderUtils.createBeanDefinition(null, keyGeneratorClassName, ClassUtils.getDefaultClassLoader());
         }
         catch (ClassNotFoundException e) {
             throw new BeanCreationException("Could not find class '" + keyGeneratorClassName + "' to create CacheKeyGenerator from", e);
         }
+        
+        if (ReflectionHelperAware.class.isAssignableFrom(beanDefinition.getBeanClass())) {
+            final RuntimeBeanReference cacheManagerReference = new RuntimeBeanReference(AnnotationDrivenEhCacheBeanDefinitionParser.CACHING_REFLECTION_HELPER_BEAN_NAME);
+            mutablePropertyValues.addPropertyValue("reflectionHelper", cacheManagerReference);
+        }
+        
         beanDefinition.setPropertyValues(mutablePropertyValues);
         this.cacheKeyBeanFactory.registerBeanDefinition(beanName, beanDefinition);
         

@@ -187,11 +187,11 @@ public class EhCacheInterceptor implements MethodInterceptor {
         if(When.BEFORE_METHOD_INVOCATION.equals(triggersRemoveAttribute.when())) {
         	invokeCacheRemove(methodInvocation, triggersRemoveAttribute, cache);
         	return methodInvocation.proceed();
-        } else {
-        	Object methodInvocationResult =  methodInvocation.proceed();
-        	invokeCacheRemove(methodInvocation, triggersRemoveAttribute, cache);
-        	return methodInvocationResult;
         }
+        
+    	final Object methodInvocationResult =  methodInvocation.proceed();
+    	invokeCacheRemove(methodInvocation, triggersRemoveAttribute, cache);
+    	return methodInvocationResult;
     }
 
 	/**

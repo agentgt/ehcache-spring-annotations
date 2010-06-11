@@ -16,6 +16,7 @@
 
 package com.googlecode.ehcache.annotations.util.guice;
 
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 
 /**
@@ -26,10 +27,9 @@ import java.lang.ref.SoftReference;
  *
  * @author crazybob@google.com (Bob Lee)
  */
-public abstract class FinalizableSoftReference<T> extends SoftReference<T>
-    implements FinalizableReference {
+public abstract class FinalizableSoftReference<T> extends SoftReference<T> implements FinalizableReference {
 
-  protected FinalizableSoftReference(T referent) {
-    super(referent, FinalizableReferenceQueue.getInstance());
-  }
+    protected FinalizableSoftReference(T referent, ReferenceQueue<T> q) {
+        super(referent, q);
+    }
 }

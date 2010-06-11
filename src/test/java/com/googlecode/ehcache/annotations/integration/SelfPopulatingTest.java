@@ -139,7 +139,7 @@ public class SelfPopulatingTest {
 		
         threadGroup.start();
         
-        // wait for both threads to get going
+        // wait for all threads to get going
         threadRunningLatch.await();
         Thread.sleep(100);
         

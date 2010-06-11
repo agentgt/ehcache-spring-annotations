@@ -211,7 +211,7 @@ public class StringCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<Strin
 
     @Override
     protected boolean shouldReflect(Object element) {
-        return !this.implementsToString(element);
+        return !this.getReflectionHelper().implementsToString(element);
     }
     
 }

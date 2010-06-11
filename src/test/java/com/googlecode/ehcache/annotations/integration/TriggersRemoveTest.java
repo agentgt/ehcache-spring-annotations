@@ -20,8 +20,8 @@
 package com.googlecode.ehcache.annotations.integration;
 
 import junit.framework.Assert;
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.statistics.CacheUsageListener;
 
 import org.junit.Test;
@@ -58,9 +58,19 @@ public class TriggersRemoveTest  {
 	
 	@Test
 	public void testHarness() {
-		Cache cache = cacheManager.getCache("triggersRemoveCountingCache");
-		CountingListener listener = new CountingListener();
-		cache.registerCacheUsageListener(listener);
+	    final Ehcache ehcache = cacheManager.getEhcache("triggersRemoveCountingCache");
+
+        CountingListener listener = new CountingListener();
+        ehcache.registerCacheUsageListener(listener);
+        
+//        final CacheUsageListener loggingListener = (CacheUsageListener)Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] {CacheUsageListener.class}, new InvocationHandler() {
+//            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+//                System.out.println("Called: " + method.getName());
+//                
+//                return null;
+//            }
+//        });
+//        ehcache.registerCacheUsageListener(loggingListener);
 		
 		Assert.assertEquals(0, listener.getRemoveCount());
 		Assert.assertEquals(0, listener.getRemoveAllCount());
@@ -69,6 +79,7 @@ public class TriggersRemoveTest  {
 		Assert.assertEquals(0, listener.getRemoveCount());
         Assert.assertEquals(0, listener.getRemoveAllCount());
 		
+        this.triggersRemoveTestInterface.simpleCachedMethod();
         this.triggersRemoveTestInterface.methodTriggersRemove();
         Assert.assertEquals(1, listener.getRemoveCount());
 		Assert.assertEquals(0, listener.getRemoveAllCount());

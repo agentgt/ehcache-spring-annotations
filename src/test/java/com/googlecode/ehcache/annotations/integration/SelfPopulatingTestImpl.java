@@ -48,7 +48,7 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
     }
 
 	public String blockingA(String argument) {
-	    threadRunningLatch.countDown();
+        threadRunningLatch.countDown();
 	    try {
             proccedLatch.await();
         }
@@ -72,7 +72,7 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
     }
 	
 	public String nonBlocking(String argument) {
-	    threadRunningLatch.countDown();
+        threadRunningLatch.countDown();
         try {
             proccedLatch.await();
         }

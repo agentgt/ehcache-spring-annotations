@@ -189,7 +189,7 @@ public class MessageDigestCacheKeyGenerator extends AbstractDeepCacheKeyGenerato
 
     @Override
     protected boolean shouldReflect(Object element) {
-        return !super.implementsHashCode(element);
+        return !super.getReflectionHelper().implementsHashCode(element);
     }
 
     @Override

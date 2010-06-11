@@ -151,6 +151,6 @@ public class HashCodeCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<Has
 
     @Override
     protected boolean shouldReflect(Object element) {
-        return !this.implementsHashCode(element);
+        return !this.getReflectionHelper().implementsHashCode(element);
     }
 }

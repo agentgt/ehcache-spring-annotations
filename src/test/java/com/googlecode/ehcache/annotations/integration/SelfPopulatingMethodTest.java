@@ -60,7 +60,7 @@ public class SelfPopulatingMethodTest {
 	 */
 	@Test
 	public void testSelfPopulatingTrue() throws Exception {
-        final CountDownLatch threadRunningLatch = new CountDownLatch(6);
+        final CountDownLatch threadRunningLatch = new CountDownLatch(5);
         final CountDownLatch proccedLatch = new CountDownLatch(1);
         this.selfPopulatingTestInterface.setThreadRunningLatch(threadRunningLatch);
         this.selfPopulatingTestInterface.setProccedLatch(proccedLatch);
@@ -70,25 +70,13 @@ public class SelfPopulatingMethodTest {
 		
 		final ThreadGroupRunner threadGroup = new ThreadGroupRunner("testSelfPopulatingTrue-", true);
 		
-		threadGroup.addTask(new Runnable() {	
+		threadGroup.addTask(2, new Runnable() {	
 			public void run() {
 			    threadRunningLatch.countDown();
 				selfPopulatingTestInterface.blockingA("test2");
 			}
 		});
-		threadGroup.addTask(new Runnable() {	
-			public void run() {
-			    threadRunningLatch.countDown();
-				selfPopulatingTestInterface.blockingA("test2");
-			}
-		});
-        threadGroup.addTask(new Runnable() { 
-            public void run() {
-                threadRunningLatch.countDown();
-                selfPopulatingTestInterface.blockingB("test2");
-            }
-        });
-        threadGroup.addTask(new Runnable() { 
+        threadGroup.addTask(2, new Runnable() { 
             public void run() {
                 threadRunningLatch.countDown();
                 selfPopulatingTestInterface.blockingB("test2");

@@ -19,6 +19,9 @@
  */
 package com.googlecode.ehcache.annotations.integration;
 
+import com.googlecode.ehcache.annotations.Cacheable;
+import com.googlecode.ehcache.annotations.KeyGenerator;
+import com.googlecode.ehcache.annotations.Property;
 import com.googlecode.ehcache.annotations.TriggersRemove;
 
 /**
@@ -31,9 +34,22 @@ public interface TriggersRemoveTestInterface {
 	
     public void implMethodTriggersRemove();
 	
-	@TriggersRemove(cacheName="triggersRemoveCountingCache")
+	@TriggersRemove(cacheName="triggersRemoveCountingCache", 
+            keyGenerator = @KeyGenerator(
+                    name = "HashCodeCacheKeyGenerator", 
+                    properties = @Property(name ="includeMethod", value="false")
+            )
+    )
 	public void methodTriggersRemove();
 	
 	@TriggersRemove(cacheName="triggersRemoveCountingCache", removeAll=true)
 	public void methodTriggersRemoveAll();
+    
+    @Cacheable(cacheName="triggersRemoveCountingCache", 
+            keyGenerator = @KeyGenerator(
+                    name = "HashCodeCacheKeyGenerator", 
+                    properties = @Property(name ="includeMethod", value="false")
+            )
+    )
+    public Object simpleCachedMethod();
 }

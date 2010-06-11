@@ -18,7 +18,6 @@ package com.googlecode.ehcache.annotations.key;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -36,6 +35,7 @@ import org.junit.Test;
 
 import com.googlecode.ehcache.annotations.util.MockMethodInvocation;
 import com.googlecode.ehcache.annotations.util.ThreadGroupRunner;
+import com.googlecode.ehcache.annotations.util.guice.CachingReflectionHelper;
 
 /**
  * @author Eric Dalquist
@@ -165,7 +165,7 @@ public class CacheKeyGeneratorPerformanceTest {
     }
     
     @Test
-    public void testCacheKeyGeneratorPerformance() throws NoSuchAlgorithmException, InterruptedException, BrokenBarrierException {
+    public void testCacheKeyGeneratorPerformance() throws Exception {
         final Map<String, AbstractDeepCacheKeyGenerator<?, ? extends Serializable>> generators = new LinkedHashMap<String, AbstractDeepCacheKeyGenerator<?, ? extends Serializable>>();
         
         generators.put("ListCacheKeyGenerator", new ListCacheKeyGenerator());
@@ -180,21 +180,18 @@ public class CacheKeyGeneratorPerformanceTest {
         threadGroupRunner.addTask(threads, new KeyGenerationRunnable());
         threadGroupRunner.start();
         
+        final CachingReflectionHelper reflectionHelper = new CachingReflectionHelper();
         
-        for (int totalLoopCount = 2; totalLoopCount <= 8; totalLoopCount*=2) {
+        for (int totalLoopCount = 1; totalLoopCount <= 4; totalLoopCount++) {
             final long duration = 1000 * totalLoopCount;
             System.out.println("Sleeping 5s Before: " + duration);
             Thread.sleep(5*1000);
             
             for (final Map.Entry<String, AbstractDeepCacheKeyGenerator<?, ? extends Serializable>> generatorEntry : generators.entrySet()) {
+                this.generator = generatorEntry.getValue();
+                this.generator.setReflectionHelper(reflectionHelper);
                 
                 for (int configIndex = 0; configIndex < 3; configIndex++) {
-                    //Setup state and start threads
-                    this.totalKeyCount.set(0);
-                    this.generator = generatorEntry.getValue();
-                    this.runTest = true;
-                    this.testThreadStateLatch.await();
-                    
                     final String generatorConfig;
                     switch (configIndex) {
                         case 0:
@@ -214,7 +211,6 @@ public class CacheKeyGeneratorPerformanceTest {
                         break;
                         
                         case 2:
-                            AbstractDeepCacheKeyGenerator.IMPLEMENTS_CACHE.clear();
                             this.generator.setCheckforCycles(false);
                             this.generator.setIncludeMethod(true);
                             this.generator.setIncludeParameterTypes(true);
@@ -225,6 +221,13 @@ public class CacheKeyGeneratorPerformanceTest {
                         default:
                             throw new IllegalStateException();
                     }
+                    
+                    reflectionHelper.clearCache();
+                    
+                    //Setup state and start threads
+                    this.totalKeyCount.set(0);
+                    this.runTest = true;
+                    this.testThreadStateLatch.await();
                     
                     //Sleep main thread for duration of test
                     Thread.sleep(duration);
@@ -245,6 +248,8 @@ public class CacheKeyGeneratorPerformanceTest {
         }
         
         threadGroupRunner.join();
+        
+        reflectionHelper.destroy();
     }
     
     //Class scoped variables used to control the test threads

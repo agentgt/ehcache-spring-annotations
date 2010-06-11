@@ -50,4 +50,8 @@ public class TriggersRemoveTestImpl implements TriggersRemoveTestInterface {
 	 */
 	public void notTriggersRemoveMethod() {
 	}
+
+    public Object simpleCachedMethod() {
+        return new Object();
+    }
 }

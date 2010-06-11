@@ -23,6 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,6 +66,7 @@ public class ReferenceMap<K, V> implements ConcurrentMap<K, V>, Serializable {
 
   final ReferenceType keyReferenceType;
   final ReferenceType valueReferenceType;
+  final ReferenceQueue<Object> referenceQueue;
 
   /**
    * Concurrent hash map that wraps keys and/or values based on specified
@@ -74,8 +76,9 @@ public class ReferenceMap<K, V> implements ConcurrentMap<K, V>, Serializable {
    * @param valueReferenceType value reference type
    */
   public ReferenceMap(ReferenceType keyReferenceType,
-      ReferenceType valueReferenceType) {
-    ensureNotNull(keyReferenceType, valueReferenceType);
+      ReferenceType valueReferenceType,
+      ReferenceQueue<Object> referenceQueue) {
+    ensureNotNull(keyReferenceType, valueReferenceType, referenceQueue);
 
     if (keyReferenceType == ReferenceType.PHANTOM
         || valueReferenceType == ReferenceType.PHANTOM) {
@@ -85,6 +88,7 @@ public class ReferenceMap<K, V> implements ConcurrentMap<K, V>, Serializable {
     this.delegate = new ConcurrentHashMap<Object, Object>();
     this.keyReferenceType = keyReferenceType;
     this.valueReferenceType = valueReferenceType;
+    this.referenceQueue = referenceQueue;
   }
 
   V internalGet(K key) {
@@ -405,7 +409,7 @@ public class ReferenceMap<K, V> implements ConcurrentMap<K, V>, Serializable {
     final int hashCode;
 
     public SoftKeyReference(Object key) {
-      super(key);
+      super(key, referenceQueue);
       this.hashCode = keyHashCode(key);
     }
 
@@ -428,7 +432,7 @@ public class ReferenceMap<K, V> implements ConcurrentMap<K, V>, Serializable {
     final int hashCode;
 
     public WeakKeyReference(Object key) {
-      super(key);
+      super(key, referenceQueue);
       this.hashCode = keyHashCode(key);
     }
 
@@ -451,7 +455,7 @@ public class ReferenceMap<K, V> implements ConcurrentMap<K, V>, Serializable {
     final Object keyReference;
 
     public SoftValueReference(Object keyReference, Object value) {
-      super(value);
+      super(value, referenceQueue);
       this.keyReference = keyReference;
     }
 
@@ -470,7 +474,7 @@ public class ReferenceMap<K, V> implements ConcurrentMap<K, V>, Serializable {
     final Object keyReference;
 
     public WeakValueReference(Object keyReference, Object value) {
-      super(value);
+      super(value, referenceQueue);
       this.keyReference = keyReference;
     }
 
