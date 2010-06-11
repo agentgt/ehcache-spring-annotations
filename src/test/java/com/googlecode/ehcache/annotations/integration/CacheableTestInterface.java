@@ -18,6 +18,8 @@ package com.googlecode.ehcache.annotations.integration;
 
 import java.util.concurrent.TimeUnit;
 
+import net.sf.ehcache.CacheManager;
+
 import com.googlecode.ehcache.annotations.Cacheable;
 
 /**
@@ -50,4 +52,5 @@ public interface CacheableTestInterface {
     public String[] arrayReturn(String a, String b);
     public int arrayReturnCount();
     
+    public CacheManager getCacheManager();
 }

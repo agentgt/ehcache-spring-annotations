@@ -38,6 +38,11 @@ public class CacheableTest {
     public void setCacheableTestInterface(CacheableTestInterface cacheableTestInterface) {
         this.cacheableTestInterface = cacheableTestInterface;
     }
+    
+    @Test
+    public void testAutowiring() {
+        Assert.assertNotNull(this.cacheableTestInterface.getCacheManager());
+    }
 
     @Test
     public void testCachingOnTheInterfaceWithArgs() {

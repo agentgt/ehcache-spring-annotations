@@ -18,6 +18,10 @@ package com.googlecode.ehcache.annotations.integration;
 
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import net.sf.ehcache.CacheManager;
+
 import com.googlecode.ehcache.annotations.Cacheable;
 
 
@@ -26,6 +30,7 @@ import com.googlecode.ehcache.annotations.Cacheable;
  * @version $Revision$
  */
 public class CacheableTestImpl implements CacheableTestInterface {
+    private CacheManager cacheManager;
     private int interfaceAnnotatedExceptionCachedCount = 0;
     private int interfaceAnnotatedExceptionCachedThrowsCount = 0;
     private int interfaceAnnotatedCachedCount = 0;
@@ -99,4 +104,12 @@ public class CacheableTestImpl implements CacheableTestInterface {
     }
     
     
+    @Autowired
+    public void setCacheManager(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
+
+    public CacheManager getCacheManager() {
+        return cacheManager;
+    }
 }

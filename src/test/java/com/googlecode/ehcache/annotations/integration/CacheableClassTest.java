@@ -36,6 +36,11 @@ public class CacheableClassTest {
     public void setCacheableClassTestImpl(CacheableClassTestImpl cacheableClassTestImpl) {
         this.cacheableClassTestImpl = cacheableClassTestImpl;
     }
+    
+    @Test
+    public void testAutowiring() {
+        Assert.assertNotNull(this.cacheableClassTestImpl.getCacheManager());
+    }
 
     @Test
     public void testCachingClassArgs() {
