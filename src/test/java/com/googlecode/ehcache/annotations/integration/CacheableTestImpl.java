@@ -30,6 +30,8 @@ import com.googlecode.ehcache.annotations.Cacheable;
  * @version $Revision$
  */
 public class CacheableTestImpl implements CacheableTestInterface {
+    @Autowired
+    private CacheManager cacheManagerField;
     private CacheManager cacheManager;
     private int interfaceAnnotatedExceptionCachedCount = 0;
     private int interfaceAnnotatedExceptionCachedThrowsCount = 0;
@@ -112,4 +114,9 @@ public class CacheableTestImpl implements CacheableTestInterface {
     public CacheManager getCacheManager() {
         return cacheManager;
     }
+
+    public CacheManager getCacheManagerField() {
+        return this.cacheManagerField;
+    }
+
 }

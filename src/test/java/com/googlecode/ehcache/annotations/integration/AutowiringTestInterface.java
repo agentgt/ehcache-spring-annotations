@@ -16,8 +16,6 @@
 
 package com.googlecode.ehcache.annotations.integration;
 
-import java.util.concurrent.TimeUnit;
-
 import net.sf.ehcache.CacheManager;
 
 import com.googlecode.ehcache.annotations.Cacheable;
@@ -26,31 +24,11 @@ import com.googlecode.ehcache.annotations.Cacheable;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public interface CacheableTestInterface {
-    
-    @Cacheable(cacheName="interfaceAnnotatedCache", exceptionCacheName="interfaceAnnotatedExceptionCache")
-    public String interfaceAnnotatedExceptionCached(boolean throwsException);
-    public int interfaceAnnotatedExceptionCachedCount();
-    public int interfaceAnnotatedExceptionCachedThrowsCount();
-    
-    @Cacheable(cacheName="interfaceAnnotatedCached")
-    public String interfaceAnnotatedCached(int argument);
-    public int interfaceAnnotatedCachedCount();
+public interface AutowiringTestInterface {
     
     @Cacheable(cacheName="interfaceAnnotatedNoArgCached")
     public String interfaceAnnotatedNoArgCached();
     public int interfaceAnnotatedNoArgCachedCount();
-    
-    public String interfaceDefined(String argument);
-    public int interfaceDefinedCount();
-    
-    @Cacheable(cacheName="interfaceAnnotatedEnumArgCached")
-    public String enumParameter(TimeUnit timeUnit);
-    public int enumParameterCount();
-    
-    @Cacheable(cacheName="interfaceAnnotatedArrayReturn")
-    public String[] arrayReturn(String a, String b);
-    public int arrayReturnCount();
     
     public CacheManager getCacheManager();
     public CacheManager getCacheManagerField();

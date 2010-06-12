@@ -19,6 +19,7 @@ package com.googlecode.ehcache.annotations.integration;
 import net.sf.ehcache.CacheManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.googlecode.ehcache.annotations.Cacheable;
 
@@ -27,22 +28,23 @@ import com.googlecode.ehcache.annotations.Cacheable;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class CacheableClassTestImpl {
+@Component
+public class AutowiringTestClass {
     @Autowired
     private CacheManager cacheManagerField;
     private CacheManager cacheManager;
-    private int classAnnotatedCachedCount = 0;
+    private int annotatedNoArgCachedCount = 0;
+
+    @Cacheable(cacheName = "annotatedNoArgCached")
+    public String annotatedNoArgCached() {
+        this.annotatedNoArgCachedCount++;
+        return "annotatedNoArgCached()";
+    }
     
-    @Cacheable(cacheName="classAnnotated")
-    public String classAnnotatedCached(String argument) {
-        this.classAnnotatedCachedCount++;
-        return "classAnnotatedCached(" + argument + ")";
+    public int getAnnotatedNoArgCachedCount() {
+        return this.annotatedNoArgCachedCount;
     }
 
-    public int getClassAnnotatedCachedCount() {
-        return this.classAnnotatedCachedCount;
-    }
-    
     @Autowired
     public void setCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;

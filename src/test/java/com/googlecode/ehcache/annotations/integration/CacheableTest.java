@@ -42,6 +42,7 @@ public class CacheableTest {
     @Test
     public void testAutowiring() {
         Assert.assertNotNull(this.cacheableTestInterface.getCacheManager());
+        Assert.assertNotNull(this.cacheableTestInterface.getCacheManagerField());
     }
 
     @Test

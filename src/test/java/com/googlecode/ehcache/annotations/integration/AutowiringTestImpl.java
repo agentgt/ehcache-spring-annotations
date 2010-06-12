@@ -19,28 +19,27 @@ package com.googlecode.ehcache.annotations.integration;
 import net.sf.ehcache.CacheManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.googlecode.ehcache.annotations.Cacheable;
+import org.springframework.stereotype.Component;
 
 
 /**
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class CacheableClassTestImpl {
+@Component
+public class AutowiringTestImpl implements AutowiringTestInterface {
     @Autowired
     private CacheManager cacheManagerField;
     private CacheManager cacheManager;
-    private int classAnnotatedCachedCount = 0;
-    
-    @Cacheable(cacheName="classAnnotated")
-    public String classAnnotatedCached(String argument) {
-        this.classAnnotatedCachedCount++;
-        return "classAnnotatedCached(" + argument + ")";
+    private int interfaceAnnotatedNoArgCachedCount = 0;
+
+    public String interfaceAnnotatedNoArgCached() {
+        this.interfaceAnnotatedNoArgCachedCount++;
+        return "interfaceAnnotatedNoArgCached()";
     }
 
-    public int getClassAnnotatedCachedCount() {
-        return this.classAnnotatedCachedCount;
+    public int interfaceAnnotatedNoArgCachedCount() {
+        return this.interfaceAnnotatedNoArgCachedCount;
     }
     
     @Autowired
