@@ -182,7 +182,7 @@ public class CacheKeyGeneratorPerformanceTest {
         
         final CachingReflectionHelper reflectionHelper = new CachingReflectionHelper();
         
-        for (int totalLoopCount = 1; totalLoopCount <= 4; totalLoopCount++) {
+        for (int totalLoopCount = 1; totalLoopCount <= 16; totalLoopCount*=2) {
             final long duration = 1000 * totalLoopCount;
             System.out.println("Sleeping 5s Before: " + duration);
             Thread.sleep(5*1000);
@@ -195,7 +195,7 @@ public class CacheKeyGeneratorPerformanceTest {
                     final String generatorConfig;
                     switch (configIndex) {
                         case 0:
-                            this.generator.setCheckforCycles(false);
+                            this.generator.setCheckforCycles(true);
                             this.generator.setIncludeMethod(false);
                             this.generator.setIncludeParameterTypes(false);
                             this.generator.setUseReflection(false);
@@ -203,7 +203,7 @@ public class CacheKeyGeneratorPerformanceTest {
                         break;
                         
                         case 1:
-                            this.generator.setCheckforCycles(false);
+                            this.generator.setCheckforCycles(true);
                             this.generator.setIncludeMethod(true);
                             this.generator.setIncludeParameterTypes(true);
                             this.generator.setUseReflection(false);
@@ -211,7 +211,7 @@ public class CacheKeyGeneratorPerformanceTest {
                         break;
                         
                         case 2:
-                            this.generator.setCheckforCycles(false);
+                            this.generator.setCheckforCycles(true);
                             this.generator.setIncludeMethod(true);
                             this.generator.setIncludeParameterTypes(true);
                             this.generator.setUseReflection(true);
