@@ -22,6 +22,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -36,6 +38,8 @@ import com.googlecode.ehcache.annotations.util.ThreadGroupRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/selfPopulatingMethodTestContext.xml")
 public class SelfPopulatingMethodTest {
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
 	private SelfPopulatingTestInterface selfPopulatingTestInterface;
 
 	/**
@@ -60,7 +64,7 @@ public class SelfPopulatingMethodTest {
 	 */
 	@Test
 	public void testSelfPopulatingTrue() throws Exception {
-        final CountDownLatch threadRunningLatch = new CountDownLatch(5);
+        final CountDownLatch threadRunningLatch = new CountDownLatch(6);
         final CountDownLatch proccedLatch = new CountDownLatch(1);
         this.selfPopulatingTestInterface.setThreadRunningLatch(threadRunningLatch);
         this.selfPopulatingTestInterface.setProccedLatch(proccedLatch);
@@ -73,12 +77,14 @@ public class SelfPopulatingMethodTest {
 		threadGroup.addTask(2, new Runnable() {	
 			public void run() {
 			    threadRunningLatch.countDown();
+			    logger.trace("Calling blockingA(test2)");
 				selfPopulatingTestInterface.blockingA("test2");
 			}
 		});
         threadGroup.addTask(2, new Runnable() { 
             public void run() {
                 threadRunningLatch.countDown();
+                logger.trace("Calling blockingB(test2)");
                 selfPopulatingTestInterface.blockingB("test2");
             }
         });
@@ -86,13 +92,14 @@ public class SelfPopulatingMethodTest {
         threadGroup.start();
         
         // wait for both threads to get going
+        logger.trace("Waiting for threads to start");
         threadRunningLatch.await();
         
-        //TODO is a sleep needed here? The Latch doesn't guarantee that the second thread is actually waiting within the self populating ehcache decorator
-        
         // Let both threads complete
+        logger.trace("Waiting for threads to signal returns");
         proccedLatch.countDown();
         
+        logger.trace("Waiting for threads to complete");
         threadGroup.join();
 		
 		// verify only 1 call between method A and method B

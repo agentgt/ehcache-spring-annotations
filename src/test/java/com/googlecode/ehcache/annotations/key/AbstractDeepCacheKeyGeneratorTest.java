@@ -37,6 +37,11 @@ import org.junit.Test;
  */
 public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> {
     
+    public enum TestEnum {
+        TEST1,
+        TEST2;
+    }
+    
     protected abstract AbstractDeepCacheKeyGenerator<?, T> getCacheKeyGenerator();
     
     /**
@@ -180,7 +185,7 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         generator.setUseReflection(false);
         
         final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { TimeUnit.DAYS });
+        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { TimeUnit.SECONDS, TestEnum.TEST1 });
         
         EasyMock.replay(invocation);
         

@@ -32,6 +32,6 @@
     <bean id="selfPopulatingTestImpl" class="com.googlecode.ehcache.annotations.integration.SelfPopulatingTestImpl"/>
     
     <bean id="defaultCacheKeyGenerator" class="com.googlecode.ehcache.annotations.key.HashCodeCacheKeyGenerator">
-        <property name="includeMethod" value="false" />
+        <property name="includeMethod" value="true" />
     </bean>
 </beans>

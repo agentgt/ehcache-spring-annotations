@@ -18,7 +18,7 @@
 -->
 
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="ehcache.xsd">
+	xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd" updateCheck="false">
 
 	<!--
 		| Please see
@@ -30,7 +30,7 @@
 
 	<defaultCache eternal="false" maxElementsInMemory="1000"
 		overflowToDisk="false" diskPersistent="false" timeToIdleSeconds="0"
-		timeToLiveSeconds="600" memoryStoreEvictionPolicy="LRU" />
+		timeToLiveSeconds="600" memoryStoreEvictionPolicy="LRU" statistics="true" />
 
 	<!--
 		timeToIdle = idle setting not used, timeToLive set to 5 minutes
@@ -38,6 +38,6 @@
 	<cache name="triggersRemoveCountingCache" eternal="false"
 		maxElementsInMemory="100" overflowToDisk="false" diskPersistent="false"
 		timeToIdleSeconds="0" timeToLiveSeconds="300"
-		memoryStoreEvictionPolicy="LRU" />
+		memoryStoreEvictionPolicy="LRU" statistics="true" />
 
 </ehcache>

@@ -128,10 +128,10 @@ public class CacheableTest {
     public void testEnumArgCaching() {
         Assert.assertEquals(0, cacheableTestInterface.enumParameterCount());
         
-        Assert.assertEquals("enumParameter(DAYS)", cacheableTestInterface.enumParameter(TimeUnit.DAYS));
+        Assert.assertEquals("enumParameter(SECONDS)", cacheableTestInterface.enumParameter(TimeUnit.SECONDS));
         Assert.assertEquals(1, cacheableTestInterface.enumParameterCount());
         
-        Assert.assertEquals("enumParameter(DAYS)", cacheableTestInterface.enumParameter(TimeUnit.DAYS));
+        Assert.assertEquals("enumParameter(SECONDS)", cacheableTestInterface.enumParameter(TimeUnit.SECONDS));
         Assert.assertEquals(1, cacheableTestInterface.enumParameterCount());
         
         Assert.assertEquals("enumParameter(null)", cacheableTestInterface.enumParameter(null));
@@ -140,10 +140,10 @@ public class CacheableTest {
         Assert.assertEquals("enumParameter(null)", cacheableTestInterface.enumParameter(null));
         Assert.assertEquals(2, cacheableTestInterface.enumParameterCount());
         
-        Assert.assertEquals("enumParameter(MINUTES)", cacheableTestInterface.enumParameter(TimeUnit.MINUTES));
+        Assert.assertEquals("enumParameter(MICROSECONDS)", cacheableTestInterface.enumParameter(TimeUnit.MICROSECONDS));
         Assert.assertEquals(3, cacheableTestInterface.enumParameterCount());
         
-        Assert.assertEquals("enumParameter(MINUTES)", cacheableTestInterface.enumParameter(TimeUnit.MINUTES));
+        Assert.assertEquals("enumParameter(MICROSECONDS)", cacheableTestInterface.enumParameter(TimeUnit.MICROSECONDS));
         Assert.assertEquals(3, cacheableTestInterface.enumParameterCount());
     }
 

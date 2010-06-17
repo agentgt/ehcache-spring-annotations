@@ -21,7 +21,7 @@ package com.googlecode.ehcache.annotations.key;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class HashCodeCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<HashCodeCacheKeyGenerator.LongGenerator, Long> {
+public class HashCodeCacheKeyGenerator extends AbstractHashingCacheKeyGenerator<HashCodeCacheKeyGenerator.LongGenerator, Long> {
     /**
      * Name of the bean this generator is registered under using the default constructor.
      */
@@ -63,59 +63,60 @@ public class HashCodeCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<Has
         return generator.hash;
     }
     
-    @Override
-    protected void append(LongGenerator generator, long a[]) {
-        for (final long element : a) {
-            generator.hash = MULTIPLIER * generator.hash + element;
-        }
-    }
 
     @Override
-    protected void append(LongGenerator generator, int a[]) {
-        for (final int element : a) {
-            generator.hash = MULTIPLIER * generator.hash + element;
-        }
-    }
-
-    @Override
-    protected void append(LongGenerator generator, short a[]) {
-        for (final short element : a) {
-            generator.hash = MULTIPLIER * generator.hash + element;
-        }
-    }
-
-    @Override
-    protected void append(LongGenerator generator, char a[]) {
-        for (final char element : a) {
-            generator.hash = MULTIPLIER * generator.hash + element;
-        }
-    }
-
-    @Override
-    protected void append(LongGenerator generator, byte a[]) {
-        for (final byte element : a) {
-            generator.hash = MULTIPLIER * generator.hash + element;
-        }
-    }
-
-    @Override
-    protected void append(LongGenerator generator, boolean a[]) {
+    protected void append(LongGenerator generator, boolean[] a) {
         for (final boolean element : a) {
             generator.hash = MULTIPLIER * generator.hash + (element ? 1231 : 1237);
         }
     }
 
     @Override
-    protected void append(LongGenerator generator, float a[]) {
+    protected void append(LongGenerator generator, byte[] a) {
+        for (final byte element : a) {
+            generator.hash = MULTIPLIER * generator.hash + element;
+        }
+    }
+
+    @Override
+    protected void append(LongGenerator generator, char[] a) {
+        for (final char element : a) {
+            generator.hash = MULTIPLIER * generator.hash + element;
+        }
+    }
+
+    @Override
+    protected void append(LongGenerator generator, double[] a) {
+        for (final double element : a) {
+            generator.hash = MULTIPLIER * generator.hash + Double.doubleToLongBits(element);
+        }
+    }
+
+    @Override
+    protected void append(LongGenerator generator, float[] a) {
         for (final float element : a) {
             generator.hash = MULTIPLIER * generator.hash + Float.floatToIntBits(element);
         }
     }
 
     @Override
-    protected void append(LongGenerator generator, double a[]) {
-        for (final double element : a) {
-            generator.hash = MULTIPLIER * generator.hash + Double.doubleToLongBits(element);
+    protected void append(LongGenerator generator, int[] a) {
+        for (final int element : a) {
+            generator.hash = MULTIPLIER * generator.hash + element;
+        }
+    }
+
+    @Override
+    protected void append(LongGenerator generator, long[] a) {
+        for (final long element : a) {
+            generator.hash = MULTIPLIER * generator.hash + element;
+        }
+    }
+
+    @Override
+    protected void append(LongGenerator generator, short[] a) {
+        for (final short element : a) {
+            generator.hash = MULTIPLIER * generator.hash + element;
         }
     }
 
@@ -128,17 +129,10 @@ public class HashCodeCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<Has
     protected void appendNull(LongGenerator generator) {
         generator.hash = MULTIPLIER * generator.hash;
     }
-
+    
     @Override
-    protected void append(LongGenerator generator, Object e) {
-        if (e instanceof Class<?>) {
-            this.append(generator, ((Class<?>)e).getName());
-        }
-        else if (e instanceof Enum<?>) {
-            this.append(generator, ((Enum<?>)e).getClass().getName());
-            this.append(generator, ((Enum<?>)e).name());
-        }
-        else if (e instanceof Double) {
+    protected void appendHash(LongGenerator generator, Object e) {
+        if (e instanceof Double) {
             generator.hash = MULTIPLIER * generator.hash + Double.doubleToLongBits(((Double)e).doubleValue());
         }
         else if (e instanceof Long) {
@@ -147,10 +141,5 @@ public class HashCodeCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<Has
         else {        
             generator.hash = MULTIPLIER * generator.hash + e.hashCode();
         }
-    }
-
-    @Override
-    protected boolean shouldReflect(Object element) {
-        return !this.getReflectionHelper().implementsHashCode(element);
     }
 }

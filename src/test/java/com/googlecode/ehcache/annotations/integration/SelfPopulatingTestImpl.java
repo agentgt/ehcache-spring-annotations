@@ -18,6 +18,9 @@ package com.googlecode.ehcache.annotations.integration;
 
 import java.util.concurrent.CountDownLatch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  *
@@ -25,6 +28,8 @@ import java.util.concurrent.CountDownLatch;
  * @version $Id$
  */
 public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     private volatile int interfaceAnnotatedExceptionCachedCount = 0;
     private volatile int interfaceAnnotatedExceptionCachedThrowsCount = 0;
 	private volatile int blockingAInvocationCount = 0;
@@ -48,38 +53,47 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
     }
 
 	public String blockingA(String argument) {
+	    logger.trace("Enter blockingA({})", argument);
         threadRunningLatch.countDown();
 	    try {
+	        logger.trace("Waiting in blockingA({})", argument);
             proccedLatch.await();
         }
         catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
         blockingAInvocationCount++;
+        logger.trace("Returning from blockingA({})", argument);
 		return "blockingA says: " + argument;
 	}
 
     public String blockingB(String argument) {
+        logger.trace("Enter blockingB({})", argument);
         threadRunningLatch.countDown();
         try {
+            logger.trace("Waiting in blockingB({})", argument);
             proccedLatch.await();
         }
         catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
         blockingBInvocationCount++;
+        logger.trace("Returning from blockingB({})", argument);
         return "blockingB says: " + argument;
     }
 	
 	public String nonBlocking(String argument) {
+        logger.trace("Enter nonBlocking({})", argument);
         threadRunningLatch.countDown();
         try {
+            logger.trace("Waiting in nonBlocking({})", argument);
             proccedLatch.await();
         }
         catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
         nonBlockingInvocationCount++;
+        logger.trace("Returning from nonBlocking({})", argument);
 		return "nonBlocking says: " + argument;
 	}
 	

@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class MessageDigestCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<MessageDigestOutputStream, String> {
+public class MessageDigestCacheKeyGenerator extends AbstractHashingCacheKeyGenerator<MessageDigestOutputStream, String> {
     /**
      * Name of the bean this generator is registered under using the default constructor.
      */
@@ -174,7 +174,7 @@ public class MessageDigestCacheKeyGenerator extends AbstractDeepCacheKeyGenerato
     protected void append(MessageDigestOutputStream generator, short[] a) {
         for (final short element : a) {
             generator.writeShort(element);
-        }        
+        }
     }
 
     @Override
@@ -188,20 +188,8 @@ public class MessageDigestCacheKeyGenerator extends AbstractDeepCacheKeyGenerato
     }
 
     @Override
-    protected boolean shouldReflect(Object element) {
-        return !super.getReflectionHelper().implementsHashCode(element);
-    }
-
-    @Override
-    protected void append(MessageDigestOutputStream generator, Object e) {
-        if (e instanceof Class<?>) {
-            this.append(generator, ((Class<?>)e).getName());
-        }
-        else if (e instanceof Enum<?>) {
-            this.append(generator, ((Enum<?>)e).getClass().getName());
-            this.append(generator, ((Enum<?>)e).name());
-        }
-        else if (e instanceof String) {
+    protected void appendHash(MessageDigestOutputStream generator, Object e) {
+        if (e instanceof String) {
             generator.writeUTF((String)e);
         }
         else if (e instanceof Boolean) {

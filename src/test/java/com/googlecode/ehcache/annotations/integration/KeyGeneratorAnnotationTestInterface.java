@@ -50,7 +50,7 @@ public interface KeyGeneratorAnnotationTestInterface {
             keyGenerator = @KeyGenerator (
                         name = "com.googlecode.ehcache.annotations.integration.MockCacheKeyGenerator",
                         properties = {
-                                @Property( name="enumProperty", value="DAYS"),
+                                @Property( name="enumProperty", value="SECONDS"),
                                 @Property( name="listProperty", ref="listBean" )
                         }
                     )
@@ -62,7 +62,7 @@ public interface KeyGeneratorAnnotationTestInterface {
                         name = "com.googlecode.ehcache.annotations.integration.MockCacheKeyGenerator",
                         properties = {
                                 @Property( name="listProperty", ref="listBean" ),
-                                @Property( name="enumProperty", value="DAYS")
+                                @Property( name="enumProperty", value="SECONDS")
                         }
                     )
             )
@@ -72,7 +72,7 @@ public interface KeyGeneratorAnnotationTestInterface {
             keyGenerator = @KeyGenerator (
                         name = "com.googlecode.ehcache.annotations.integration.MockCacheKeyGenerator",
                         properties = {
-                                @Property( name="enumProperty", value="DAYS")
+                                @Property( name="enumProperty", value="SECONDS")
                         }
                     )
             )

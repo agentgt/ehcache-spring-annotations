@@ -1,0 +1,17 @@
+Bundle-SymbolicName: ehcache-spring-annotations
+Bundle-Version: ${bundle.version}
+Bundle-Name: Ehcache Spring Annotations
+Bundle-ManifestVersion: 2
+Excluded-Imports:
+ com.googlecode.ehcache.annotations.impl
+Import-Template:
+ com.googlecode.ehcache.annotations.*;version="${bundle.version}",
+ org.aopalliance.*;version="${aopalliance.osgi.version:majorMinor}",
+ org.apache.commons.codec.*;version="${commons-codec.osgi.version:majorMinor}",
+ net.sf.ehcache.*;version="${ehcache.osgi.version:majorMinor}",
+ org.springframework.*;version="${org.springframework.osgi.version:springMajorMinor}",
+ org.slf4j.*;version="${slf4j.osgi.version:majorMinor}",
+ org.w3c.dom.*;version="0";resolution:=optional
+Version-Patterns:
+ majorMinor;pattern="[=.=, +1.0)",
+ springMajorMinor;pattern="[=.=, +2.0)"

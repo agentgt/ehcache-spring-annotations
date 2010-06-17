@@ -58,9 +58,31 @@
     </mailingLists>
 
 	<properties>
-		<ehcache.version>2.0.1</ehcache.version>
-		<org.springframework.version>3.0.2.RELEASE</org.springframework.version>
-		<slf4j.version>1.6.0</slf4j.version>
+		<bundle.version>1.1.0</bundle.version>
+        
+        
+        <!-- compile dependencies -->
+		<aopalliance.version>1.0</aopalliance.version>
+		<commons-codec.version>1.4</commons-codec.version>
+		<ehcache.version>2.1.0</ehcache.version>
+        <org.springframework.version>3.0.3.RELEASE</org.springframework.version>
+        <slf4j.version>1.6.0</slf4j.version>
+
+        <!-- 
+         | Note that the osgi version properties specify the minimum version that works
+         +-->
+        <aopalliance.osgi.version>${aopalliance.version}</aopalliance.osgi.version>
+        <commons-codec.osgi.version>1.0</commons-codec.osgi.version>
+		<ehcache.osgi.version>2.0</ehcache.osgi.version>
+		<org.springframework.osgi.version>2.5</org.springframework.osgi.version>
+        <slf4j.osgi.version>1.5</slf4j.osgi.version>
+        
+        
+        <!-- test dependencies -->
+        <cglib.version>2.2</cglib.version>
+        <easymock.version>3.0</easymock.version>
+        <junit.version>4.8.1</junit.version>
+        <log4j.version>1.2.16</log4j.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         
@@ -68,37 +90,40 @@
         <m2st-gatc-config>_setDetectFlash(true),_setDetectTitle(false)</m2st-gatc-config>
 	</properties>
     
+    <pluginRepositories>
+        <pluginRepository>
+            <id>com.springsource.repository.bundles.milestone</id>
+            <name>SpringSource Enterprise Bundle Repository</name>
+            <url>http://repository.springsource.com/maven/bundles/release</url>
+        </pluginRepository>
+    </pluginRepositories>
+    
     <dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>aopalliance</groupId>
 				<artifactId>aopalliance</artifactId>
-				<version>1.0</version>
+				<version>${aopalliance.version}</version>
 			</dependency>
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
-                <version>2.2</version>
+                <version>${cglib.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.4</version>
+                <version>${commons-codec.version}</version>
             </dependency>
-			<dependency>
-				<groupId>javax.transaction</groupId>
-				<artifactId>jta</artifactId>
-				<version>1.0.1B</version>
-			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<version>4.8.1</version>
+				<version>${junit.version}</version>
 			</dependency>
             <dependency>
                 <groupId>org.easymock</groupId>
                 <artifactId>easymock</artifactId>
-                <version>3.0</version>
+                <version>${easymock.version}</version>
             </dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
@@ -118,7 +143,7 @@
 			<dependency>
 				<groupId>log4j</groupId>
 				<artifactId>log4j</artifactId>
-				<version>1.2.16</version>
+				<version>${log4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.ehcache</groupId>
@@ -207,12 +232,6 @@
 			<artifactId>ehcache-core</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>javax.transaction</groupId>
-			<artifactId>jta</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
@@ -292,10 +311,7 @@
 				<version>2.3</version>
 				<configuration>
 					<archive>
-						<manifest>
-							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-						</manifest>
+						<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
 					</archive>
 				</configuration>
 			</plugin>
@@ -350,6 +366,19 @@
                         <exclude>src/main/java/com/googlecode/ehcache/annotations/util/guice/*</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.springsource.bundlor</groupId>
+				<artifactId>com.springsource.bundlor.maven</artifactId>
+				<version>1.0.0.RELEASE</version>
+				<executions>
+					<execution>
+						<id>bundlor</id>
+						<goals>
+							<goal>bundlor</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

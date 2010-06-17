@@ -61,7 +61,7 @@ public class StringCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTe
 
     @Override
     protected void verifyTestEnumHashCode(MethodInvocation invocation, String key) {
-        Assert.assertEquals("[DAYS]", key);
+        Assert.assertEquals("[SECONDS, TEST1]", key);
     }
 
     @Override

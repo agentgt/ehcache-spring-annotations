@@ -90,7 +90,7 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
 
     @Override
     protected void verifyTestEnumHashCode(MethodInvocation invocation, ReadOnlyList<?> key) {
-        final List<?> expected = Arrays.asList(TimeUnit.DAYS);
+        final List<?> expected = Arrays.asList(TimeUnit.SECONDS, TestEnum.TEST1);
         
         Assert.assertEquals(expected, key);
         Assert.assertEquals(expected.hashCode(), key.hashCode());

@@ -60,7 +60,7 @@ public class ListCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<ListCac
     
     @Override
     public ReadOnlyList<?> generateKey(ListKeyGenerator generator) {
-        final ArrayList<Object> key = generator.keyStack.peekFirst();
+        final ArrayList<Object> key = generator.keyStack.getFirst();
         return new ReadOnlyList<Object>(key);
     }
     
@@ -86,7 +86,7 @@ public class ListCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<ListCac
         }
         
         //Stick the new list on the stack
-        generator.keyStack.push(generator.current);
+        generator.keyStack.addFirst(generator.current);
         
         //If there was a previous list add the new list to it
         if (previous != null) {
@@ -97,7 +97,7 @@ public class ListCacheKeyGenerator extends AbstractDeepCacheKeyGenerator<ListCac
     @Override
     protected void endRecursion(ListKeyGenerator generator, Object e) {
         if (generator.keyStack.size() > 1) {
-            generator.keyStack.pop();
+            generator.keyStack.removeFirst();
             generator.current = generator.keyStack.peek();
         }
     }

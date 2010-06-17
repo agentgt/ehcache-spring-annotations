@@ -76,13 +76,13 @@ public class KeyGeneratorAnnotationTest {
                 }
                 foundOne = true;
             }
-            else if (enumProperty == TimeUnit.DAYS && Arrays.asList("a", "1", "c").equals(listProperty)) {
+            else if (enumProperty == TimeUnit.SECONDS && Arrays.asList("a", "1", "c").equals(listProperty)) {
                 if (foundTwoThree) {
                     Assert.fail("MockCacheKeyGenerator for methods customGeneratorTwo and customGeneratorThree was already found once");
                 }
                 foundTwoThree = true;
             }
-            else if (enumProperty == TimeUnit.DAYS && listProperty == null) {
+            else if (enumProperty == TimeUnit.SECONDS && listProperty == null) {
                 if (foundFour) {
                     Assert.fail("MockCacheKeyGenerator for method customGeneratorFour was already found once");
                 }
