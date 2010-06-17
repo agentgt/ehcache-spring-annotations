@@ -35,7 +35,6 @@ import org.junit.Test;
 
 import com.googlecode.ehcache.annotations.util.MockMethodInvocation;
 import com.googlecode.ehcache.annotations.util.ThreadGroupRunner;
-import com.googlecode.ehcache.annotations.util.guice.CachingReflectionHelper;
 
 /**
  * @author Eric Dalquist

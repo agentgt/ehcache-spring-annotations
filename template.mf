@@ -4,6 +4,7 @@ Bundle-Name: Ehcache Spring Annotations
 Bundle-ManifestVersion: 2
 Excluded-Imports:
  com.googlecode.ehcache.annotations.impl
+ com.googlecode.ehcache.annotations.util
 Import-Template:
  com.googlecode.ehcache.annotations.*;version="${bundle.version}",
  org.aopalliance.*;version="${aopalliance.osgi.version:majorMinor}",

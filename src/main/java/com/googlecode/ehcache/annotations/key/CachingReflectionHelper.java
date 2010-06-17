@@ -4,7 +4,7 @@
  * https://www.ja-sig.org/svn/jasig-parent/tags/rel-10/license-header.txt
  */
 
-package com.googlecode.ehcache.annotations.util.guice;
+package com.googlecode.ehcache.annotations.key;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
@@ -20,7 +20,9 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 
-import com.googlecode.ehcache.annotations.key.ReflectionHelper;
+import com.googlecode.ehcache.annotations.util.guice.FinalizableReference;
+import com.googlecode.ehcache.annotations.util.guice.ReferenceMap;
+import com.googlecode.ehcache.annotations.util.guice.ReferenceType;
 
 
 /**

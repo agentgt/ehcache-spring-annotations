@@ -43,13 +43,13 @@ import com.googlecode.ehcache.annotations.impl.CacheAttributeSourceImpl;
 import com.googlecode.ehcache.annotations.impl.CacheStaticMethodMatcherPointcut;
 import com.googlecode.ehcache.annotations.interceptor.EhCacheInterceptor;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
+import com.googlecode.ehcache.annotations.key.CachingReflectionHelper;
 import com.googlecode.ehcache.annotations.key.HashCodeCacheKeyGenerator;
 import com.googlecode.ehcache.annotations.key.ListCacheKeyGenerator;
 import com.googlecode.ehcache.annotations.key.MessageDigestCacheKeyGenerator;
 import com.googlecode.ehcache.annotations.key.ReflectionHashCodeCacheKeyGenerator;
 import com.googlecode.ehcache.annotations.key.ReflectionHelperAware;
 import com.googlecode.ehcache.annotations.key.StringCacheKeyGenerator;
-import com.googlecode.ehcache.annotations.util.guice.CachingReflectionHelper;
 
 
 /**
