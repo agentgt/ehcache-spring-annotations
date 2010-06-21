@@ -16,10 +16,11 @@
 
 package com.googlecode.ehcache.annotations.key;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Date;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Assert;
 
 /**
  * @author Eric Dalquist
@@ -34,70 +35,92 @@ public class StringCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTe
 
     @Override
     protected void verifyClassHashCode(MethodInvocation invocation, String key) {
-        Assert.assertEquals("[class java.lang.Integer]", key);
+        assertEquals("[class java.lang.Integer]", key);
         
     }
 
     @Override
     protected void verifyTestCircularReference(MethodInvocation invocation, String key) {
-        Assert.assertEquals(
+        assertEquals(
                 "[[[[...], childArgString], argString]]",
                 key);
     }
 
     @Override
     protected void verifyTestCircularReferenceWithReflection(MethodInvocation invocation, String key) {
-        Assert.assertEquals(
+        assertEquals(
                 "[[[[class com.googlecode.ehcache.annotations.key.RequiresReflectionKey, [...]], childArgString], argString]]", 
                 key);
     }
 
     @Override
     protected void verifyTestComplexHashCode(MethodInvocation invocation, String key) {
-        Assert.assertEquals(
+        assertEquals(
                 "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod2, class java.lang.Object, [[1, 2, 3, 4], foo, [false, true], [null, " + new Date(0) + "]]]",
                 key);
     }
 
     @Override
     protected void verifyTestEnumHashCode(MethodInvocation invocation, String key) {
-        Assert.assertEquals("[SECONDS, TEST1]", key);
+        assertEquals("[SECONDS, TEST1]", key);
     }
 
     @Override
     protected void verifyTestForDocs(MethodInvocation invocation, String key) {
-        Assert.assertEquals(
+        assertEquals(
                 "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [49931]]",
                 key);
     }
 
     @Override
     protected void verifyTestPrimitiveArrayHandling(MethodInvocation invocation, String key) {
-        Assert.assertEquals(
+        assertEquals(
                 "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [[[], [], [], [], [], [], [], [], [1], [2], [3], [4], [a], [6.8], [7.9], [true], [1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12], [a, b, c], [16.1, 17.2, 18.3], [19.4, 20.5, 21.6], [true, false, false]]]]",
                 key);
     }
 
     @Override
     protected void verifyTestCollectionHandling(MethodInvocation invocation, String key) {
-        Assert.assertEquals(
+        assertEquals(
                 "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [[[foo, bar, bop], [[A, 123], [B, [hello, world]]]]]]",
                 key);        
     }
 
     @Override
     protected void verifyTestPrimitiveHandling(MethodInvocation invocation, String key) {
-        Assert.assertEquals(
+        assertEquals(
                 "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [[1, 2, 3, 4, a, 6.8, 7.9, true]]]",
                 key);        
     }
 
     @Override
     protected void verifyTestNoArguments(MethodInvocation invocation, String key) {
-        Assert.assertEquals(
+        assertEquals(
                 "[]",
                 key);              
     }
-    
-    
+
+    @Override
+    protected void verifyTestGeneratesDifferentKeysWithDifferentNonIntegerPartsOfDoubleParameter(
+            MethodInvocation invocation, String firstKey, String secondKey) {
+        assertEquals(
+                "[1.5]",
+                firstKey);
+        
+        assertEquals(
+                "[1.7]",
+                secondKey);
+    }
+
+    @Override
+    protected void verifyTestGeneratesDifferentKeysWithDifferentNonIntegerPartsOfFloatParameter(
+            MethodInvocation invocation, String firstKey, String secondKey) {
+        assertEquals(
+                "[1.5]",
+                firstKey);
+        
+        assertEquals(
+                "[1.7]",
+                secondKey);
+    }
 }

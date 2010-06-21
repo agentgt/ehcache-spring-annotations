@@ -16,6 +16,12 @@
 
 package com.googlecode.ehcache.annotations.key;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertFalse;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -28,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 import junit.framework.Assert;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.easymock.EasyMock;
 import org.junit.Test;
 
 /**
@@ -63,10 +68,10 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         childArg[0] = arg;
         childArg[1] = "childArgString";
         
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { arg });
+        final MethodInvocation invocation = createMock(MethodInvocation.class);
+        expect(invocation.getArguments()).andReturn(new Object[] { arg });
         
-        EasyMock.replay(invocation);
+        replay(invocation);
 
         try {
             generator.generateKey(invocation);
@@ -76,7 +81,7 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
             //expected
         }
         
-        EasyMock.verify(invocation);
+        verify(invocation);
     }
     
     /**
@@ -98,16 +103,16 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         childArg[0] = arg;
         childArg[1] = "childArgString";
         
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { arg });
+        final MethodInvocation invocation = createMock(MethodInvocation.class);
+        expect(invocation.getArguments()).andReturn(new Object[] { arg });
         
-        EasyMock.replay(invocation);
+        replay(invocation);
         
         final T key = generator.generateKey(invocation);
         
         this.verifyTestCircularReference(invocation, key);
         
-        EasyMock.verify(invocation);
+        verify(invocation);
     }
     protected abstract void verifyTestCircularReference(MethodInvocation invocation, T key);
     
@@ -130,16 +135,16 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         childArg[0] = new RequiresReflectionKey(arg);
         childArg[1] = "childArgString";
         
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { arg });
+        final MethodInvocation invocation = createMock(MethodInvocation.class);
+        expect(invocation.getArguments()).andReturn(new Object[] { arg });
         
-        EasyMock.replay(invocation);
+        replay(invocation);
         
         final T key = generator.generateKey(invocation);
         
         this.verifyTestCircularReferenceWithReflection(invocation, key);
         
-        EasyMock.verify(invocation);
+        verify(invocation);
     }
     protected abstract void verifyTestCircularReferenceWithReflection(MethodInvocation invocation, T key);
     
@@ -159,16 +164,16 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         
         final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
         
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { "49931" });
+        final MethodInvocation invocation = createMock(MethodInvocation.class);
+        expect(invocation.getMethod()).andReturn(testMethod);
+        expect(invocation.getArguments()).andReturn(new Object[] { "49931" });
         
-        EasyMock.replay(invocation);
+        replay(invocation);
         
         final T key = generator.generateKey(invocation);
         this.verifyTestForDocs(invocation, key);
         
-        EasyMock.verify(invocation);
+        verify(invocation);
     }
     protected abstract void verifyTestForDocs(MethodInvocation invocation, T key);
     
@@ -184,15 +189,15 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         generator.setCheckforCycles(true);
         generator.setUseReflection(false);
         
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { TimeUnit.SECONDS, TestEnum.TEST1 });
+        final MethodInvocation invocation = createMock(MethodInvocation.class);
+        expect(invocation.getArguments()).andReturn(new Object[] { TimeUnit.SECONDS, TestEnum.TEST1 });
         
-        EasyMock.replay(invocation);
+        replay(invocation);
         
         final T key = generator.generateKey(invocation);
         this.verifyTestEnumHashCode(invocation, key);
         
-        EasyMock.verify(invocation);
+        verify(invocation);
     }
     protected abstract void verifyTestEnumHashCode(MethodInvocation invocation, T key);
     
@@ -208,15 +213,15 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         generator.setCheckforCycles(true);
         generator.setUseReflection(false);
         
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { Integer.class });
+        final MethodInvocation invocation = createMock(MethodInvocation.class);
+        expect(invocation.getArguments()).andReturn(new Object[] { Integer.class });
         
-        EasyMock.replay(invocation);
+        replay(invocation);
         
         final T key = generator.generateKey(invocation);
         this.verifyClassHashCode(invocation, key);
         
-        EasyMock.verify(invocation);
+        verify(invocation);
     }
     protected abstract void verifyClassHashCode(MethodInvocation invocation, T key);
 
@@ -231,21 +236,21 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         
         final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod2", int[].class, String.class, boolean[].class, Object.class);
         
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { 
+        final MethodInvocation invocation = createMock(MethodInvocation.class);
+        expect(invocation.getMethod()).andReturn(testMethod);
+        expect(invocation.getArguments()).andReturn(new Object[] { 
                 new int[] {1, 2, 3, 4}, 
                 "foo", 
                 new boolean[] {false, true},
                 new Object[] { null, new Date(0) }
                 });
         
-        EasyMock.replay(invocation);
+        replay(invocation);
         
         final T key = generator.generateKey(invocation);
         this.verifyTestComplexHashCode(invocation, key);
         
-        EasyMock.verify(invocation);
+        verify(invocation);
     }
     protected abstract void verifyTestComplexHashCode(MethodInvocation invocation, T key);
 
@@ -260,9 +265,9 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         
         final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
         
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { 
+        final MethodInvocation invocation = createMock(MethodInvocation.class);
+        expect(invocation.getMethod()).andReturn(testMethod);
+        expect(invocation.getArguments()).andReturn(new Object[] { 
                     new Object[] { 
                         new byte[] {},
                         new short[] {},
@@ -293,12 +298,12 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
                     }
                 });
         
-        EasyMock.replay(invocation);
+        replay(invocation);
         
         final T key = generator.generateKey(invocation);
         this.verifyTestPrimitiveArrayHandling(invocation, key);
         
-        EasyMock.verify(invocation);
+        verify(invocation);
     }
     protected abstract void verifyTestPrimitiveArrayHandling(MethodInvocation invocation, T key);
     
@@ -313,9 +318,9 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         
         final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
         
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { 
+        final MethodInvocation invocation = createMock(MethodInvocation.class);
+        expect(invocation.getMethod()).andReturn(testMethod);
+        expect(invocation.getArguments()).andReturn(new Object[] { 
                     new Object[] { 
                         (byte)1,
                         (short)2,
@@ -328,12 +333,12 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
                     }
                 });
         
-        EasyMock.replay(invocation);
+        replay(invocation);
         
         final T key = generator.generateKey(invocation);
         this.verifyTestPrimitiveHandling(invocation, key);
         
-        EasyMock.verify(invocation);
+        verify(invocation);
     }
     protected abstract void verifyTestPrimitiveHandling(MethodInvocation invocation, T key);
     
@@ -348,26 +353,26 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         
         final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
         
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getMethod()).andReturn(testMethod);
+        final MethodInvocation invocation = createMock(MethodInvocation.class);
+        expect(invocation.getMethod()).andReturn(testMethod);
         
         final Map<Object, Object> testMap = new HashMap<Object, Object>();
         testMap.put("A", 123);
         testMap.put("B", new String[] {"hello", "world"});
         
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { 
+        expect(invocation.getArguments()).andReturn(new Object[] { 
                     new Object[] { 
                         new LinkedHashSet<Object>(Arrays.asList("foo", "bar", "bop")),
                         testMap
                     }
                 });
         
-        EasyMock.replay(invocation);
+        replay(invocation);
         
         final T key = generator.generateKey(invocation);
         this.verifyTestCollectionHandling(invocation, key);
         
-        EasyMock.verify(invocation);
+        verify(invocation);
     }
     protected abstract void verifyTestCollectionHandling(MethodInvocation invocation, T key);
     
@@ -380,15 +385,76 @@ public abstract class AbstractDeepCacheKeyGeneratorTest<T extends Serializable> 
         generator.setCheckforCycles(false);
         generator.setUseReflection(false);
         
-        final MethodInvocation invocation = EasyMock.createMock(MethodInvocation.class);
-        EasyMock.expect(invocation.getArguments()).andReturn(new Object[] { });
+        final MethodInvocation invocation = createMock(MethodInvocation.class);
+        expect(invocation.getArguments()).andReturn(new Object[] { });
         
-        EasyMock.replay(invocation);
+        replay(invocation);
         
         final T key = generator.generateKey(invocation);
         this.verifyTestNoArguments(invocation, key);
         
-        EasyMock.verify(invocation);
+        verify(invocation);
     }
     protected abstract void verifyTestNoArguments(MethodInvocation invocation, T key);
+    
+    @Test
+    public final void testGeneratesDifferentKeysWithDifferentNonIntegerPartsOfFloatParameter() throws Exception {
+        final AbstractDeepCacheKeyGenerator<?, T> generator = this.getCacheKeyGenerator();
+        
+        generator.setIncludeMethod(false);
+        generator.setIncludeParameterTypes(false);
+        generator.setCheckforCycles(false);
+        generator.setUseReflection(false);
+        
+        final MethodInvocation firstInvocation = createMock(MethodInvocation.class);
+        expect(firstInvocation.getArguments()).andReturn(new Object[] { 1.5f });
+        
+        final MethodInvocation secondInvocation = createMock(MethodInvocation.class);
+        expect(secondInvocation.getArguments()).andReturn(new Object[] { 1.7f });
+        
+        
+        replay(firstInvocation, secondInvocation);
+        
+        final T firstKey = generator.generateKey(firstInvocation);
+        final T secondKey = generator.generateKey(secondInvocation);
+
+        assertFalse(firstKey.equals(secondKey));
+        assertFalse(secondKey.equals(firstKey));
+
+        this.verifyTestGeneratesDifferentKeysWithDifferentNonIntegerPartsOfFloatParameter(firstInvocation, firstKey, secondKey);
+        
+        verify(firstInvocation, secondInvocation);
+    }
+    protected abstract void verifyTestGeneratesDifferentKeysWithDifferentNonIntegerPartsOfFloatParameter(MethodInvocation invocation, T firstKey, T secondKey);
+    
+    @Test
+    public final void testGeneratesDifferentKeysWithDifferentNonIntegerPartsOfDoubleParameter() throws Exception {
+        final AbstractDeepCacheKeyGenerator<?, T> generator = this.getCacheKeyGenerator();
+        
+        generator.setIncludeMethod(false);
+        generator.setIncludeParameterTypes(false);
+        generator.setCheckforCycles(false);
+        generator.setUseReflection(false);
+        
+        final MethodInvocation firstInvocation = createMock(MethodInvocation.class);
+        expect(firstInvocation.getArguments()).andReturn(new Object[] { 1.5d });
+        
+        final MethodInvocation secondInvocation = createMock(MethodInvocation.class);
+        expect(secondInvocation.getArguments()).andReturn(new Object[] { 1.7d });
+        
+        
+        replay(firstInvocation, secondInvocation);
+        
+        final T firstKey = generator.generateKey(firstInvocation);
+        final T secondKey = generator.generateKey(secondInvocation);
+
+        assertFalse(firstKey.equals(secondKey));
+        assertFalse(secondKey.equals(firstKey));
+
+        this.verifyTestGeneratesDifferentKeysWithDifferentNonIntegerPartsOfDoubleParameter(firstInvocation, firstKey, secondKey);
+        
+        verify(firstInvocation, secondInvocation);
+    }
+    protected abstract void verifyTestGeneratesDifferentKeysWithDifferentNonIntegerPartsOfDoubleParameter(MethodInvocation invocation, T firstKey, T secondKey);
+    
 }

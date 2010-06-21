@@ -16,12 +16,12 @@
 
 package com.googlecode.ehcache.annotations.key;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import junit.framework.Assert;
 
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -41,8 +41,8 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
     protected void verifyClassHashCode(MethodInvocation invocation, ReadOnlyList<?> key) {
         final List<?> expected = Arrays.asList(Integer.class);
         
-        Assert.assertEquals(expected, key);
-        Assert.assertEquals(expected.hashCode(), key.hashCode());
+        assertEquals(expected, key);
+        assertEquals(expected.hashCode(), key.hashCode());
     }
 
     @Override
@@ -53,8 +53,8 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
                     "argString")
                 );
         
-        Assert.assertEquals(expected, key);        
-        Assert.assertEquals(expected.hashCode(), key.hashCode());
+        assertEquals(expected, key);        
+        assertEquals(expected.hashCode(), key.hashCode());
     }
 
     @Override
@@ -67,8 +67,8 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
                     "argString")
                 );
          
-        Assert.assertEquals(expected, key); 
-        Assert.assertEquals(expected.hashCode(), key.hashCode());
+        assertEquals(expected, key); 
+        assertEquals(expected.hashCode(), key.hashCode());
     }
 
     @Override
@@ -84,16 +84,16 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
                     Arrays.asList(null, new Date(0))
                 ));
         
-        Assert.assertEquals(expected, key);
-        Assert.assertEquals(expected.hashCode(), key.hashCode());
+        assertEquals(expected, key);
+        assertEquals(expected.hashCode(), key.hashCode());
     }
 
     @Override
     protected void verifyTestEnumHashCode(MethodInvocation invocation, ReadOnlyList<?> key) {
         final List<?> expected = Arrays.asList(TimeUnit.SECONDS, TestEnum.TEST1);
         
-        Assert.assertEquals(expected, key);
-        Assert.assertEquals(expected.hashCode(), key.hashCode());
+        assertEquals(expected, key);
+        assertEquals(expected.hashCode(), key.hashCode());
     }
 
     @Override
@@ -105,8 +105,8 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
                 Arrays.asList(Object.class),
                 Arrays.asList("49931"));
         
-        Assert.assertEquals(expected, key);        
-        Assert.assertEquals(expected.hashCode(), key.hashCode());
+        assertEquals(expected, key);        
+        assertEquals(expected.hashCode(), key.hashCode());
     }
 
     @Override
@@ -147,8 +147,8 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
                     )
                 ));
         
-        Assert.assertEquals(expected, key);        
-        Assert.assertEquals(expected.hashCode(), key.hashCode());        
+        assertEquals(expected, key);        
+        assertEquals(expected.hashCode(), key.hashCode());        
     }
 
     @Override
@@ -172,8 +172,8 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
                     )
                 ));
         
-        Assert.assertEquals(expected, key);        
-        Assert.assertEquals(expected.hashCode(), key.hashCode());
+        assertEquals(expected, key);        
+        assertEquals(expected.hashCode(), key.hashCode());
     }
 
     @Override
@@ -196,14 +196,40 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
                     )
                 ));
         
-        Assert.assertEquals(expected, key);        
-        Assert.assertEquals(expected.hashCode(), key.hashCode());            
+        assertEquals(expected, key);        
+        assertEquals(expected.hashCode(), key.hashCode());            
     }
 
     @Override
     protected void verifyTestNoArguments(MethodInvocation invocation, ReadOnlyList<?> key) {
         final List<?> expected = Arrays.asList();
-        Assert.assertEquals(expected, key);        
-        Assert.assertEquals(expected.hashCode(), key.hashCode());
+        assertEquals(expected, key);        
+        assertEquals(expected.hashCode(), key.hashCode());
+    }
+
+    @Override
+    protected void verifyTestGeneratesDifferentKeysWithDifferentNonIntegerPartsOfDoubleParameter(
+            MethodInvocation invocation, ReadOnlyList<?> firstKey, ReadOnlyList<?> secondKey) {
+        
+        final List<?> firstExpected = Arrays.asList(1.5d);
+        assertEquals(firstExpected, firstKey);
+        assertEquals(firstExpected.hashCode(), firstKey.hashCode());
+        
+        final List<?> secondExpected = Arrays.asList(1.7d);
+        assertEquals(secondExpected, secondKey);
+        assertEquals(secondExpected.hashCode(), secondKey.hashCode());
+    }
+
+    @Override
+    protected void verifyTestGeneratesDifferentKeysWithDifferentNonIntegerPartsOfFloatParameter(
+            MethodInvocation invocation, ReadOnlyList<?> firstKey, ReadOnlyList<?> secondKey) {
+        
+        final List<?> firstExpected = Arrays.asList(1.5f);
+        assertEquals(firstExpected, firstKey);
+        assertEquals(firstExpected.hashCode(), firstKey.hashCode());
+        
+        final List<?> secondExpected = Arrays.asList(1.7f);
+        assertEquals(secondExpected, secondKey);
+        assertEquals(secondExpected.hashCode(), secondKey.hashCode());        
     }
 }
