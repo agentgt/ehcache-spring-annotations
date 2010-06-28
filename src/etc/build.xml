@@ -1,0 +1,88 @@
+<project name="ehcache-spring-annotations Site Utility">
+    <property environment="env" />
+    
+    <property name="svn.repository" value="https://ehcache-spring-annotations.googlecode.com/svn" />
+    <property name="mvn_project.base" value="${basedir}/../.." />
+    <property name="mvn_project.build" value="${mvn_project.base}/target" />
+
+    <target name="create-site" description="Creates and publishes the maven site for the current project">
+        <fail message="The 'M2_HOME' environment variable is not set correct. Please set it.">
+            <condition>
+                <not>
+                    <available file="${env.M2_HOME}" />
+                </not>
+            </condition>
+        </fail>
+        <fail message="The 'oldSitePath' property was not provided. Do so by adding -DoldSitePath=site/A.B.C" unless="oldSitePath"/>
+        <fail message="The 'newSitePath' property was not provided. Do so by adding -DnewSitePath=site/X.Y.Z" unless="newSitePath"/>
+        
+        <property name="oldSiteUrl" value="${svn.repository}/${oldSitePath}" />
+        <property name="newSiteUrl" value="${svn.repository}/${newSitePath}" />
+        <property name="generatedSitePath" value="${mvn_project.build}/site" />
+        <property name="siteCheckoutPath" value="${mvn_project.build}/newsite_${newSitePath}" />
+        
+        <fail message="The directory ${siteCheckoutPath} already exists. Please remove it first.">
+            <condition>
+                <available file="${siteCheckoutPath}" />
+            </condition>
+        </fail>
+
+        <echo>Generating Maven Site</echo>
+        <mvn basedir="${mvn_project.base}" goal="site"/>
+        
+        <echo>Copying old site from ${oldSiteUrl} to ${newSiteUrl}</echo>
+        <svn args="cp -m 'Creating site for ${newSitePath}' ${oldSiteUrl} ${newSiteUrl}" />
+            
+        <echo>Checking out basis for new site from ${newSiteUrl} into </echo>
+        <mkdir dir="${siteCheckoutPath}" />
+        <svn args="co ${newSiteUrl} ${siteCheckoutPath}" />
+        
+        <echo>Syncing checked out site with generated site</echo>
+        <exec executable="rsync" failonerror="true" resolveexecutable="true">
+            <arg line="-avr --progress --exclude '.svn' --delete ${generatedSitePath}/ ${siteCheckoutPath}/"/>
+        </exec>
+        
+        <echo>Fixing line endings</echo>
+        <fixcrlf srcdir="${siteCheckoutPath}" eol="unix" />
+        
+        <echo>Adding new files &amp; directories</echo>
+        <svn args="add --parents --force ${siteCheckoutPath}" />
+        
+        <echo>Commiting new site to ${newSitePath}</echo>
+        <svn args="commit -m 'Updating site for ${newSitePath}' ${siteCheckoutPath}" />
+    </target>
+    
+    <macrodef name="svn">
+        <attribute name="args" />
+        <sequential>
+            <exec executable="svn" failonerror="true" resolveexecutable="true">
+                <arg line="@{args}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+    
+    <macrodef name="mvn">
+        <attribute name="options" default="" />
+        <attribute name="goal" />
+        <attribute name="basedir" />
+        <attribute name="resultproperty" default="maven.result" />
+        <attribute name="mavenhome" default="${env.M2_HOME}" />
+        <element name="args" implicit="true" optional="true" />
+        <sequential>
+            <java classname="org.codehaus.classworlds.Launcher" fork="true" dir="@{basedir}" resultproperty="@{resultproperty}" failonerror="true">
+                <jvmarg value="-Xmx512m"/>
+                <classpath>
+                    <fileset dir="@{mavenhome}/boot">
+                        <include name="*.jar" />
+                    </fileset>
+                    <fileset dir="@{mavenhome}/lib">
+                        <include name="*.jar" />
+                    </fileset>
+                </classpath>
+                <sysproperty key="classworlds.conf" value="@{mavenhome}/bin/m2.conf" />
+                <sysproperty key="maven.home" value="@{mavenhome}" />
+                <arg line="--batch-mode @{options} @{goal}" />
+            </java>
+        </sequential>
+    </macrodef>
+</project>
