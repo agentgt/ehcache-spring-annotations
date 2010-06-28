@@ -37,4 +37,12 @@ public interface CacheKeyGenerator<T extends Serializable> {
      * @return the created key, will never be null and will be {@link Serializable}
      */
     T generateKey(MethodInvocation methodInvocation);
+    
+    /**
+     * Generates the key for a cache entry.
+     * 
+     * @param data the objects to use when generating the key 
+     * @return the created key, will never be null and will be {@link Serializable}
+     */
+    T generateKey(Object... data);
 }

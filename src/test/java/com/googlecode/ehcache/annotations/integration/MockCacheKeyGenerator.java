@@ -78,4 +78,8 @@ public class MockCacheKeyGenerator implements CacheKeyGenerator<Serializable>, I
     public Serializable generateKey(MethodInvocation methodInvocation) {
         return "MyOneAndOnlyKey";
     }
+
+    public Serializable generateKey(Object... data) {
+        return "MyOneAndOnlyKey";
+    }
 }
