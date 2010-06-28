@@ -21,12 +21,6 @@
         <property name="generatedSitePath" value="${mvn_project.build}/site" />
         <property name="siteCheckoutPath" value="${mvn_project.build}/newsite_${newSitePath}" />
         
-        <fail message="The directory ${siteCheckoutPath} already exists. Please remove it first.">
-            <condition>
-                <available file="${siteCheckoutPath}" />
-            </condition>
-        </fail>
-
         <echo>Generating Maven Site</echo>
         <mvn basedir="${mvn_project.base}" goal="site"/>
         
@@ -34,6 +28,7 @@
         <svn args="cp -m 'Creating site for ${newSitePath}' ${oldSiteUrl} ${newSiteUrl}" />
             
         <echo>Checking out basis for new site from ${newSiteUrl} into </echo>
+        <delete dir="${siteCheckoutPath}" />
         <mkdir dir="${siteCheckoutPath}" />
         <svn args="co ${newSiteUrl} ${siteCheckoutPath}" />
         
@@ -43,13 +38,28 @@
         </exec>
         
         <echo>Fixing line endings</echo>
-        <fixcrlf srcdir="${siteCheckoutPath}" eol="unix" />
+        <fixcrlf srcdir="${siteCheckoutPath}" eol="unix" includes="**/*.html" />
         
         <echo>Adding new files &amp; directories</echo>
         <svn args="add --parents --force ${siteCheckoutPath}" />
         
         <echo>Commiting new site to ${newSitePath}</echo>
         <svn args="commit -m 'Updating site for ${newSitePath}' ${siteCheckoutPath}" />
+    </target>
+    
+    <target name="update-current-site" description="Updates the current site with the specified version">
+        <fail message="The 'newSitePath' property was not provided. Do so by adding -DnewSitePath=site/X.Y.Z" unless="newSitePath"/>
+        
+        <property name="newSiteUrl" value="${svn.repository}/${newSitePath}" />
+        <property name="currentSiteUrl" value="${svn.repository}/site/current" />
+        <property name="generatedSitePath" value="${mvn_project.build}/site" />
+        <property name="siteCheckoutPath" value="${mvn_project.build}/currentsite_${newSitePath}" />
+        
+        <delete dir="${siteCheckoutPath}" />
+        
+        <svn args="co ${currentSiteUrl} ${siteCheckoutPath}" />
+        <svn args="merge --accept theirs-full ${newSiteUrl} ${siteCheckoutPath}" />
+        <svn args="commit -m 'Updating current site to ${newSitePath}' ${siteCheckoutPath}" />
     </target>
     
     <macrodef name="svn">
