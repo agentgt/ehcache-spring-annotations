@@ -35,41 +35,41 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = "/overrideDefaultCacheKeyGeneratorTestContext.xml")
 public class OverrideDefaultCacheKeyGeneratorTest {
 
-	private OverrideTestInterface testDao;
-	private OverrideTestCustomCacheKeyGenerator cacheKeyGenerator;
-	/**
-	 * @param testDao the testDao to set
-	 */
-	@Autowired
-	public void setTestDao(OverrideTestInterface testDao) {
-		this.testDao = testDao;
-	}
-	/**
-	 * @param cacheKeyGenerator the cacheKeyGenerator to set
-	 */
-	@Autowired
-	public void setCacheKeyGenerator(
-			OverrideTestCustomCacheKeyGenerator cacheKeyGenerator) {
-		this.cacheKeyGenerator = cacheKeyGenerator;
-	}
+    private OverrideTestInterface testDao;
+    private OverrideTestCustomCacheKeyGenerator cacheKeyGenerator;
+    /**
+     * @param testDao the testDao to set
+     */
+    @Autowired
+    public void setTestDao(OverrideTestInterface testDao) {
+        this.testDao = testDao;
+    }
+    /**
+     * @param cacheKeyGenerator the cacheKeyGenerator to set
+     */
+    @Autowired
+    public void setCacheKeyGenerator(
+            OverrideTestCustomCacheKeyGenerator cacheKeyGenerator) {
+        this.cacheKeyGenerator = cacheKeyGenerator;
+    }
 
-	/**
-	 * Verify the custom generator is applied to the testDao.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testOverrideDefaultCacheKeyGenerator() throws Exception {
-		this.testDao.call("foo");
-		Assert.assertEquals(1, testDao.getCallCount());
-		Assert.assertEquals(1, cacheKeyGenerator.getCallCount());
-		
-		this.testDao.call("foo");
-		Assert.assertEquals(1, testDao.getCallCount());
-		Assert.assertEquals(2, cacheKeyGenerator.getCallCount());
-		
-		this.testDao.call("foo");
-		Assert.assertEquals(1, testDao.getCallCount());
-		Assert.assertEquals(3, cacheKeyGenerator.getCallCount());
-	}
+    /**
+     * Verify the custom generator is applied to the testDao.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testOverrideDefaultCacheKeyGenerator() throws Exception {
+        this.testDao.call("foo");
+        Assert.assertEquals(1, testDao.getCallCount());
+        Assert.assertEquals(1, cacheKeyGenerator.getCallCount());
+        
+        this.testDao.call("foo");
+        Assert.assertEquals(1, testDao.getCallCount());
+        Assert.assertEquals(2, cacheKeyGenerator.getCallCount());
+        
+        this.testDao.call("foo");
+        Assert.assertEquals(1, testDao.getCallCount());
+        Assert.assertEquals(3, cacheKeyGenerator.getCallCount());
+    }
 }

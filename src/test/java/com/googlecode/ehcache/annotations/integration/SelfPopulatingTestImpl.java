@@ -32,12 +32,12 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
     
     private volatile int interfaceAnnotatedExceptionCachedCount = 0;
     private volatile int interfaceAnnotatedExceptionCachedThrowsCount = 0;
-	private volatile int blockingAInvocationCount = 0;
-	private volatile int blockingBInvocationCount = 0;
-	private volatile int nonBlockingInvocationCount = 0;
-	private CountDownLatch threadRunningLatch;
-	private CountDownLatch proccedLatch;
-	
+    private volatile int blockingAInvocationCount = 0;
+    private volatile int blockingBInvocationCount = 0;
+    private volatile int nonBlockingInvocationCount = 0;
+    private CountDownLatch threadRunningLatch;
+    private CountDownLatch proccedLatch;
+    
     public void reset() {
         this.blockingAInvocationCount = 0;
         this.blockingBInvocationCount = 0;
@@ -52,11 +52,11 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
         this.proccedLatch = proccedLatch;
     }
 
-	public String blockingA(String argument) {
-	    logger.trace("Enter blockingA({})", argument);
+    public String blockingA(String argument) {
+        logger.trace("Enter blockingA({})", argument);
         threadRunningLatch.countDown();
-	    try {
-	        logger.trace("Waiting in blockingA({})", argument);
+        try {
+            logger.trace("Waiting in blockingA({})", argument);
             proccedLatch.await();
         }
         catch (InterruptedException e) {
@@ -64,8 +64,8 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
         }
         blockingAInvocationCount++;
         logger.trace("Returning from blockingA({})", argument);
-		return "blockingA says: " + argument;
-	}
+        return "blockingA says: " + argument;
+    }
 
     public String blockingB(String argument) {
         logger.trace("Enter blockingB({})", argument);
@@ -81,8 +81,8 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
         logger.trace("Returning from blockingB({})", argument);
         return "blockingB says: " + argument;
     }
-	
-	public String nonBlocking(String argument) {
+    
+    public String nonBlocking(String argument) {
         logger.trace("Enter nonBlocking({})", argument);
         threadRunningLatch.countDown();
         try {
@@ -94,15 +94,15 @@ public class SelfPopulatingTestImpl implements SelfPopulatingTestInterface {
         }
         nonBlockingInvocationCount++;
         logger.trace("Returning from nonBlocking({})", argument);
-		return "nonBlocking says: " + argument;
-	}
-	
-	public int getBlockingAInvocationCount() {
-		return this.blockingAInvocationCount;
-	}
-	public int getBlockingBInvocationCount() {
-		return this.blockingBInvocationCount;
-	}
+        return "nonBlocking says: " + argument;
+    }
+    
+    public int getBlockingAInvocationCount() {
+        return this.blockingAInvocationCount;
+    }
+    public int getBlockingBInvocationCount() {
+        return this.blockingBInvocationCount;
+    }
     public int getNonBlockingInvocationCount() {
         return this.nonBlockingInvocationCount;
     }

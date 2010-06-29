@@ -38,53 +38,53 @@ import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
  * @version $Revision$
  */
 class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
-	private final List<Ehcache> caches;
-	private final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator;
-	private final Set<Integer> partialCacheKeyParameterIndicies;
+    private final List<Ehcache> caches;
+    private final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator;
+    private final Set<Integer> partialCacheKeyParameterIndicies;
     private final boolean removeAll;
-	private final When when;
-	
-	TriggersRemoveAttributeImpl(List<Ehcache> caches, 
-	        CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, Set<Integer> partialCacheKeyParameterIndicies,
-	        boolean removeAll, When when) {
-		this.caches = Collections.unmodifiableList(caches);
-		this.cacheKeyGenerator = cacheKeyGenerator;
-		this.partialCacheKeyParameterIndicies = Collections.unmodifiableSet(partialCacheKeyParameterIndicies);
+    private final When when;
+    
+    TriggersRemoveAttributeImpl(List<Ehcache> caches, 
+            CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, Set<Integer> partialCacheKeyParameterIndicies,
+            boolean removeAll, When when) {
+        this.caches = Collections.unmodifiableList(caches);
+        this.cacheKeyGenerator = cacheKeyGenerator;
+        this.partialCacheKeyParameterIndicies = Collections.unmodifiableSet(partialCacheKeyParameterIndicies);
         this.removeAll = removeAll;
-		this.when = when;
-	}
+        this.when = when;
+    }
     
     public AdviceType getAdviceType() {
         return AdviceType.REMOVE;
     }
 
-	/* (non-Javadoc)
-	 * @see com.googlecode.ehcache.annotations.TriggersRemoveAttribute#getCache()
-	 */
-	public Iterable<Ehcache> getCaches() {
+    /* (non-Javadoc)
+     * @see com.googlecode.ehcache.annotations.TriggersRemoveAttribute#getCache()
+     */
+    public Iterable<Ehcache> getCaches() {
         return this.caches;
     }
 
     /* (non-Javadoc)
-	 * @see com.googlecode.ehcache.annotations.FlushableAttribute#isRemoveAll()
-	 */
-	public boolean isRemoveAll() {
-		return this.removeAll;
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.googlecode.ehcache.annotations.TriggersRemoveAttribute#when()
-	 */
-	public When getWhen() {
-		return this.when;
-	}
+     * @see com.googlecode.ehcache.annotations.FlushableAttribute#isRemoveAll()
+     */
+    public boolean isRemoveAll() {
+        return this.removeAll;
+    }
+    
+    /* (non-Javadoc)
+     * @see com.googlecode.ehcache.annotations.TriggersRemoveAttribute#when()
+     */
+    public When getWhen() {
+        return this.when;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.googlecode.ehcache.annotations.FlushableAttribute#getCacheKeyGenerator()
-	 */
-	public CacheKeyGenerator<? extends Serializable> getCacheKeyGenerator() {
-		return this.cacheKeyGenerator;
-	}
+    /* (non-Javadoc)
+     * @see com.googlecode.ehcache.annotations.FlushableAttribute#getCacheKeyGenerator()
+     */
+    public CacheKeyGenerator<? extends Serializable> getCacheKeyGenerator() {
+        return this.cacheKeyGenerator;
+    }
 
     /* (non-Javadoc)
      * @see com.googlecode.ehcache.annotations.MethodAttribute#getPartialCacheKeyParameterIndicies()

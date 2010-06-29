@@ -29,38 +29,38 @@ import org.junit.Test;
  */
 public class DelegateCacheKeyGeneratorTest {
 
-	/**
-	 * Verify expected behavior for a {@link DelegateCacheKeyGenerator} wrapping
-	 * a {@link StringCacheKeyGenerator}.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testControl() throws Exception {
-		StringCacheKeyGenerator delegate = new StringCacheKeyGenerator();
-		DelegateCacheKeyGenerator impl = new DelegateCacheKeyGenerator(delegate) {
-			@Override
-			public Serializable getAdditionalDataForKeyGeneration() {
-				return "foo";
-			}
-		};
-		
-		// set the impl's checkForCycles to the opposite of the delegate
-		impl.setCheckforCycles(!delegate.isCheckforCycles());
-		
-		String data = "bar";
-		Object[] expected = new Object[] {"foo", new Object[] { data } };
-		
-		Serializable delegateValue = delegate.generateKey(data);
-		Serializable expectedValue = delegate.generateKey(expected);
-		Serializable implValue = impl.generateKey(data);
-		
-		Assert.assertNotSame(delegateValue, implValue);
-		
-		Assert.assertEquals(expectedValue, implValue);
-		
-		// verify that the impl's checkForCycles field was updated to that of the delegate on first generateKey call
-		Assert.assertEquals(delegate.isCheckforCycles(), impl.isCheckforCycles());
-		
-	}
+    /**
+     * Verify expected behavior for a {@link DelegateCacheKeyGenerator} wrapping
+     * a {@link StringCacheKeyGenerator}.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testControl() throws Exception {
+        StringCacheKeyGenerator delegate = new StringCacheKeyGenerator();
+        DelegateCacheKeyGenerator impl = new DelegateCacheKeyGenerator(delegate) {
+            @Override
+            public Serializable getAdditionalDataForKeyGeneration() {
+                return "foo";
+            }
+        };
+        
+        // set the impl's checkForCycles to the opposite of the delegate
+        impl.setCheckforCycles(!delegate.isCheckforCycles());
+        
+        String data = "bar";
+        Object[] expected = new Object[] {"foo", new Object[] { data } };
+        
+        Serializable delegateValue = delegate.generateKey(data);
+        Serializable expectedValue = delegate.generateKey(expected);
+        Serializable implValue = impl.generateKey(data);
+        
+        Assert.assertNotSame(delegateValue, implValue);
+        
+        Assert.assertEquals(expectedValue, implValue);
+        
+        // verify that the impl's checkForCycles field was updated to that of the delegate on first generateKey call
+        Assert.assertEquals(delegate.isCheckforCycles(), impl.isCheckforCycles());
+        
+    }
 }

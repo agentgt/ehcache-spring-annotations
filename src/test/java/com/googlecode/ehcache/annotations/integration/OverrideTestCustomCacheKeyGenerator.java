@@ -31,26 +31,26 @@ import com.googlecode.ehcache.annotations.key.HashCodeCacheKeyGenerator;
  */
 public class OverrideTestCustomCacheKeyGenerator implements CacheKeyGenerator<Serializable> {
 
-	private int callCount = 0;
-	private HashCodeCacheKeyGenerator delegate = new HashCodeCacheKeyGenerator();
-	
-	/* (non-Javadoc)
-	 * @see com.googlecode.ehcache.annotations.key.CacheKeyGenerator#generateKey(org.aopalliance.intercept.MethodInvocation)
-	 */
-	public Serializable generateKey(MethodInvocation methodInvocation) {
-		this.callCount++;
-		return this.delegate.generateKey(methodInvocation);
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.googlecode.ehcache.annotations.key.CacheKeyGenerator#generateKey(java.lang.Object[])
-	 */
-	public Serializable generateKey(Object... data) {
-	    this.callCount++;
+    private int callCount = 0;
+    private HashCodeCacheKeyGenerator delegate = new HashCodeCacheKeyGenerator();
+    
+    /* (non-Javadoc)
+     * @see com.googlecode.ehcache.annotations.key.CacheKeyGenerator#generateKey(org.aopalliance.intercept.MethodInvocation)
+     */
+    public Serializable generateKey(MethodInvocation methodInvocation) {
+        this.callCount++;
+        return this.delegate.generateKey(methodInvocation);
+    }
+    
+    /* (non-Javadoc)
+     * @see com.googlecode.ehcache.annotations.key.CacheKeyGenerator#generateKey(java.lang.Object[])
+     */
+    public Serializable generateKey(Object... data) {
+        this.callCount++;
         return this.delegate.generateKey(data);
     }
 
     public int getCallCount() {
-		return this.callCount;
-	}
+        return this.callCount;
+    }
 }

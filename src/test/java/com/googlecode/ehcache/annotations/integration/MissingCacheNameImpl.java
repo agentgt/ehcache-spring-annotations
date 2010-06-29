@@ -25,8 +25,8 @@ import com.googlecode.ehcache.annotations.Cacheable;
  */
 public class MissingCacheNameImpl {
 
-	@Cacheable(cacheName="nonexistent")
-	public String method(String argument) {
-		return "method says " + argument;
-	}
+    @Cacheable(cacheName="nonexistent")
+    public String method(String argument) {
+        return "method says " + argument;
+    }
 }

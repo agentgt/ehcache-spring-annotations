@@ -18,27 +18,27 @@
 -->
 
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd" updateCheck="false">
+    xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd" updateCheck="false">
 
-	<!--
-		| Please see
-		http://ehcache.sourceforge.net/documentation/configuration.html for
-		detailed information on | how to configurigure caches in this file +
-	-->
-	<!-- Location of persistent caches on disk -->
-	<diskStore path="java.io.tmpdir/SpringEhcacheTests" />
+    <!--
+        | Please see
+        http://ehcache.sourceforge.net/documentation/configuration.html for
+        detailed information on | how to configurigure caches in this file +
+    -->
+    <!-- Location of persistent caches on disk -->
+    <diskStore path="java.io.tmpdir/SpringEhcacheTests" />
 
-	<defaultCache eternal="false" maxElementsInMemory="1000"
-		overflowToDisk="false" diskPersistent="false" timeToIdleSeconds="0"
-		timeToLiveSeconds="600" memoryStoreEvictionPolicy="LRU" statistics="true" />
+    <defaultCache eternal="false" maxElementsInMemory="1000"
+        overflowToDisk="false" diskPersistent="false" timeToIdleSeconds="0"
+        timeToLiveSeconds="600" memoryStoreEvictionPolicy="LRU" statistics="true" />
 
-	<!--
-		timeToIdle = idle setting not used, timeToLive set to 5 minutes
-	-->
-	<cache name="triggersRemoveCountingCache" eternal="false"
-		maxElementsInMemory="100" overflowToDisk="false" diskPersistent="false"
-		timeToIdleSeconds="0" timeToLiveSeconds="300"
-		memoryStoreEvictionPolicy="LRU" statistics="true" />
+    <!--
+        timeToIdle = idle setting not used, timeToLive set to 5 minutes
+    -->
+    <cache name="triggersRemoveCountingCache" eternal="false"
+        maxElementsInMemory="100" overflowToDisk="false" diskPersistent="false"
+        timeToIdleSeconds="0" timeToLiveSeconds="300"
+        memoryStoreEvictionPolicy="LRU" statistics="true" />
     <cache name="triggersRemoveCountingCacheTwo" eternal="false"
         maxElementsInMemory="100" overflowToDisk="false" diskPersistent="false"
         timeToIdleSeconds="0" timeToLiveSeconds="300"

@@ -24,21 +24,21 @@ package com.googlecode.ehcache.annotations;
  * @version $Revision$
  */
 public abstract class CacheException extends RuntimeException {
-	private static final long serialVersionUID = 53706L;
+    private static final long serialVersionUID = 53706L;
 
-	public CacheException(String msg) {
-		super(msg);
-	}
+    public CacheException(String msg) {
+        super(msg);
+    }
 
-	public CacheException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+    public CacheException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 
-	public CacheException() {
-		super();
-	}
+    public CacheException() {
+        super();
+    }
 
-	public CacheException(Throwable cause) {
-		super(cause);
-	}
+    public CacheException(Throwable cause) {
+        super(cause);
+    }
 }

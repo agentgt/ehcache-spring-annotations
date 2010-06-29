@@ -31,40 +31,40 @@ import java.util.regex.Pattern;
  */
 public class PatternCacheNameMatcherImpl implements CacheNameMatcher {
 
-	private final Pattern pattern;
-	
-	/**
-	 * 
-	 * @param pattern
-	 */
-	public PatternCacheNameMatcherImpl(Pattern pattern) {
-		this.pattern = pattern;
-	}
-	
-	/**
-	 * 
-	 * @see Pattern#compile(String)
-	 * @param regex
-	 * @throws java.util.regex.PatternSyntaxException if the regex is invalid
-	 */
-	public PatternCacheNameMatcherImpl(String regex) {
-		this.pattern = Pattern.compile(regex);
-	}
+    private final Pattern pattern;
+    
+    /**
+     * 
+     * @param pattern
+     */
+    public PatternCacheNameMatcherImpl(Pattern pattern) {
+        this.pattern = pattern;
+    }
+    
+    /**
+     * 
+     * @see Pattern#compile(String)
+     * @param regex
+     * @throws java.util.regex.PatternSyntaxException if the regex is invalid
+     */
+    public PatternCacheNameMatcherImpl(String regex) {
+        this.pattern = Pattern.compile(regex);
+    }
 
-	/* (non-Javadoc)
-	 * @see com.googlecode.ehcache.annotations.config.CacheNameMatcher#matches(java.lang.String)
-	 */
-	public Vote matches(String cacheName) {
-		Matcher m = this.pattern.matcher(cacheName);
-		boolean result = m.matches();
-		return result ? Vote.YEA : Vote.ABSTAIN;
-	}
+    /* (non-Javadoc)
+     * @see com.googlecode.ehcache.annotations.config.CacheNameMatcher#matches(java.lang.String)
+     */
+    public Vote matches(String cacheName) {
+        Matcher m = this.pattern.matcher(cacheName);
+        boolean result = m.matches();
+        return result ? Vote.YEA : Vote.ABSTAIN;
+    }
 
-	/**
-	 * @return the pattern
-	 */
-	public Pattern getPattern() {
-		return pattern;
-	}
+    /**
+     * @return the pattern
+     */
+    public Pattern getPattern() {
+        return pattern;
+    }
 
 }

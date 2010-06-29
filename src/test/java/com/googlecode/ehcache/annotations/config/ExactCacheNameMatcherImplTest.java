@@ -27,10 +27,10 @@ import org.junit.Test;
  */
 public class ExactCacheNameMatcherImplTest {
 
-	@Test
-	public void testMatches() {
-		ExactCacheNameMatcherImpl m = new ExactCacheNameMatcherImpl("foo");
-		Assert.assertEquals(Vote.YEA, m.matches("foo"));
-		Assert.assertEquals(Vote.ABSTAIN, m.matches("bar"));
-	}
+    @Test
+    public void testMatches() {
+        ExactCacheNameMatcherImpl m = new ExactCacheNameMatcherImpl("foo");
+        Assert.assertEquals(Vote.YEA, m.matches("foo"));
+        Assert.assertEquals(Vote.ABSTAIN, m.matches("bar"));
+    }
 }

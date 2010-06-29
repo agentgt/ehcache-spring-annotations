@@ -29,34 +29,34 @@ package com.googlecode.ehcache.annotations.config;
  */
 public final class NotCacheNameMatcherImpl implements CacheNameMatcher {
 
-	private final CacheNameMatcher wrapped;
-	/**
-	 * 
-	 * @param wrapped
-	 */
-	public NotCacheNameMatcherImpl(CacheNameMatcher wrapped) {
-		if(null == wrapped) {
-			throw new IllegalArgumentException("CacheNameMatcher argument cannot be null");
-		}
-		this.wrapped = wrapped;
-	}
-	/**
-	 * Retrieve the value from wrapped {@link CacheNameMatcher}'s matches method, then
-	 * return the {@link Vote#not(Vote)} of the result.
-	 * 
-	 * @see Vote#not(Vote)
-	 * @see com.googlecode.ehcache.annotations.config.CacheNameMatcher#matches(java.lang.String)
-	 */
-	public Vote matches(String cacheName) {
-		Vote result = this.wrapped.matches(cacheName);
-		result = Vote.not(result);
-		return result;
-	}
-	/**
-	 * @return the wrapped {@link CacheNameMatcher}
-	 */
-	public CacheNameMatcher getWrapped() {
-		return wrapped;
-	}
+    private final CacheNameMatcher wrapped;
+    /**
+     * 
+     * @param wrapped
+     */
+    public NotCacheNameMatcherImpl(CacheNameMatcher wrapped) {
+        if(null == wrapped) {
+            throw new IllegalArgumentException("CacheNameMatcher argument cannot be null");
+        }
+        this.wrapped = wrapped;
+    }
+    /**
+     * Retrieve the value from wrapped {@link CacheNameMatcher}'s matches method, then
+     * return the {@link Vote#not(Vote)} of the result.
+     * 
+     * @see Vote#not(Vote)
+     * @see com.googlecode.ehcache.annotations.config.CacheNameMatcher#matches(java.lang.String)
+     */
+    public Vote matches(String cacheName) {
+        Vote result = this.wrapped.matches(cacheName);
+        result = Vote.not(result);
+        return result;
+    }
+    /**
+     * @return the wrapped {@link CacheNameMatcher}
+     */
+    public CacheNameMatcher getWrapped() {
+        return wrapped;
+    }
 
 }

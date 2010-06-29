@@ -26,30 +26,30 @@ import com.googlecode.ehcache.annotations.TriggersRemove;
  *
  */
 public class TriggersRemoveTestImpl implements TriggersRemoveTestInterface {
-	/* (non-Javadoc)
-	 * @see com.googlecode.ehcache.annotations.TriggersRemoveTestInterface#implMethodTriggersFlush()
-	 */
-	@TriggersRemove(cacheName="triggersRemoveCountingCache")
+    /* (non-Javadoc)
+     * @see com.googlecode.ehcache.annotations.TriggersRemoveTestInterface#implMethodTriggersFlush()
+     */
+    @TriggersRemove(cacheName="triggersRemoveCountingCache")
     public void implMethodTriggersRemove() {
     }
 
     /* (non-Javadoc)
-	 * @see com.googlecode.ehcache.annotations.TriggersRemoveTestInterface#methodTriggersFlush()
-	 */
-	public void methodTriggersRemove() {
-	}
+     * @see com.googlecode.ehcache.annotations.TriggersRemoveTestInterface#methodTriggersFlush()
+     */
+    public void methodTriggersRemove() {
+    }
 
-	/* (non-Javadoc)
-	 * @see com.googlecode.ehcache.annotations.TriggersRemoveTestInterface#methodTriggersFlushAndRemoveAll()
-	 */
-	public void methodTriggersRemoveAll() {
-	}
+    /* (non-Javadoc)
+     * @see com.googlecode.ehcache.annotations.TriggersRemoveTestInterface#methodTriggersFlushAndRemoveAll()
+     */
+    public void methodTriggersRemoveAll() {
+    }
 
-	/* (non-Javadoc)
-	 * @see com.googlecode.ehcache.annotations.TriggersRemoveTestInterface#notFlushableMethod()
-	 */
-	public void notTriggersRemoveMethod() {
-	}
+    /* (non-Javadoc)
+     * @see com.googlecode.ehcache.annotations.TriggersRemoveTestInterface#notFlushableMethod()
+     */
+    public void notTriggersRemoveMethod() {
+    }
 
     public Object simpleCachedMethod() {
         return new Object();

@@ -104,16 +104,16 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     public void setCreateCaches(boolean createCaches) {
         this.createCaches = createCaches;
     }
-	public void setDefaultCacheKeyGenerator(CacheKeyGenerator<? extends Serializable> defaultCacheKeyGenerator) {
-		this.defaultCacheKeyGenerator = defaultCacheKeyGenerator;
-	}
-	public void setSelfPopulatingCacheScope(SelfPopulatingCacheScope selfPopulatingCacheScope) {
+    public void setDefaultCacheKeyGenerator(CacheKeyGenerator<? extends Serializable> defaultCacheKeyGenerator) {
+        this.defaultCacheKeyGenerator = defaultCacheKeyGenerator;
+    }
+    public void setSelfPopulatingCacheScope(SelfPopulatingCacheScope selfPopulatingCacheScope) {
         this.selfPopulatingCacheScope = selfPopulatingCacheScope;
     }
-	public void setCacheManager(CacheManager cacheManager) {
-		this.cacheManager = cacheManager;
-	}
-	/* (non-Javadoc)
+    public void setCacheManager(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
+    /* (non-Javadoc)
      * @see com.googlecode.ehcache.annotations.CacheAttributeSource#getAdviceType(java.lang.reflect.Method, java.lang.Class)
      */
     public AdviceType getAdviceType(Method method, Class<?> targetClass) {
@@ -436,7 +436,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         if (StringUtils.hasLength(keyGeneratorName)) {
             cacheKeyGenerator = this.beanFactory.getBean(keyGeneratorName, CacheKeyGenerator.class);
         } else {
-        	cacheKeyGenerator = this.defaultCacheKeyGenerator;
+            cacheKeyGenerator = this.defaultCacheKeyGenerator;
         }
         return cacheKeyGenerator;
     }

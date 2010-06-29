@@ -25,17 +25,17 @@ import com.googlecode.ehcache.annotations.Cacheable;
  */
 public class OverrideTestImpl implements OverrideTestInterface {
 
-	private int callCount = 0;
-	
-	@Cacheable(cacheName="overrideDefaultTest")
-	public String call(String argument) {
-		callCount++;
-		return "call says " + argument;
-	}
-	/**
-	 * @return the callCount
-	 */
-	public int getCallCount() {
-		return callCount;
-	}
+    private int callCount = 0;
+    
+    @Cacheable(cacheName="overrideDefaultTest")
+    public String call(String argument) {
+        callCount++;
+        return "call says " + argument;
+    }
+    /**
+     * @return the callCount
+     */
+    public int getCallCount() {
+        return callCount;
+    }
 }

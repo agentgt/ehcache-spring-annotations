@@ -23,29 +23,29 @@ package com.googlecode.ehcache.annotations.config;
  */
 public enum Vote {
 
-	YEA,
-	NAY,
-	ABSTAIN;
-	
-	/**
-	 * If the argument equals {@link Vote#ABSTAIN}, return {@link Vote#ABSTAIN}.
-	 * Otherwise, return the opposite:
-	 * <ul>
-	 * <li>{@link Vote#YEA} returns {@link Vote#NAY}</li>
-	 * <li>{@link Vote#NAY} returns {@link Vote#YEA}</li>
-	 * </ul>
-	 * 
-	 * @param vote
-	 * @return
-	 */
-	public static Vote not(final Vote vote) {
-	    switch (vote) {
-	        case ABSTAIN:
-	            return ABSTAIN;
-	        case YEA:
+    YEA,
+    NAY,
+    ABSTAIN;
+    
+    /**
+     * If the argument equals {@link Vote#ABSTAIN}, return {@link Vote#ABSTAIN}.
+     * Otherwise, return the opposite:
+     * <ul>
+     * <li>{@link Vote#YEA} returns {@link Vote#NAY}</li>
+     * <li>{@link Vote#NAY} returns {@link Vote#YEA}</li>
+     * </ul>
+     * 
+     * @param vote
+     * @return the inverse of the specified Vote
+     */
+    public static Vote not(final Vote vote) {
+        switch (vote) {
+            case ABSTAIN:
+                return ABSTAIN;
+            case YEA:
                 return NAY;
             default:
                 return YEA;
-	    }
-	}
+        }
+    }
 }

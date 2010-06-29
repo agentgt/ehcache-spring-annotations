@@ -23,16 +23,16 @@
     </properties>
 
     <body>
-	<section name="Common Questions">
-	<ol>
-	<li><a href="#answer1">Why doesn't my method annotated with @TriggersRemove actually trigger a cache remove?</a></li>
-	</ol>
-	</section>
-	
-	<section name="Answers">
-	<ol>
-	<li name="answer1">See the <a href="http://code.google.com/p/ehcache-spring-annotations/wiki/UsingTriggersRemove">UsingTriggersRemove documentation on the wiki</a>.</li>
-	</ol>
-	</section>
-	</body>
+    <section name="Common Questions">
+    <ol>
+    <li><a href="#answer1">Why doesn't my method annotated with @TriggersRemove actually trigger a cache remove?</a></li>
+    </ol>
+    </section>
+    
+    <section name="Answers">
+    <ol>
+    <li name="answer1">See the <a href="http://code.google.com/p/ehcache-spring-annotations/wiki/UsingTriggersRemove">UsingTriggersRemove documentation on the wiki</a>.</li>
+    </ol>
+    </section>
+    </body>
 </document>

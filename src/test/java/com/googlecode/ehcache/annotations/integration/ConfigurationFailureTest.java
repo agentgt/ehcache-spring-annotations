@@ -39,10 +39,10 @@ import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
  */
 public class ConfigurationFailureTest {
 
-	
-	/**
-	 * Test verifies behavior when no {@link CacheManager} is defined in the Spring configuration.
-	 */
+    
+    /**
+     * Test verifies behavior when no {@link CacheManager} is defined in the Spring configuration.
+     */
     @Test
     public void testNoCacheManager() {
         try {
@@ -92,7 +92,7 @@ public class ConfigurationFailureTest {
      */
     @Test
     public void testMissingOverrideDefaultCacheKeyGenerator() {
-    	try {
+        try {
             new ClassPathXmlApplicationContext("/noOverrideDefaultCacheKeyGeneratorTestContext.xml");
             Assert.fail("Test should have failed with due to missing bean for default-cache-key-generator");
         }

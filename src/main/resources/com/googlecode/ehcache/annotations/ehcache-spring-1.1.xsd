@@ -116,33 +116,33 @@ is not 'cacheManager'.
         <xsd:complexType>
             <xsd:complexContent>
                 <xsd:extension base="cache-manager-aware_type">
-            		<xsd:sequence>
-            			<xsd:element name="evict-expired-elements" type="evict-expired-elements_type" minOccurs="0"/>
-            		</xsd:sequence>
+                    <xsd:sequence>
+                        <xsd:element name="evict-expired-elements" type="evict-expired-elements_type" minOccurs="0"/>
+                    </xsd:sequence>
                 </xsd:extension>
             </xsd:complexContent>
-    	</xsd:complexType>
+        </xsd:complexType>
     </xsd:element>
     
-	<xsd:complexType name="evict-expired-elements_type">
+    <xsd:complexType name="evict-expired-elements_type">
         <xsd:annotation>
             <xsd:documentation><![CDATA[
             The include and exclude rules will be processed in the order they are specified.
             ]]></xsd:documentation>
         </xsd:annotation>
-		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
             <xsd:element name="include" type="cache-filtering_type" minOccurs="0" maxOccurs="unbounded"/>
-			<xsd:element name="exclude" type="cache-filtering_type" minOccurs="0" maxOccurs="unbounded"/>
-		</xsd:choice>
-		<xsd:attribute name="interval" type="xsd:string" default="60">
-			<xsd:annotation>
-				<xsd:documentation><![CDATA[
-				Declare how often Ehcache#evictExpiredElements() should be invoked; value
-				is in minutes.
-				]]></xsd:documentation>
-			</xsd:annotation>
-		</xsd:attribute>
-	</xsd:complexType>
+            <xsd:element name="exclude" type="cache-filtering_type" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:choice>
+        <xsd:attribute name="interval" type="xsd:string" default="60">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[
+                Declare how often Ehcache#evictExpiredElements() should be invoked; value
+                is in minutes.
+                ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
     
     <xsd:complexType name="cache-filtering_type">
         <xsd:attribute name="name" type="xsd:string">

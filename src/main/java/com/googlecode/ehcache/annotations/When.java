@@ -24,6 +24,6 @@ package com.googlecode.ehcache.annotations;
  */
 public enum When {
 
-	BEFORE_METHOD_INVOCATION,
-	AFTER_METHOD_INVOCATION;
+    BEFORE_METHOD_INVOCATION,
+    AFTER_METHOD_INVOCATION;
 }

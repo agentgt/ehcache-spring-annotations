@@ -27,18 +27,18 @@ import org.junit.Test;
  */
 public class NotCacheNameMatcherImplTest {
 
-	@Test
-	public void testControl() {
-		NotCacheNameMatcherImpl m = new NotCacheNameMatcherImpl(new PatternCacheNameMatcherImpl("foo"));
-		Assert.assertEquals(Vote.NAY, m.matches("foo"));
-		Assert.assertEquals(Vote.ABSTAIN, m.matches("bar"));
-	}
-	
-	@Test
-	public void testMatches() {
-		NotCacheNameMatcherImpl m = new NotCacheNameMatcherImpl(new PatternCacheNameMatcherImpl("(foo)|(bar)"));
-		Assert.assertEquals(Vote.NAY, m.matches("foo"));
-		Assert.assertEquals(Vote.NAY, m.matches("bar"));
-		Assert.assertEquals(Vote.ABSTAIN, m.matches("baz"));
-	}
+    @Test
+    public void testControl() {
+        NotCacheNameMatcherImpl m = new NotCacheNameMatcherImpl(new PatternCacheNameMatcherImpl("foo"));
+        Assert.assertEquals(Vote.NAY, m.matches("foo"));
+        Assert.assertEquals(Vote.ABSTAIN, m.matches("bar"));
+    }
+    
+    @Test
+    public void testMatches() {
+        NotCacheNameMatcherImpl m = new NotCacheNameMatcherImpl(new PatternCacheNameMatcherImpl("(foo)|(bar)"));
+        Assert.assertEquals(Vote.NAY, m.matches("foo"));
+        Assert.assertEquals(Vote.NAY, m.matches("bar"));
+        Assert.assertEquals(Vote.ABSTAIN, m.matches("baz"));
+    }
 }

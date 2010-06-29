@@ -30,21 +30,21 @@ import com.googlecode.ehcache.annotations.TriggersRemove;
  */
 public interface TriggersRemoveTestInterface {
 
-	public void notTriggersRemoveMethod();
-	
+    public void notTriggersRemoveMethod();
+    
     public void implMethodTriggersRemove();
-	
-	@TriggersRemove(cacheName="triggersRemoveCountingCache", 
+    
+    @TriggersRemove(cacheName="triggersRemoveCountingCache", 
             keyGenerator = @KeyGenerator(
                     name = "HashCodeCacheKeyGenerator", 
                     properties = @Property(name ="includeMethod", value="false")
             )
     )
-	public void methodTriggersRemove();
-	
-	@TriggersRemove(cacheName="triggersRemoveCountingCache", removeAll=true)
-	public void methodTriggersRemoveAll();
-	
+    public void methodTriggersRemove();
+    
+    @TriggersRemove(cacheName="triggersRemoveCountingCache", removeAll=true)
+    public void methodTriggersRemoveAll();
+    
 
     @TriggersRemove(cacheName={"triggersRemoveCountingCache", "triggersRemoveCountingCacheTwo"}, 
             keyGenerator = @KeyGenerator(

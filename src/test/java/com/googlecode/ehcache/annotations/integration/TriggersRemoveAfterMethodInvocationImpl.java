@@ -30,43 +30,43 @@ import com.googlecode.ehcache.annotations.When;
  * @version $Id$
  */
 public class TriggersRemoveAfterMethodInvocationImpl {
-	
-	private final CountDownLatch proceedLatch = new CountDownLatch(1);
-	private final CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
-	/**
-	 * @return the proceedLatch
-	 */
-	public CountDownLatch getProceedLatch() {
-		return proceedLatch;
-	}
+    
+    private final CountDownLatch proceedLatch = new CountDownLatch(1);
+    private final CyclicBarrier cyclicBarrier = new CyclicBarrier(2);
+    /**
+     * @return the proceedLatch
+     */
+    public CountDownLatch getProceedLatch() {
+        return proceedLatch;
+    }
 
-	/**
-	 * @return the cyclicBarrier
-	 */
-	public CyclicBarrier getCyclicBarrier() {
-		return cyclicBarrier;
-	}
+    /**
+     * @return the cyclicBarrier
+     */
+    public CyclicBarrier getCyclicBarrier() {
+        return cyclicBarrier;
+    }
 
-	/**
-	 * 
-	 * @param arg
-	 */
-	@TriggersRemove(cacheName="triggersRemoveAfterInvocationTestCache", when=When.AFTER_METHOD_INVOCATION, removeAll=true)
-	public void afterMethodInvocation(String arg) {
-		try {
-			// 3
-			cyclicBarrier.await();
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		} catch (BrokenBarrierException e1) {
-			e1.printStackTrace();
-		}
-		
-		try {
-			// 5
-			proceedLatch.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+    /**
+     * 
+     * @param arg
+     */
+    @TriggersRemove(cacheName="triggersRemoveAfterInvocationTestCache", when=When.AFTER_METHOD_INVOCATION, removeAll=true)
+    public void afterMethodInvocation(String arg) {
+        try {
+            // 3
+            cyclicBarrier.await();
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        } catch (BrokenBarrierException e1) {
+            e1.printStackTrace();
+        }
+        
+        try {
+            // 5
+            proceedLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

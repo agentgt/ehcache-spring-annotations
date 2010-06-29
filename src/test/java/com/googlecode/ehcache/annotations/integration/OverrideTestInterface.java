@@ -24,6 +24,6 @@ package com.googlecode.ehcache.annotations.integration;
  */
 public interface OverrideTestInterface {
 
-	public String call(String argument);
-	public int getCallCount();
+    public String call(String argument);
+    public int getCallCount();
 }

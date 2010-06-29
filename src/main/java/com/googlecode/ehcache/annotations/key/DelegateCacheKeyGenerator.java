@@ -30,33 +30,33 @@ import java.io.Serializable;
  */
 public abstract class DelegateCacheKeyGenerator extends AbstractCacheKeyGenerator<Serializable> {
 
-	private final AbstractCacheKeyGenerator<? extends Serializable> delegate;
-	
-	/**
-	 * @param delegate
-	 */
-	public DelegateCacheKeyGenerator(
-			AbstractCacheKeyGenerator<? extends Serializable> delegate) {
-		super();
-		this.delegate = delegate;
-	}
+    private final AbstractCacheKeyGenerator<? extends Serializable> delegate;
+    
+    /**
+     * @param delegate
+     */
+    public DelegateCacheKeyGenerator(
+            AbstractCacheKeyGenerator<? extends Serializable> delegate) {
+        super();
+        this.delegate = delegate;
+    }
 
-	/**
-	 * Calls {@link #generateKey(Object...)} on the delegate passing in data argument AND the result
-	 * from {@link #getAdditionalDataForKeyGeneration()}.
-	 * 
-	 * @see #getAdditionalDataForKeyGeneration()
-	 * @see com.googlecode.ehcache.annotations.key.AbstractCacheKeyGenerator#generateKey(java.lang.Object[])
-	 */
-	@Override
-	public final Serializable generateKey(Object... data) {
-		this.setCheckforCycles(delegate.isCheckforCycles());
-		return this.delegate.generateKey(getAdditionalDataForKeyGeneration(), data);
-	}
+    /**
+     * Calls {@link #generateKey(Object...)} on the delegate passing in data argument AND the result
+     * from {@link #getAdditionalDataForKeyGeneration()}.
+     * 
+     * @see #getAdditionalDataForKeyGeneration()
+     * @see com.googlecode.ehcache.annotations.key.AbstractCacheKeyGenerator#generateKey(java.lang.Object[])
+     */
+    @Override
+    public final Serializable generateKey(Object... data) {
+        this.setCheckforCycles(delegate.isCheckforCycles());
+        return this.delegate.generateKey(getAdditionalDataForKeyGeneration(), data);
+    }
 
-	/**
-	 * 
-	 * @return a {@link Serializable} object to inject into the calls to {@link #generateKey(Object...)}
-	 */
-	public abstract Serializable getAdditionalDataForKeyGeneration();
+    /**
+     * 
+     * @return a {@link Serializable} object to inject into the calls to {@link #generateKey(Object...)}
+     */
+    public abstract Serializable getAdditionalDataForKeyGeneration();
 }

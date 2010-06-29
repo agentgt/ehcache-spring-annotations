@@ -45,7 +45,7 @@ public interface SelfPopulatingTestInterface {
     @Cacheable(cacheName="blockingCache", selfPopulating=false)
     public String nonBlocking(String argument);
     public int getNonBlockingInvocationCount();
-	
+    
     @Cacheable(cacheName="interfaceAnnotatedCache", selfPopulating=true, exceptionCacheName="interfaceAnnotatedExceptionCache")
     public String interfaceAnnotatedExceptionCached(boolean throwsException);
     public int interfaceAnnotatedExceptionCachedCount();

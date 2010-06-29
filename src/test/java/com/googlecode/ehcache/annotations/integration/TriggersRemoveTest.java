@@ -38,27 +38,27 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration("/triggersRemoveTestContext.xml")
 public class TriggersRemoveTest  {
 
-	private TriggersRemoveTestInterface triggersRemoveTestInterface;
-	private CacheManager cacheManager;
-	/**
-	 * @param triggersRemoveTestInterface the triggersRemoveTestInterface to set
-	 */
-	@Autowired
-	public void setFlushableTestInterface(TriggersRemoveTestInterface triggersRemoveTestInterface) {
-		this.triggersRemoveTestInterface = triggersRemoveTestInterface;
-	}
-	/**
-	 * @param cacheManager the cacheManager to set
-	 */
-	@Autowired
-	public void setCacheManager(CacheManager cacheManager) {
-		this.cacheManager = cacheManager;
-	}
-	
-	
-	@Test
-	public void testHarness() {
-	    final Ehcache ehcacheOne = cacheManager.getEhcache("triggersRemoveCountingCache");
+    private TriggersRemoveTestInterface triggersRemoveTestInterface;
+    private CacheManager cacheManager;
+    /**
+     * @param triggersRemoveTestInterface the triggersRemoveTestInterface to set
+     */
+    @Autowired
+    public void setFlushableTestInterface(TriggersRemoveTestInterface triggersRemoveTestInterface) {
+        this.triggersRemoveTestInterface = triggersRemoveTestInterface;
+    }
+    /**
+     * @param cacheManager the cacheManager to set
+     */
+    @Autowired
+    public void setCacheManager(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
+    
+    
+    @Test
+    public void testHarness() {
+        final Ehcache ehcacheOne = cacheManager.getEhcache("triggersRemoveCountingCache");
         final CountingListener listenerOne = new CountingListener();
         ehcacheOne.registerCacheUsageListener(listenerOne);
         
@@ -67,34 +67,34 @@ public class TriggersRemoveTest  {
         ehcacheTwo.registerCacheUsageListener(listenerTwo);
 
         
-		Assert.assertEquals(0, listenerOne.getRemoveCount());
-		Assert.assertEquals(0, listenerOne.getRemoveAllCount());
-		
-		this.triggersRemoveTestInterface.notTriggersRemoveMethod();
-		Assert.assertEquals(0, listenerOne.getRemoveCount());
+        Assert.assertEquals(0, listenerOne.getRemoveCount());
         Assert.assertEquals(0, listenerOne.getRemoveAllCount());
-		
+        
+        this.triggersRemoveTestInterface.notTriggersRemoveMethod();
+        Assert.assertEquals(0, listenerOne.getRemoveCount());
+        Assert.assertEquals(0, listenerOne.getRemoveAllCount());
+        
         this.triggersRemoveTestInterface.simpleCachedMethod();
         this.triggersRemoveTestInterface.methodTriggersRemove();
         Assert.assertEquals(1, listenerOne.getRemoveCount());
-		Assert.assertEquals(0, listenerOne.getRemoveAllCount());
-		
-		this.triggersRemoveTestInterface.methodTriggersRemove();
+        Assert.assertEquals(0, listenerOne.getRemoveAllCount());
+        
+        this.triggersRemoveTestInterface.methodTriggersRemove();
         Assert.assertEquals(2, listenerOne.getRemoveCount());
-		Assert.assertEquals(0, listenerOne.getRemoveAllCount());
-		
-		this.triggersRemoveTestInterface.notTriggersRemoveMethod();
+        Assert.assertEquals(0, listenerOne.getRemoveAllCount());
+        
+        this.triggersRemoveTestInterface.notTriggersRemoveMethod();
         Assert.assertEquals(2, listenerOne.getRemoveCount());
-		Assert.assertEquals(0, listenerOne.getRemoveAllCount());
-		
-		this.triggersRemoveTestInterface.methodTriggersRemoveAll();
+        Assert.assertEquals(0, listenerOne.getRemoveAllCount());
+        
+        this.triggersRemoveTestInterface.methodTriggersRemoveAll();
         Assert.assertEquals(2, listenerOne.getRemoveCount());
-		Assert.assertEquals(1, listenerOne.getRemoveAllCount());
-		
-		this.triggersRemoveTestInterface.methodTriggersRemoveAll();
+        Assert.assertEquals(1, listenerOne.getRemoveAllCount());
+        
+        this.triggersRemoveTestInterface.methodTriggersRemoveAll();
         Assert.assertEquals(2, listenerOne.getRemoveCount());
-		Assert.assertEquals(2, listenerOne.getRemoveAllCount());
-		
+        Assert.assertEquals(2, listenerOne.getRemoveAllCount());
+        
         this.triggersRemoveTestInterface.implMethodTriggersRemove();
         Assert.assertEquals(3, listenerOne.getRemoveCount());
         Assert.assertEquals(2, listenerOne.getRemoveAllCount());
@@ -118,51 +118,51 @@ public class TriggersRemoveTest  {
         Assert.assertEquals(1, listenerTwo.getRemoveCount());
         Assert.assertEquals(1, listenerTwo.getRemoveAllCount());
         
-	}
-	
-	static class CountingListener implements CacheUsageListener {
-		private int removeAllCount = 0;
-		private int removeCount = 0;
+    }
+    
+    static class CountingListener implements CacheUsageListener {
+        private int removeAllCount = 0;
+        private int removeCount = 0;
 
-		public int getRemoveAllCount() {
-			return removeAllCount;
-		}
-		
-		public int getRemoveCount() {
+        public int getRemoveAllCount() {
+            return removeAllCount;
+        }
+        
+        public int getRemoveCount() {
             return this.removeCount;
         }
 
-		public void dispose() {
-		}
-		public void notifyCacheElementEvicted() {
-		}
-		public void notifyCacheElementExpired() {
-		}
-		public void notifyCacheElementPut() {
-		}
-		public void notifyCacheElementRemoved() {
+        public void dispose() {
+        }
+        public void notifyCacheElementEvicted() {
+        }
+        public void notifyCacheElementExpired() {
+        }
+        public void notifyCacheElementPut() {
+        }
+        public void notifyCacheElementRemoved() {
             this.removeCount++;
-		}
-		public void notifyCacheElementUpdated() {
-		}
-		public void notifyCacheHitInMemory() {
-		}
-		public void notifyCacheHitOnDisk() {
-		}
-		public void notifyCacheMissedWithExpired() {
-		}
-		public void notifyCacheMissedWithNotFound() {
-		}
-		public void notifyRemoveAll() {
-			this.removeAllCount++;
-		}
-		public void notifyStatisticsAccuracyChanged(int arg0) {
-		}
-		public void notifyStatisticsCleared() {
-		}
-		public void notifyStatisticsEnabledChanged(boolean arg0) {
-		}
-		public void notifyTimeTakenForGet(long arg0) {
-		}
-	}
+        }
+        public void notifyCacheElementUpdated() {
+        }
+        public void notifyCacheHitInMemory() {
+        }
+        public void notifyCacheHitOnDisk() {
+        }
+        public void notifyCacheMissedWithExpired() {
+        }
+        public void notifyCacheMissedWithNotFound() {
+        }
+        public void notifyRemoveAll() {
+            this.removeAllCount++;
+        }
+        public void notifyStatisticsAccuracyChanged(int arg0) {
+        }
+        public void notifyStatisticsCleared() {
+        }
+        public void notifyStatisticsEnabledChanged(boolean arg0) {
+        }
+        public void notifyTimeTakenForGet(long arg0) {
+        }
+    }
 }

@@ -23,8 +23,8 @@
     </properties>
 
     <body>
-	<section name="Usage">
-	<p>Usage documentation can be found on the <a href="http://code.google.com/p/ehcache-spring-annotations/wiki/UsingCacheAnnotations">project wiki</a>.</p>
-	</section>
+    <section name="Usage">
+    <p>Usage documentation can be found on the <a href="http://code.google.com/p/ehcache-spring-annotations/wiki/UsingCacheAnnotations">project wiki</a>.</p>
+    </section>
     </body>
 </document>

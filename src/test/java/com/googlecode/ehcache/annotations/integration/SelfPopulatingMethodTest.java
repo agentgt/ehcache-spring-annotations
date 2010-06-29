@@ -40,47 +40,47 @@ import com.googlecode.ehcache.annotations.util.ThreadGroupRunner;
 public class SelfPopulatingMethodTest {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     
-	private SelfPopulatingTestInterface selfPopulatingTestInterface;
+    private SelfPopulatingTestInterface selfPopulatingTestInterface;
 
-	/**
-	 * @param selfPopulatingTestInterface the selfPopulatingTestInterface to set
-	 */
-	@Autowired
-	public void setSelfPopulatingTestInterface(
-			SelfPopulatingTestInterface selfPopulatingTestInterface) {
-		this.selfPopulatingTestInterface = selfPopulatingTestInterface;
-	}
-	
-	@Before
-	public void testSetup() {
-	    this.selfPopulatingTestInterface.reset();
-	}
-	
-	/**
-	 * Verify that setting selfPopulating=true will guarantee only 1 invocation
-	 * of the cached method.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testSelfPopulatingTrue() throws Exception {
+    /**
+     * @param selfPopulatingTestInterface the selfPopulatingTestInterface to set
+     */
+    @Autowired
+    public void setSelfPopulatingTestInterface(
+            SelfPopulatingTestInterface selfPopulatingTestInterface) {
+        this.selfPopulatingTestInterface = selfPopulatingTestInterface;
+    }
+    
+    @Before
+    public void testSetup() {
+        this.selfPopulatingTestInterface.reset();
+    }
+    
+    /**
+     * Verify that setting selfPopulating=true will guarantee only 1 invocation
+     * of the cached method.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testSelfPopulatingTrue() throws Exception {
         final CountDownLatch threadRunningLatch = new CountDownLatch(6);
         final CountDownLatch proccedLatch = new CountDownLatch(1);
         this.selfPopulatingTestInterface.setThreadRunningLatch(threadRunningLatch);
         this.selfPopulatingTestInterface.setProccedLatch(proccedLatch);
         
-		Assert.assertEquals(0, this.selfPopulatingTestInterface.getBlockingAInvocationCount());
-		Assert.assertEquals(0, this.selfPopulatingTestInterface.getBlockingBInvocationCount());
-		
-		final ThreadGroupRunner threadGroup = new ThreadGroupRunner("testSelfPopulatingTrue-", true);
-		
-		threadGroup.addTask(2, new Runnable() {	
-			public void run() {
-			    threadRunningLatch.countDown();
-			    logger.trace("Calling blockingA(test2)");
-				selfPopulatingTestInterface.blockingA("test2");
-			}
-		});
+        Assert.assertEquals(0, this.selfPopulatingTestInterface.getBlockingAInvocationCount());
+        Assert.assertEquals(0, this.selfPopulatingTestInterface.getBlockingBInvocationCount());
+        
+        final ThreadGroupRunner threadGroup = new ThreadGroupRunner("testSelfPopulatingTrue-", true);
+        
+        threadGroup.addTask(2, new Runnable() {	
+            public void run() {
+                threadRunningLatch.countDown();
+                logger.trace("Calling blockingA(test2)");
+                selfPopulatingTestInterface.blockingA("test2");
+            }
+        });
         threadGroup.addTask(2, new Runnable() { 
             public void run() {
                 threadRunningLatch.countDown();
@@ -88,7 +88,7 @@ public class SelfPopulatingMethodTest {
                 selfPopulatingTestInterface.blockingB("test2");
             }
         });
-		
+        
         threadGroup.start();
         
         // wait for both threads to get going
@@ -101,9 +101,9 @@ public class SelfPopulatingMethodTest {
         
         logger.trace("Waiting for threads to complete");
         threadGroup.join();
-		
-		// verify only 1 call between method A and method B
-		Assert.assertEquals(1, this.selfPopulatingTestInterface.getBlockingAInvocationCount());
-		Assert.assertEquals(1, this.selfPopulatingTestInterface.getBlockingBInvocationCount());
-	}
+        
+        // verify only 1 call between method A and method B
+        Assert.assertEquals(1, this.selfPopulatingTestInterface.getBlockingAInvocationCount());
+        Assert.assertEquals(1, this.selfPopulatingTestInterface.getBlockingBInvocationCount());
+    }
 }

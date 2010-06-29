@@ -69,7 +69,7 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
      * each object that is added to the key has {@link #shouldReflect(Object)} called on it. If that
      * returns true reflection is used to recurse on all of the fields of the object.
      * 
-     * @param Defaults to false.
+     * @param useReflection Defaults to false.
      */
     public final void setUseReflection(boolean useReflection) {
         this.useReflection = useReflection;
@@ -86,7 +86,7 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
     }
     
     /**
-     * Calls {@link #deepHashCode(KeyGenerationStream, Object)} on each element in the array.
+     * Calls {@link #deepHashCode(Object, Object)} on each element in the array.
      * @param a will never be null
      */
     protected void deepHashCode(G generator, Object a[]) {
@@ -99,7 +99,7 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
 
 
     /**
-     * Calls {@link #deepHashCode(KeyGenerationStream, Object)} on each element in the {@link Iterable}
+     * Calls {@link #deepHashCode(Object, Object)} on each element in the {@link Iterable}
      * @param a will never be null
      */
     protected void deepHashCode(G generator, Iterable<?> a) {
@@ -111,8 +111,8 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
     }
     
     /**
-     * Calls {@link #deepHashCode(KeyGenerationStream, Object)} on both the key and the value.
-     * @param a will never be null
+     * Calls {@link #deepHashCode(Object, Object)} on both the key and the value.
+     * @param e will never be null
      */
     protected void deepHashCode(G generator, Map.Entry<?, ?> e) {
         this.beginRecursion(generator, e);
@@ -123,7 +123,7 @@ public abstract class AbstractDeepCacheKeyGenerator<G, T extends Serializable> e
 
     /**
      * Does instanceof checks to determine the correct {@link #deepHashCode} method to call or 
-     * {@link #write(KeyGenerationStream, Object)} is called if no other recursion is needed or
+     * {@link #append(Object, Object)} is called if no other recursion is needed or
      * {@link #reflectionDeepHashCode(Object, Object)} is called if {@link #setUseReflection(boolean)}
      * is true.
      */

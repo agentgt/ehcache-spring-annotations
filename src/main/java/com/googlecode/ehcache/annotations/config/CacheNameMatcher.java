@@ -27,11 +27,11 @@ package com.googlecode.ehcache.annotations.config;
  */
 public interface CacheNameMatcher {
 
-	/**
-	 * 
-	 * 
-	 * @param cacheName
-	 * @return {@link Vote#YEA} if this should definitely be included, {@link Vote#NAY} if definitely excluded, or {@link Vote#ABSTAIN} if impl has no opinion
-	 */
-	Vote matches(String cacheName);
+    /**
+     * 
+     * 
+     * @param cacheName
+     * @return {@link Vote#YEA} if this should definitely be included, {@link Vote#NAY} if definitely excluded, or {@link Vote#ABSTAIN} if impl has no opinion
+     */
+    Vote matches(String cacheName);
 }

@@ -29,29 +29,29 @@ import org.junit.Test;
  */
 public class PatternCacheNameMatcherImplTest {
 
-	@Test
-	public void testInvalidSyntax() {
-		try {
-			new PatternCacheNameMatcherImpl("[f");
-			Assert.fail("expected PatternSyntaxException");
-		} catch (PatternSyntaxException e) {
-			//success
-		}
-		
-	}
-	
-	@Test
-	public void testControl() {
-		PatternCacheNameMatcherImpl m = new PatternCacheNameMatcherImpl("foo");
-		Assert.assertEquals(Vote.YEA, m.matches("foo"));
-		Assert.assertEquals(Vote.ABSTAIN, m.matches("bar"));
-	}
-	
-	@Test
-	public void testMatches() {
-		PatternCacheNameMatcherImpl m = new PatternCacheNameMatcherImpl("(foo)|(bar)");
-		Assert.assertEquals(Vote.YEA, m.matches("foo"));
-		Assert.assertEquals(Vote.YEA, m.matches("bar"));
-		Assert.assertEquals(Vote.ABSTAIN, m.matches("baz"));
-	}
+    @Test
+    public void testInvalidSyntax() {
+        try {
+            new PatternCacheNameMatcherImpl("[f");
+            Assert.fail("expected PatternSyntaxException");
+        } catch (PatternSyntaxException e) {
+            //success
+        }
+        
+    }
+    
+    @Test
+    public void testControl() {
+        PatternCacheNameMatcherImpl m = new PatternCacheNameMatcherImpl("foo");
+        Assert.assertEquals(Vote.YEA, m.matches("foo"));
+        Assert.assertEquals(Vote.ABSTAIN, m.matches("bar"));
+    }
+    
+    @Test
+    public void testMatches() {
+        PatternCacheNameMatcherImpl m = new PatternCacheNameMatcherImpl("(foo)|(bar)");
+        Assert.assertEquals(Vote.YEA, m.matches("foo"));
+        Assert.assertEquals(Vote.YEA, m.matches("bar"));
+        Assert.assertEquals(Vote.ABSTAIN, m.matches("baz"));
+    }
 }

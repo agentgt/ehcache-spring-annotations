@@ -28,35 +28,35 @@ package com.googlecode.ehcache.annotations.config;
  */
 public class ExactCacheNameMatcherImpl implements CacheNameMatcher {
 
-	private final String name;
-	/**
-	 * 
-	 * @param name
-	 * @throws IllegalArgumentException if the name argument is null
-	 */
-	public ExactCacheNameMatcherImpl(String name) {
-		if(null == name) {
-			throw new IllegalArgumentException("name cannot be null");
-		}
-		this.name = name;
-	}
-	/**
-	 * Returns {@link Vote#YEA} if the name field {@link String#equals(Object)} the cacheName argument,
-	 * {@link Vote#ABSTAIN} otherwise.
-	 * 
-	 * @see String#equals(Object)
-	 * @see com.googlecode.ehcache.annotations.config.CacheNameMatcher#matches(java.lang.String)
-	 */
-	public Vote matches(String cacheName) {
-		boolean result = this.name.equals(cacheName);
-		return result ? Vote.YEA : Vote.ABSTAIN;
-	}
-	
-	/**
-	 * @return the name this matcher is configured to match
-	 */
-	public String getName() {
-		return name;
-	}
+    private final String name;
+    /**
+     * 
+     * @param name
+     * @throws IllegalArgumentException if the name argument is null
+     */
+    public ExactCacheNameMatcherImpl(String name) {
+        if(null == name) {
+            throw new IllegalArgumentException("name cannot be null");
+        }
+        this.name = name;
+    }
+    /**
+     * Returns {@link Vote#YEA} if the name field {@link String#equals(Object)} the cacheName argument,
+     * {@link Vote#ABSTAIN} otherwise.
+     * 
+     * @see String#equals(Object)
+     * @see com.googlecode.ehcache.annotations.config.CacheNameMatcher#matches(java.lang.String)
+     */
+    public Vote matches(String cacheName) {
+        boolean result = this.name.equals(cacheName);
+        return result ? Vote.YEA : Vote.ABSTAIN;
+    }
+    
+    /**
+     * @return the name this matcher is configured to match
+     */
+    public String getName() {
+        return name;
+    }
 
 }

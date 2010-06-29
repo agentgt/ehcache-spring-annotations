@@ -46,124 +46,123 @@ import com.googlecode.ehcache.annotations.config.Vote;
 public final class ExpiredElementEvictor extends TimerTask implements InitializingBean, DisposableBean {
 
     private static final long MILLIS_PER_MINUTE = 60 * 1000L;
-	private CacheManager cacheManager;
-	private List<CacheNameMatcher> cacheNameMatchers = new ArrayList<CacheNameMatcher>();
-	private Timer timer;
-	private long interval;
-	private Set<String> cacheNames = new HashSet<String>();
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private CacheManager cacheManager;
+    private List<CacheNameMatcher> cacheNameMatchers = new ArrayList<CacheNameMatcher>();
+    private Timer timer;
+    private long interval;
+    private Set<String> cacheNames = new HashSet<String>();
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	/**
-	 * @param cacheManager the cacheManager to set
-	 */
-	public void setCacheManager(CacheManager cacheManager) {
-		this.cacheManager = cacheManager;
-	}
-	/**
-	 * @param cacheNameMatchers the cacheNameMatchers to set
-	 */
-	public void setCacheNameMatchers(List<CacheNameMatcher> cacheNameMatchers) {
-		this.cacheNameMatchers = cacheNameMatchers;
-	}
-	/**
-	 * @param interval the interval evict expired elements, in minutes
-	 */
-	public void setInterval(int interval) {
-		this.interval = interval * MILLIS_PER_MINUTE;
-	}
-	/**
-	 * @return the cacheNames
-	 */
-	public Set<String> getCacheNames() {
-		return cacheNames;
-	}
-	/**
-	 * @return the cacheNameMatchers
-	 */
-	public List<CacheNameMatcher> getCacheNameMatchers() {
-		return cacheNameMatchers;
-	}
-	/**
-	 * @return the interval
-	 */
-	public int getInterval() {
-		return (int)(this.interval / MILLIS_PER_MINUTE);
-	}
-	/*
-	 * (non-Javadoc)
-	 * @see java.util.TimerTask#run()
-	 */
-	@Override
+    /**
+     * @param cacheManager the cacheManager to set
+     */
+    public void setCacheManager(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
+    /**
+     * @param cacheNameMatchers the cacheNameMatchers to set
+     */
+    public void setCacheNameMatchers(List<CacheNameMatcher> cacheNameMatchers) {
+        this.cacheNameMatchers = cacheNameMatchers;
+    }
+    /**
+     * @param interval the interval evict expired elements, in minutes
+     */
+    public void setInterval(int interval) {
+        this.interval = interval * MILLIS_PER_MINUTE;
+    }
+    /**
+     * @return the cacheNames
+     */
+    public Set<String> getCacheNames() {
+        return cacheNames;
+    }
+    /**
+     * @return the cacheNameMatchers
+     */
+    public List<CacheNameMatcher> getCacheNameMatchers() {
+        return cacheNameMatchers;
+    }
+    /**
+     * @return the interval
+     */
+    public int getInterval() {
+        return (int)(this.interval / MILLIS_PER_MINUTE);
+    }
+    /*
+     * (non-Javadoc)
+     * @see java.util.TimerTask#run()
+     */
+    @Override
     public void run() {
-		final long startTime = System.currentTimeMillis();
+        final long startTime = System.currentTimeMillis();
 
-		long evictedTotal = 0;
-		for(String cacheName : this.cacheNames) {
-			Ehcache cache = this.cacheManager.getEhcache(cacheName);
-			if(null != cache) {
-				long preEvictSize = cache.getMemoryStoreSize();
-				long evictStart = System.currentTimeMillis();
-				cache.evictExpiredElements();
-				if(logger.isDebugEnabled()) {
-					long evicted = preEvictSize - cache.getMemoryStoreSize();
-					evictedTotal += evicted;
-					logger.debug("Evicted " + evicted + " elements from cache '" + cacheName + "' in " + (System.currentTimeMillis() - evictStart) + " ms");
-				}
-			} else {
-				if(logger.isDebugEnabled()) {
-					logger.debug("no cache found with name " + cacheName);
-				}
-			}
-		}
+        long evictedTotal = 0;
+        for(String cacheName : this.cacheNames) {
+            Ehcache cache = this.cacheManager.getEhcache(cacheName);
+            if(null != cache) {
+                long preEvictSize = cache.getMemoryStoreSize();
+                long evictStart = System.currentTimeMillis();
+                cache.evictExpiredElements();
+                if(logger.isDebugEnabled()) {
+                    long evicted = preEvictSize - cache.getMemoryStoreSize();
+                    evictedTotal += evicted;
+                    logger.debug("Evicted " + evicted + " elements from cache '" + cacheName + "' in " + (System.currentTimeMillis() - evictStart) + " ms");
+                }
+            } else {
+                if(logger.isDebugEnabled()) {
+                    logger.debug("no cache found with name " + cacheName);
+                }
+            }
+        }
 
-		if(logger.isDebugEnabled()) {
-			logger.debug("Evicted " + evictedTotal + " elements from " + cacheNames.size() + " caches  in " + (System.currentTimeMillis() - startTime) + " ms");
-		}
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
-	 */
-	public void afterPropertiesSet() throws Exception {
-		if(null == this.cacheManager) {
-			throw new IllegalStateException("cacheManager reference must be set");
-		}
-		
-		cacheNames = calculateEvictableCacheNames(this.cacheManager.getCacheNames());
-		cacheNames = Collections.unmodifiableSet(cacheNames);
-		
-		timer = new Timer(this.cacheManager.getName() + "expiredElementEvictorTimer", true);
-		timer.schedule(this, interval, interval);
-	}
+        if(logger.isDebugEnabled()) {
+            logger.debug("Evicted " + evictedTotal + " elements from " + cacheNames.size() + " caches  in " + (System.currentTimeMillis() - startTime) + " ms");
+        }
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
+     */
+    public void afterPropertiesSet() throws Exception {
+        if(null == this.cacheManager) {
+            throw new IllegalStateException("cacheManager reference must be set");
+        }
+        
+        cacheNames = calculateEvictableCacheNames(this.cacheManager.getCacheNames());
+        cacheNames = Collections.unmodifiableSet(cacheNames);
+        
+        timer = new Timer(this.cacheManager.getName() + "expiredElementEvictorTimer", true);
+        timer.schedule(this, interval, interval);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.springframework.beans.factory.DisposableBean#destroy()
-	 */
-	public void destroy() throws Exception {
-		this.timer.cancel();
-	}
-	/**
-	 * 
-	 * @return
-	 */
-	protected Set<String> calculateEvictableCacheNames(final String [] cacheManagerCacheNames) {
-		Set<String> result = new HashSet<String>();
-		// from the list of matchers, calculate the cacheNames set
-		for(String cacheManagerCacheName: cacheManagerCacheNames) {
-			Vote vote = null;
-			for(CacheNameMatcher matcher : this.cacheNameMatchers) {
-				vote = matcher.matches(cacheManagerCacheName);
-				if(Vote.ABSTAIN.equals(vote)) {
-					continue;
-				} else if (Vote.YEA.equals(vote)) {
-					result.add(cacheManagerCacheName);
-				} else {
-					result.remove(cacheManagerCacheName);
-				}
-			}
-		}
-		
-		return result;
-	}
+    /* (non-Javadoc)
+     * @see org.springframework.beans.factory.DisposableBean#destroy()
+     */
+    public void destroy() throws Exception {
+        this.timer.cancel();
+    }
+    /**
+     * @return Get the set of caches to do eviction for based on the full array of cache names in the cache manager
+     */
+    protected Set<String> calculateEvictableCacheNames(final String [] cacheManagerCacheNames) {
+        Set<String> result = new HashSet<String>();
+        // from the list of matchers, calculate the cacheNames set
+        for(String cacheManagerCacheName: cacheManagerCacheNames) {
+            Vote vote = null;
+            for(CacheNameMatcher matcher : this.cacheNameMatchers) {
+                vote = matcher.matches(cacheManagerCacheName);
+                if(Vote.ABSTAIN.equals(vote)) {
+                    continue;
+                } else if (Vote.YEA.equals(vote)) {
+                    result.add(cacheManagerCacheName);
+                } else {
+                    result.remove(cacheManagerCacheName);
+                }
+            }
+        }
+        
+        return result;
+    }
 }

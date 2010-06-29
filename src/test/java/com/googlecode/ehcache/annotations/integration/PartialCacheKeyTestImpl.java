@@ -67,6 +67,7 @@ public class PartialCacheKeyTestImpl implements PartialCacheKeyTestInterface {
     @Cacheable(cacheName="myCache", 
             keyGenerator = @KeyGenerator(name = "StringCacheKeyGenerator", 
                     properties=@Property(name="includeMethod", value="false")))
+    @SuppressWarnings("unchecked")
     public String cacheableMethodThree(
             @PartialCacheKey String arg1, 
             @PartialCacheKey int arg2, 
@@ -82,6 +83,7 @@ public class PartialCacheKeyTestImpl implements PartialCacheKeyTestInterface {
     @Cacheable(cacheName="myCache", 
             keyGenerator = @KeyGenerator(name = "StringCacheKeyGenerator", 
                     properties=@Property(name="includeMethod", value="false")))
+    @SuppressWarnings("unchecked")
     public String cacheableMethodTwo(int arg2, long arg3) {
         this.cacheableMethodTwoCount++;
         return Arrays.asList(arg2, arg3).toString();
@@ -109,6 +111,7 @@ public class PartialCacheKeyTestImpl implements PartialCacheKeyTestInterface {
     @TriggersRemove(cacheName="myCache", 
             keyGenerator = @KeyGenerator(name = "StringCacheKeyGenerator", 
                     properties=@Property(name="includeMethod", value="false")))
+    @SuppressWarnings("unchecked")
     public String triggersRemoveMethodThree(
             @PartialCacheKey String arg1, 
             @PartialCacheKey int arg2, 
@@ -124,6 +127,7 @@ public class PartialCacheKeyTestImpl implements PartialCacheKeyTestInterface {
     @TriggersRemove(cacheName="myCache", 
             keyGenerator = @KeyGenerator(name = "StringCacheKeyGenerator", 
                     properties=@Property(name="includeMethod", value="false")))
+    @SuppressWarnings("unchecked")
     public String triggersRemoveMethodTwo(int arg2, long arg3) {
         this.triggersRemoveMethodTwoCount++;
         return Arrays.asList(arg2, arg3).toString();
