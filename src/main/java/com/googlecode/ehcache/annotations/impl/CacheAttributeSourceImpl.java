@@ -22,7 +22,9 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -55,6 +57,7 @@ import com.googlecode.ehcache.annotations.Cacheable;
 import com.googlecode.ehcache.annotations.CacheableAttribute;
 import com.googlecode.ehcache.annotations.KeyGenerator;
 import com.googlecode.ehcache.annotations.MethodAttribute;
+import com.googlecode.ehcache.annotations.PartialCacheKey;
 import com.googlecode.ehcache.annotations.Property;
 import com.googlecode.ehcache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ehcache.annotations.TriggersRemove;
@@ -265,34 +268,61 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     /**
      * Determine if the specified {@link AnnotatedElement} is annotated with either {@link Cacheable} or {@link TriggersRemove}
      * 
-     * @param ae The element to inspect
+     * @param method The element to inspect
      * @return The advice attributes about the element, null if the element is not advised
      */
-    private MethodAttribute findMethodAttribute(AnnotatedElement ae) {
-        Cacheable cacheableAnnotation = ae.getAnnotation(Cacheable.class);
+    private MethodAttribute findMethodAttribute(Method method) {
+        Cacheable cacheableAnnotation = method.getAnnotation(Cacheable.class);
         if (cacheableAnnotation != null) {
-            return this.parseCacheableAnnotation(cacheableAnnotation);
+            final Set<Integer> annotatedMethodIndices = this.parsePartialCacheKeyAnnotations(method);
+            return this.parseCacheableAnnotation(cacheableAnnotation, annotatedMethodIndices);
         }
         
-        TriggersRemove triggersRemove = ae.getAnnotation(TriggersRemove.class);
+        TriggersRemove triggersRemove = method.getAnnotation(TriggersRemove.class);
         if (triggersRemove != null) {
-            return this.parseTriggersRemoveAnnotation(triggersRemove);
+            final Set<Integer> annotatedMethodIndices = this.parsePartialCacheKeyAnnotations(method);
+            return this.parseTriggersRemoveAnnotation(triggersRemove, annotatedMethodIndices);
         }
         
-        for (final Annotation metaAnn : ae.getAnnotations()) {
+        for (final Annotation metaAnn : method.getAnnotations()) {
             final Class<? extends Annotation> annotationType = metaAnn.annotationType();
             cacheableAnnotation = annotationType.getAnnotation(Cacheable.class);
             if (cacheableAnnotation != null) {
-                return this.parseCacheableAnnotation(cacheableAnnotation);
+                final Set<Integer> annotatedMethodIndices = this.parsePartialCacheKeyAnnotations(method);
+                return this.parseCacheableAnnotation(cacheableAnnotation, annotatedMethodIndices);
             }
             
             triggersRemove = annotationType.getAnnotation(TriggersRemove.class);
             if (triggersRemove != null) {
-                return this.parseTriggersRemoveAnnotation(triggersRemove);
+                final Set<Integer> annotatedMethodIndices = this.parsePartialCacheKeyAnnotations(method);
+                return this.parseTriggersRemoveAnnotation(triggersRemove, annotatedMethodIndices);
             }
         }
 
         return null;
+    }
+    
+    /**
+     * Parse the parameters annotated with {@link PartialCacheKey}.
+     * 
+     * @param method The method whos parameters should be checked.
+     * @return A set of parameter indices that are annotated. The set will be empty if no {@link PartialCacheKey} annotations are found.
+     */
+    protected Set<Integer> parsePartialCacheKeyAnnotations(Method method) {
+        final Set<Integer> annotatedParameterIndices = new LinkedHashSet<Integer>();
+        final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        for (int i = 0; i < parameterAnnotations.length; i++) {
+            final Annotation[] annotations = parameterAnnotations[i];
+            for (final Annotation annotation : annotations) {
+                final Class<? extends Annotation> annotationType = annotation.annotationType();
+                if (PartialCacheKey.class.equals(annotationType)) {
+                    annotatedParameterIndices.add(i);
+                    break;
+                }
+            }
+        }
+        
+        return annotatedParameterIndices;
     }
 
     /**
@@ -301,7 +331,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      * @param ann The annotation to build the attributes from
      * @return The constructed cacheable advise attributes
      */
-    protected CacheableAttribute parseCacheableAnnotation(Cacheable ann) {
+    protected CacheableAttribute parseCacheableAnnotation(Cacheable ann, Set<Integer> annotatedMethodIndices) {
         Ehcache cache = this.getCache(ann.cacheName());
         ThreadLocal<MethodInvocation> entryFactory = null;
         if (ann.selfPopulating()) {
@@ -320,9 +350,9 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         
         final String keyGeneratorName = ann.keyGeneratorName();
         final KeyGenerator keyGenerator = ann.keyGenerator();
-        final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = getCacheKeyGenerator(keyGeneratorName, keyGenerator);
+        final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = this.getCacheKeyGenerator(keyGeneratorName, keyGenerator);
         
-        return new CacheableAttributeImpl(cache, exceptionCache, cacheKeyGenerator, entryFactory);
+        return new CacheableAttributeImpl(cache, exceptionCache, cacheKeyGenerator, annotatedMethodIndices, entryFactory);
     }
     
     /**
@@ -372,14 +402,14 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      * @param ann The annotation to build the attributes from
      * @return The constructed triggers remove advise attributes
      */
-    protected TriggersRemoveAttribute parseTriggersRemoveAnnotation(TriggersRemove ann) {
+    protected TriggersRemoveAttribute parseTriggersRemoveAnnotation(TriggersRemove ann, Set<Integer> annotatedMethodIndices) {
         final Ehcache cache = this.getCache(ann.cacheName());
 
         final String keyGeneratorName = ann.keyGeneratorName();
         final KeyGenerator keyGenerator = ann.keyGenerator();
-        final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = getCacheKeyGenerator(keyGeneratorName, keyGenerator);
+        final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = this.getCacheKeyGenerator(keyGeneratorName, keyGenerator);
         
-        return new TriggersRemoveAttributeImpl(cache, cacheKeyGenerator, ann.removeAll(), ann.when());
+        return new TriggersRemoveAttributeImpl(cache, cacheKeyGenerator, annotatedMethodIndices, ann.removeAll(), ann.when());
     }
     
     /**

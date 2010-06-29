@@ -14,32 +14,22 @@
  * limitations under the License.
  */
 
-/**
- * 
- */
 package com.googlecode.ehcache.annotations;
 
-
-import net.sf.ehcache.Ehcache;
-
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Represents the objects needed to intercept calls to methods annotated
- * with {@link TriggersRemove}
- * 
- * @author Nicholas Blair
- *
+ * Used to mark specific method parameter(s) that should be used in cache key generation. This annotation is only
+ * useful on methods annotated with {@link Cacheable} or {@link TriggersRemove}
  */
-public interface TriggersRemoveAttribute extends MethodAttribute {
-    /**
-     * @return true if {@link Ehcache#removeAll()} should be called.
-     */
-    public boolean isRemoveAll();
-    
-    
-   /**
-    * 
-    * @return 'when' to run the removeall (before or after the method invocation)
-    */
-    public When getWhen();
+@Target( { ElementType.PARAMETER } )
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
+public @interface PartialCacheKey {
 }

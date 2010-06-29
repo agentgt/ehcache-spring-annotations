@@ -17,6 +17,8 @@
 package com.googlecode.ehcache.annotations.impl;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Set;
 
 import net.sf.ehcache.Ehcache;
 
@@ -37,12 +39,16 @@ class CacheableAttributeImpl implements CacheableAttribute {
     private final Ehcache cache;
     private final Ehcache exceptionCache;
     private final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator;
+    private final Set<Integer> partialCacheKeyParameterIndicies;
     private final ThreadLocal<MethodInvocation> entryFactory;
     
-    public CacheableAttributeImpl(Ehcache cache, Ehcache exceptionCache, CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, ThreadLocal<MethodInvocation> entryFactory) {
+    public CacheableAttributeImpl(Ehcache cache, Ehcache exceptionCache, 
+            CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, Set<Integer> partialCacheKeyParameterIndicies, 
+            ThreadLocal<MethodInvocation> entryFactory) {
         this.cache = cache;
         this.exceptionCache = exceptionCache;
         this.cacheKeyGenerator = cacheKeyGenerator;
+        this.partialCacheKeyParameterIndicies = Collections.unmodifiableSet(partialCacheKeyParameterIndicies);
         this.entryFactory = entryFactory;
     }
     
@@ -57,6 +63,10 @@ class CacheableAttributeImpl implements CacheableAttribute {
     public CacheKeyGenerator<? extends Serializable> getCacheKeyGenerator() {
         return this.cacheKeyGenerator;
     }
+    
+    public Set<Integer> getPartialCacheKeyParameterIndicies() {
+        return this.partialCacheKeyParameterIndicies;
+    }
 
     public Ehcache getExceptionCache() {
         return this.exceptionCache;
@@ -65,10 +75,81 @@ class CacheableAttributeImpl implements CacheableAttribute {
     public ThreadLocal<MethodInvocation> getEntryFactory() {
         return this.entryFactory;
     }
+    
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((this.cache == null) ? 0 : this.cache.hashCode());
+        result = prime * result + ((this.cacheKeyGenerator == null) ? 0 : this.cacheKeyGenerator.hashCode());
+        result = prime * result + ((this.entryFactory == null) ? 0 : this.entryFactory.hashCode());
+        result = prime * result + ((this.exceptionCache == null) ? 0 : this.exceptionCache.hashCode());
+        result = prime
+                * result
+                + ((this.partialCacheKeyParameterIndicies == null) ? 0 : this.partialCacheKeyParameterIndicies
+                        .hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        CacheableAttributeImpl other = (CacheableAttributeImpl) obj;
+        if (this.cache == null) {
+            if (other.cache != null) {
+                return false;
+            }
+        }
+        else if (!this.cache.equals(other.cache)) {
+            return false;
+        }
+        if (this.cacheKeyGenerator == null) {
+            if (other.cacheKeyGenerator != null) {
+                return false;
+            }
+        }
+        else if (!this.cacheKeyGenerator.equals(other.cacheKeyGenerator)) {
+            return false;
+        }
+        if (this.entryFactory == null) {
+            if (other.entryFactory != null) {
+                return false;
+            }
+        }
+        else if (!this.entryFactory.equals(other.entryFactory)) {
+            return false;
+        }
+        if (this.exceptionCache == null) {
+            if (other.exceptionCache != null) {
+                return false;
+            }
+        }
+        else if (!this.exceptionCache.equals(other.exceptionCache)) {
+            return false;
+        }
+        if (this.partialCacheKeyParameterIndicies == null) {
+            if (other.partialCacheKeyParameterIndicies != null) {
+                return false;
+            }
+        }
+        else if (!this.partialCacheKeyParameterIndicies.equals(other.partialCacheKeyParameterIndicies)) {
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public String toString() {
         return "CacheableAttributeImpl [cache=" + this.cache + ", cacheKeyGenerator=" + this.cacheKeyGenerator
-                + ", entryFactory=" + this.entryFactory + ", exceptionCache=" + this.exceptionCache + "]";
+                + ", partialCacheKeyParameterIndicies=" + this.partialCacheKeyParameterIndicies + ", entryFactory="
+                + this.entryFactory + ", exceptionCache=" + this.exceptionCache + "]";
     }
 }

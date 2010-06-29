@@ -17,7 +17,10 @@
 package com.googlecode.ehcache.annotations.interceptor;
 
 import java.io.Serializable;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Set;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -184,7 +187,7 @@ public class EhCacheInterceptor implements MethodInterceptor {
     private Object invokeTriggersRemove(final MethodInvocation methodInvocation, final TriggersRemoveAttribute triggersRemoveAttribute) throws Throwable {
         final Ehcache cache = triggersRemoveAttribute.getCache();
         
-        if(When.BEFORE_METHOD_INVOCATION.equals(triggersRemoveAttribute.when())) {
+        if(When.BEFORE_METHOD_INVOCATION.equals(triggersRemoveAttribute.getWhen())) {
         	invokeCacheRemove(methodInvocation, triggersRemoveAttribute, cache);
         	return methodInvocation.proceed();
         }
@@ -253,10 +256,102 @@ public class EhCacheInterceptor implements MethodInterceptor {
      * @param methodAttribute Configuration for the invoked method
      * @return Generated cache key, must not return null.
      */
-    protected Serializable generateCacheKey(final MethodInvocation methodInvocation, final MethodAttribute methodAttribute) {
+    protected Serializable generateCacheKey(MethodInvocation methodInvocation, final MethodAttribute methodAttribute) {
         final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = methodAttribute.getCacheKeyGenerator();
+        
+        final Set<Integer> partialCacheKeyParameterIndicies = methodAttribute.getPartialCacheKeyParameterIndicies();
+        if (partialCacheKeyParameterIndicies.size() > 0) {
+            methodInvocation = new ParameterFilteringMethodInvocation(methodInvocation, partialCacheKeyParameterIndicies);
+        }
+        
         final Serializable cacheKey = cacheKeyGenerator.generateKey(methodInvocation);
         this.logger.debug("Generated key '{}' for invocation: {}", cacheKey, methodInvocation);
         return cacheKey;
+    }
+    
+    private static class ParameterFilteringMethodInvocation implements MethodInvocation {
+        private final MethodInvocation methodInvocation;
+        private final Set<Integer> partialCacheKeyParameterIndicies;
+        private Object[] filteredArguments = null;
+        
+        public ParameterFilteringMethodInvocation(MethodInvocation methodInvocation, Set<Integer> partialCacheKeyParameterIndicies) {
+            this.methodInvocation = methodInvocation;
+            this.partialCacheKeyParameterIndicies = partialCacheKeyParameterIndicies;
+        }
+
+        public Object[] getArguments() {
+            if (this.filteredArguments == null) {
+                int filteredIndex = 0;
+                final Object[] filteredArguments = new Object[this.partialCacheKeyParameterIndicies.size()];
+                
+                final Object[] arguments = this.methodInvocation.getArguments();
+                for (int index = 0; index < arguments.length; index++) {
+                    if (this.partialCacheKeyParameterIndicies.contains(index)) {
+                        filteredArguments[filteredIndex++] = arguments[index];
+                    }
+                }
+                
+                this.filteredArguments = filteredArguments;
+            }
+            
+            return this.filteredArguments;
+        }
+
+        public Method getMethod() {
+            return this.methodInvocation.getMethod();
+        }
+
+        public AccessibleObject getStaticPart() {
+            return this.methodInvocation.getStaticPart();
+        }
+
+        public Object getThis() {
+            return this.methodInvocation.getThis();
+        }
+
+        public Object proceed() throws Throwable {
+            return this.methodInvocation.proceed();
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + Arrays.hashCode(this.filteredArguments);
+            result = prime * result + ((this.methodInvocation == null) ? 0 : this.methodInvocation.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            ParameterFilteringMethodInvocation other = (ParameterFilteringMethodInvocation) obj;
+            if (!Arrays.equals(this.filteredArguments, other.filteredArguments)) {
+                return false;
+            }
+            if (this.methodInvocation == null) {
+                if (other.methodInvocation != null) {
+                    return false;
+                }
+            }
+            else if (!this.methodInvocation.equals(other.methodInvocation)) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "ParameterFilteringMethodInvocation [filteredArguments=" + Arrays.toString(this.filteredArguments)
+                    + ", methodInvocation=" + this.methodInvocation + "]";
+        }
     }
 }
