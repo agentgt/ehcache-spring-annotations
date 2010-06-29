@@ -21,8 +21,6 @@ import java.util.Set;
 
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 
-import net.sf.ehcache.Ehcache;
-
 /**
  * Common information about advised methods.
  * 
@@ -34,11 +32,6 @@ public interface MethodAttribute {
      * @return The type of advice this attribute represents. Will never be null or {@link AdviceType#NONE}
      */
     public AdviceType getAdviceType();
-    
-    /**
-     * @return The cache to use, will never be null.
-     */
-    public Ehcache getCache();
     
     /**
      * @return The key generator to use, will never be null.

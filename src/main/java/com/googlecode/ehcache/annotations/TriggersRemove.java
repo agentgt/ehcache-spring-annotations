@@ -35,9 +35,9 @@ import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 @Documented
 public @interface TriggersRemove {
     /**
-     * The name of the cache to use
+     * The name(s) of the cache to use
      */
-    String cacheName();
+    String[] cacheName();
 
     /**
      * If a call should remove all elements from the cache. Will result in the specified keyGeneratorName 

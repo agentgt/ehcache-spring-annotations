@@ -54,4 +54,16 @@ public class TriggersRemoveTestImpl implements TriggersRemoveTestInterface {
     public Object simpleCachedMethod() {
         return new Object();
     }
+
+    public void methodMultipleTriggersRemove() {
+        
+    }
+
+    public void methodMultipleTriggersRemoveAll() {
+        
+    }
+
+    public Object simpleCachedMethodTwo() {
+        return new Object();
+    }
 }

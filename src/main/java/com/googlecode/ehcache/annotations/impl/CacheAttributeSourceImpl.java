@@ -21,8 +21,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -403,13 +405,18 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      * @return The constructed triggers remove advise attributes
      */
     protected TriggersRemoveAttribute parseTriggersRemoveAnnotation(TriggersRemove ann, Set<Integer> annotatedMethodIndices) {
-        final Ehcache cache = this.getCache(ann.cacheName());
+        final String[] cacheNames = ann.cacheName();
+        final List<Ehcache> caches = new ArrayList<Ehcache>(cacheNames.length);
+        for (final String cacheName : cacheNames) {
+            final Ehcache cache = this.getCache(cacheName);
+            caches.add(cache);
+        }
 
         final String keyGeneratorName = ann.keyGeneratorName();
         final KeyGenerator keyGenerator = ann.keyGenerator();
         final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = this.getCacheKeyGenerator(keyGeneratorName, keyGenerator);
         
-        return new TriggersRemoveAttributeImpl(cache, cacheKeyGenerator, annotatedMethodIndices, ann.removeAll(), ann.when());
+        return new TriggersRemoveAttributeImpl(caches, cacheKeyGenerator, annotatedMethodIndices, ann.removeAll(), ann.when());
     }
     
     /**

@@ -19,9 +19,7 @@
  */
 package com.googlecode.ehcache.annotations;
 
-
 import net.sf.ehcache.Ehcache;
-
 
 /**
  * Represents the objects needed to intercept calls to methods annotated
@@ -32,14 +30,18 @@ import net.sf.ehcache.Ehcache;
  */
 public interface TriggersRemoveAttribute extends MethodAttribute {
     /**
+     * @return The cache to use, will never be null.
+     */
+    public Iterable<Ehcache> getCaches();
+    
+    /**
      * @return true if {@link Ehcache#removeAll()} should be called.
      */
     public boolean isRemoveAll();
-    
-    
-   /**
-    * 
-    * @return 'when' to run the removeall (before or after the method invocation)
-    */
+
+    /**
+     * 
+     * @return 'when' to run the removeall (before or after the method invocation)
+     */
     public When getWhen();
 }

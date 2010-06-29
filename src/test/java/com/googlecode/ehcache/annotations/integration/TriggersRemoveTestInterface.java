@@ -44,6 +44,18 @@ public interface TriggersRemoveTestInterface {
 	
 	@TriggersRemove(cacheName="triggersRemoveCountingCache", removeAll=true)
 	public void methodTriggersRemoveAll();
+	
+
+    @TriggersRemove(cacheName={"triggersRemoveCountingCache", "triggersRemoveCountingCacheTwo"}, 
+            keyGenerator = @KeyGenerator(
+                    name = "HashCodeCacheKeyGenerator", 
+                    properties = @Property(name ="includeMethod", value="false")
+            )
+    )
+    public void methodMultipleTriggersRemove();
+    
+    @TriggersRemove(cacheName={"triggersRemoveCountingCache", "triggersRemoveCountingCacheTwo"}, removeAll=true)
+    public void methodMultipleTriggersRemoveAll();
     
     @Cacheable(cacheName="triggersRemoveCountingCache", 
             keyGenerator = @KeyGenerator(
@@ -52,4 +64,12 @@ public interface TriggersRemoveTestInterface {
             )
     )
     public Object simpleCachedMethod();
+    
+    @Cacheable(cacheName="triggersRemoveCountingCacheTwo", 
+            keyGenerator = @KeyGenerator(
+                    name = "HashCodeCacheKeyGenerator", 
+                    properties = @Property(name ="includeMethod", value="false")
+            )
+    )
+    public Object simpleCachedMethodTwo();
 }

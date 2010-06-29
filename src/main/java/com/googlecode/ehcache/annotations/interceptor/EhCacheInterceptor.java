@@ -185,15 +185,15 @@ public class EhCacheInterceptor implements MethodInterceptor {
      * @throws Throwable exception thrown by the invocation
      */
     private Object invokeTriggersRemove(final MethodInvocation methodInvocation, final TriggersRemoveAttribute triggersRemoveAttribute) throws Throwable {
-        final Ehcache cache = triggersRemoveAttribute.getCache();
+        final Iterable<Ehcache> caches = triggersRemoveAttribute.getCaches();
         
         if(When.BEFORE_METHOD_INVOCATION.equals(triggersRemoveAttribute.getWhen())) {
-        	invokeCacheRemove(methodInvocation, triggersRemoveAttribute, cache);
+        	invokeCacheRemove(methodInvocation, triggersRemoveAttribute, caches);
         	return methodInvocation.proceed();
         }
         
     	final Object methodInvocationResult =  methodInvocation.proceed();
-    	invokeCacheRemove(methodInvocation, triggersRemoveAttribute, cache);
+    	invokeCacheRemove(methodInvocation, triggersRemoveAttribute, caches);
     	return methodInvocationResult;
     }
 
@@ -206,13 +206,17 @@ public class EhCacheInterceptor implements MethodInterceptor {
 	 */
 	private void invokeCacheRemove(final MethodInvocation methodInvocation,
 			final TriggersRemoveAttribute triggersRemoveAttribute,
-			final Ehcache cache) {
+			final Iterable<Ehcache> caches) {
 		if (triggersRemoveAttribute.isRemoveAll()) {
-			cache.removeAll();
+		    for (final Ehcache ehcache : caches) {
+                ehcache.removeAll();
+            }
 		}
 		else {
 			final Serializable cacheKey = generateCacheKey(methodInvocation, triggersRemoveAttribute);
-			cache.remove(cacheKey);
+			for (final Ehcache ehcache : caches) {
+			    ehcache.remove(cacheKey);
+			}
 		}
 	}
 

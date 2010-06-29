@@ -58,51 +58,66 @@ public class TriggersRemoveTest  {
 	
 	@Test
 	public void testHarness() {
-	    final Ehcache ehcache = cacheManager.getEhcache("triggersRemoveCountingCache");
-
-        CountingListener listener = new CountingListener();
-        ehcache.registerCacheUsageListener(listener);
+	    final Ehcache ehcacheOne = cacheManager.getEhcache("triggersRemoveCountingCache");
+        final CountingListener listenerOne = new CountingListener();
+        ehcacheOne.registerCacheUsageListener(listenerOne);
         
-//        final CacheUsageListener loggingListener = (CacheUsageListener)Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] {CacheUsageListener.class}, new InvocationHandler() {
-//            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//                System.out.println("Called: " + method.getName());
-//                
-//                return null;
-//            }
-//        });
-//        ehcache.registerCacheUsageListener(loggingListener);
-		
-		Assert.assertEquals(0, listener.getRemoveCount());
-		Assert.assertEquals(0, listener.getRemoveAllCount());
+        final Ehcache ehcacheTwo = cacheManager.getEhcache("triggersRemoveCountingCacheTwo");
+        final CountingListener listenerTwo = new CountingListener();
+        ehcacheTwo.registerCacheUsageListener(listenerTwo);
+
+        
+		Assert.assertEquals(0, listenerOne.getRemoveCount());
+		Assert.assertEquals(0, listenerOne.getRemoveAllCount());
 		
 		this.triggersRemoveTestInterface.notTriggersRemoveMethod();
-		Assert.assertEquals(0, listener.getRemoveCount());
-        Assert.assertEquals(0, listener.getRemoveAllCount());
+		Assert.assertEquals(0, listenerOne.getRemoveCount());
+        Assert.assertEquals(0, listenerOne.getRemoveAllCount());
 		
         this.triggersRemoveTestInterface.simpleCachedMethod();
         this.triggersRemoveTestInterface.methodTriggersRemove();
-        Assert.assertEquals(1, listener.getRemoveCount());
-		Assert.assertEquals(0, listener.getRemoveAllCount());
+        Assert.assertEquals(1, listenerOne.getRemoveCount());
+		Assert.assertEquals(0, listenerOne.getRemoveAllCount());
 		
 		this.triggersRemoveTestInterface.methodTriggersRemove();
-        Assert.assertEquals(2, listener.getRemoveCount());
-		Assert.assertEquals(0, listener.getRemoveAllCount());
+        Assert.assertEquals(2, listenerOne.getRemoveCount());
+		Assert.assertEquals(0, listenerOne.getRemoveAllCount());
 		
 		this.triggersRemoveTestInterface.notTriggersRemoveMethod();
-        Assert.assertEquals(2, listener.getRemoveCount());
-		Assert.assertEquals(0, listener.getRemoveAllCount());
+        Assert.assertEquals(2, listenerOne.getRemoveCount());
+		Assert.assertEquals(0, listenerOne.getRemoveAllCount());
 		
 		this.triggersRemoveTestInterface.methodTriggersRemoveAll();
-        Assert.assertEquals(2, listener.getRemoveCount());
-		Assert.assertEquals(1, listener.getRemoveAllCount());
+        Assert.assertEquals(2, listenerOne.getRemoveCount());
+		Assert.assertEquals(1, listenerOne.getRemoveAllCount());
 		
 		this.triggersRemoveTestInterface.methodTriggersRemoveAll();
-        Assert.assertEquals(2, listener.getRemoveCount());
-		Assert.assertEquals(2, listener.getRemoveAllCount());
+        Assert.assertEquals(2, listenerOne.getRemoveCount());
+		Assert.assertEquals(2, listenerOne.getRemoveAllCount());
 		
         this.triggersRemoveTestInterface.implMethodTriggersRemove();
-        Assert.assertEquals(3, listener.getRemoveCount());
-        Assert.assertEquals(2, listener.getRemoveAllCount());
+        Assert.assertEquals(3, listenerOne.getRemoveCount());
+        Assert.assertEquals(2, listenerOne.getRemoveAllCount());
+        
+        
+
+        Assert.assertEquals(0, listenerTwo.getRemoveCount());
+        Assert.assertEquals(0, listenerTwo.getRemoveAllCount());
+        
+        this.triggersRemoveTestInterface.simpleCachedMethodTwo();
+        
+        this.triggersRemoveTestInterface.methodMultipleTriggersRemove();
+        Assert.assertEquals(4, listenerOne.getRemoveCount());
+        Assert.assertEquals(2, listenerOne.getRemoveAllCount());
+        Assert.assertEquals(1, listenerTwo.getRemoveCount());
+        Assert.assertEquals(0, listenerTwo.getRemoveAllCount());
+        
+        this.triggersRemoveTestInterface.methodMultipleTriggersRemoveAll();
+        Assert.assertEquals(4, listenerOne.getRemoveCount());
+        Assert.assertEquals(3, listenerOne.getRemoveAllCount());
+        Assert.assertEquals(1, listenerTwo.getRemoveCount());
+        Assert.assertEquals(1, listenerTwo.getRemoveAllCount());
+        
 	}
 	
 	static class CountingListener implements CacheUsageListener {

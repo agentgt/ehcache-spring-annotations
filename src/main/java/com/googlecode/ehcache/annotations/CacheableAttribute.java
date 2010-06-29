@@ -29,6 +29,11 @@ import org.aopalliance.intercept.MethodInvocation;
  */
 public interface CacheableAttribute extends MethodAttribute {
     /**
+     * @return The cache to use, will never be null.
+     */
+    public Ehcache getCache();
+    
+    /**
      * @return The cache to use in case of an exception, may be null if no exception caching should be done.
      */
     public Ehcache getExceptionCache();

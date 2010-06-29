@@ -39,5 +39,9 @@
 		maxElementsInMemory="100" overflowToDisk="false" diskPersistent="false"
 		timeToIdleSeconds="0" timeToLiveSeconds="300"
 		memoryStoreEvictionPolicy="LRU" statistics="true" />
+    <cache name="triggersRemoveCountingCacheTwo" eternal="false"
+        maxElementsInMemory="100" overflowToDisk="false" diskPersistent="false"
+        timeToIdleSeconds="0" timeToLiveSeconds="300"
+        memoryStoreEvictionPolicy="LRU" statistics="true" />
 
 </ehcache>

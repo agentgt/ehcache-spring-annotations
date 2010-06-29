@@ -21,6 +21,7 @@ package com.googlecode.ehcache.annotations.impl;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import net.sf.ehcache.Ehcache;
@@ -37,16 +38,16 @@ import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
  * @version $Revision$
  */
 class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
-	private final Ehcache cache;
+	private final List<Ehcache> caches;
 	private final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator;
 	private final Set<Integer> partialCacheKeyParameterIndicies;
     private final boolean removeAll;
 	private final When when;
 	
-	TriggersRemoveAttributeImpl(Ehcache cache, 
+	TriggersRemoveAttributeImpl(List<Ehcache> caches, 
 	        CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, Set<Integer> partialCacheKeyParameterIndicies,
 	        boolean removeAll, When when) {
-		this.cache = cache;
+		this.caches = Collections.unmodifiableList(caches);
 		this.cacheKeyGenerator = cacheKeyGenerator;
 		this.partialCacheKeyParameterIndicies = Collections.unmodifiableSet(partialCacheKeyParameterIndicies);
         this.removeAll = removeAll;
@@ -58,13 +59,13 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
     }
 
 	/* (non-Javadoc)
-	 * @see com.googlecode.ehcache.annotations.FlushableAttribute#getCache()
+	 * @see com.googlecode.ehcache.annotations.TriggersRemoveAttribute#getCache()
 	 */
-	public Ehcache getCache() {
-		return this.cache;
-	}
+	public Iterable<Ehcache> getCaches() {
+        return this.caches;
+    }
 
-	/* (non-Javadoc)
+    /* (non-Javadoc)
 	 * @see com.googlecode.ehcache.annotations.FlushableAttribute#isRemoveAll()
 	 */
 	public boolean isRemoveAll() {
@@ -96,7 +97,7 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((this.cache == null) ? 0 : this.cache.hashCode());
+        result = prime * result + ((this.caches == null) ? 0 : this.caches.hashCode());
         result = prime * result + ((this.cacheKeyGenerator == null) ? 0 : this.cacheKeyGenerator.hashCode());
         result = prime
                 * result
@@ -119,12 +120,12 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
             return false;
         }
         TriggersRemoveAttributeImpl other = (TriggersRemoveAttributeImpl) obj;
-        if (this.cache == null) {
-            if (other.cache != null) {
+        if (this.caches == null) {
+            if (other.caches != null) {
                 return false;
             }
         }
-        else if (!this.cache.equals(other.cache)) {
+        else if (!this.caches.equals(other.caches)) {
             return false;
         }
         if (this.cacheKeyGenerator == null) {
@@ -159,7 +160,7 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
 
     @Override
     public String toString() {
-        return "TriggersRemoveAttributeImpl [cache=" + this.cache + ", cacheKeyGenerator=" + this.cacheKeyGenerator
+        return "TriggersRemoveAttributeImpl [caches=" + this.caches + ", cacheKeyGenerator=" + this.cacheKeyGenerator
                 + ", partialCacheKeyParameterIndicies=" + this.partialCacheKeyParameterIndicies + ", removeAll="
                 + this.removeAll + ", when=" + this.when + "]";
     }
