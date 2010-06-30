@@ -18,7 +18,7 @@ package com.googlecode.ehcache.annotations.key;
 
 import java.util.Arrays;
 
-class MethodInvocationHelper {
+public class MethodInvocationHelper {
     public void testMethod0() {
     }
     

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.ehcache.annotations.key;
+package com.googlecode.ehcache.annotations.performance;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -32,7 +32,18 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.googlecode.ehcache.annotations.key.AbstractDeepCacheKeyGenerator;
+import com.googlecode.ehcache.annotations.key.CachingReflectionHelper;
+import com.googlecode.ehcache.annotations.key.HashCodeCacheKeyGenerator;
+import com.googlecode.ehcache.annotations.key.ListCacheKeyGenerator;
+import com.googlecode.ehcache.annotations.key.MessageDigestCacheKeyGenerator;
+import com.googlecode.ehcache.annotations.key.MethodInvocationHelper;
+import com.googlecode.ehcache.annotations.key.RequiresReflectionKey;
+import com.googlecode.ehcache.annotations.key.StringCacheKeyGenerator;
 import com.googlecode.ehcache.annotations.util.MockMethodInvocation;
 import com.googlecode.ehcache.annotations.util.ThreadGroupRunner;
 
@@ -40,6 +51,8 @@ import com.googlecode.ehcache.annotations.util.ThreadGroupRunner;
  * @author Eric Dalquist
  * @version $Revision$
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "/performanceTest.xml")
 public class CacheKeyGeneratorPerformanceTest {
     private final List<MethodInvocation> invocations = new LinkedList<MethodInvocation>();
     
