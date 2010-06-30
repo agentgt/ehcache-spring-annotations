@@ -75,7 +75,13 @@ public class ParameterMask {
      * @return A copy of the mask array
      */
     public boolean[] getMask() {
-        return Arrays.copyOf(this.mask, this.mask.length);
+        if (this.mask.length == 0) {
+            return this.mask;
+        }
+        
+        final boolean[] maskCopy = new boolean[this.mask.length];
+        System.arraycopy(this.mask, 0, maskCopy, 0, this.mask.length);
+        return maskCopy;
     }
 
     /**
