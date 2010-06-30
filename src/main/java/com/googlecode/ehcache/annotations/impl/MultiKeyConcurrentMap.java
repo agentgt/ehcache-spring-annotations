@@ -16,6 +16,7 @@
 
 package com.googlecode.ehcache.annotations.impl;
 
+import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -27,7 +28,8 @@ import java.util.concurrent.ConcurrentMap;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class MultiKeyConcurrentMap<K1, K2, V> {
+public final class MultiKeyConcurrentMap<K1, K2, V> implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final ConcurrentMap<K1, ConcurrentMap<K2, V>> map = new ConcurrentHashMap<K1, ConcurrentMap<K2,V>>();
     
     /**
@@ -49,15 +51,7 @@ public class MultiKeyConcurrentMap<K1, K2, V> {
      * @see ConcurrentMap#put(Object, Object)
      */
     public V put(K1 key1, K2 key2, V value) {
-        ConcurrentMap<K2, V> subMap = this.map.get(key1);
-        if (subMap == null) {
-            subMap = new ConcurrentHashMap<K2, V>();
-            final ConcurrentMap<K2, V> existingSubMap = this.map.putIfAbsent(key1, subMap);
-            if (existingSubMap != null) {
-                subMap = existingSubMap;
-            }
-        }
-        
+        final ConcurrentMap<K2, V> subMap = this.getOrCreateSubMap(key1);
         return subMap.put(key2, value);
     }
     
@@ -69,15 +63,7 @@ public class MultiKeyConcurrentMap<K1, K2, V> {
      * @see ConcurrentMap#putIfAbsent(Object, Object)
      */
     public V putIfAbsent(K1 key1, K2 key2, V value) {
-        ConcurrentMap<K2, V> subMap = this.map.get(key1);
-        if (subMap == null) {
-            subMap = new ConcurrentHashMap<K2, V>();
-            final ConcurrentMap<K2, V> existingSubMap = this.map.putIfAbsent(key1, subMap);
-            if (existingSubMap != null) {
-                subMap = existingSubMap;
-            }
-        }
-        
+        final ConcurrentMap<K2, V> subMap = this.getOrCreateSubMap(key1);
         return subMap.putIfAbsent(key2, value);
     }
     
@@ -93,5 +79,20 @@ public class MultiKeyConcurrentMap<K1, K2, V> {
             return null;
         }
         return subMap.get(key2);
+    }
+    
+    /**
+     * Get/create the subMap for the specified key
+     */
+    private ConcurrentMap<K2, V> getOrCreateSubMap(K1 key1) {
+        ConcurrentMap<K2, V> subMap = this.map.get(key1);
+        if (subMap == null) {
+            subMap = new ConcurrentHashMap<K2, V>();
+            final ConcurrentMap<K2, V> existingSubMap = this.map.putIfAbsent(key1, subMap);
+            if (existingSubMap != null) {
+                subMap = existingSubMap;
+            }
+        }
+        return subMap;
     }
 }
