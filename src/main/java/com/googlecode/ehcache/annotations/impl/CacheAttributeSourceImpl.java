@@ -23,10 +23,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -276,28 +274,28 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     private MethodAttribute findMethodAttribute(Method method) {
         Cacheable cacheableAnnotation = method.getAnnotation(Cacheable.class);
         if (cacheableAnnotation != null) {
-            final Set<Integer> annotatedMethodIndices = this.parsePartialCacheKeyAnnotations(method);
-            return this.parseCacheableAnnotation(cacheableAnnotation, annotatedMethodIndices);
+            final ParameterMask parameterMask = this.parsePartialCacheKeyAnnotations(method);
+            return this.parseCacheableAnnotation(cacheableAnnotation, parameterMask);
         }
         
         TriggersRemove triggersRemove = method.getAnnotation(TriggersRemove.class);
         if (triggersRemove != null) {
-            final Set<Integer> annotatedMethodIndices = this.parsePartialCacheKeyAnnotations(method);
-            return this.parseTriggersRemoveAnnotation(triggersRemove, annotatedMethodIndices);
+            final ParameterMask parameterMask = this.parsePartialCacheKeyAnnotations(method);
+            return this.parseTriggersRemoveAnnotation(triggersRemove, parameterMask);
         }
         
         for (final Annotation metaAnn : method.getAnnotations()) {
             final Class<? extends Annotation> annotationType = metaAnn.annotationType();
             cacheableAnnotation = annotationType.getAnnotation(Cacheable.class);
             if (cacheableAnnotation != null) {
-                final Set<Integer> annotatedMethodIndices = this.parsePartialCacheKeyAnnotations(method);
-                return this.parseCacheableAnnotation(cacheableAnnotation, annotatedMethodIndices);
+                final ParameterMask parameterMask = this.parsePartialCacheKeyAnnotations(method);
+                return this.parseCacheableAnnotation(cacheableAnnotation, parameterMask);
             }
             
             triggersRemove = annotationType.getAnnotation(TriggersRemove.class);
             if (triggersRemove != null) {
-                final Set<Integer> annotatedMethodIndices = this.parsePartialCacheKeyAnnotations(method);
-                return this.parseTriggersRemoveAnnotation(triggersRemove, annotatedMethodIndices);
+                final ParameterMask parameterMask = this.parsePartialCacheKeyAnnotations(method);
+                return this.parseTriggersRemoveAnnotation(triggersRemove, parameterMask);
             }
         }
 
@@ -307,24 +305,24 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     /**
      * Parse the parameters annotated with {@link PartialCacheKey}.
      * 
-     * @param method The method whos parameters should be checked.
-     * @return A set of parameter indices that are annotated. The set will be empty if no {@link PartialCacheKey} annotations are found.
+     * @param method The method who's parameters should be checked.
+     * @return The parameter mask for the annotated parameters.
      */
-    protected Set<Integer> parsePartialCacheKeyAnnotations(Method method) {
-        final Set<Integer> annotatedParameterIndices = new LinkedHashSet<Integer>();
+    protected ParameterMask parsePartialCacheKeyAnnotations(Method method) {
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        final boolean[] mask = new boolean[parameterAnnotations.length];
         for (int i = 0; i < parameterAnnotations.length; i++) {
             final Annotation[] annotations = parameterAnnotations[i];
             for (final Annotation annotation : annotations) {
                 final Class<? extends Annotation> annotationType = annotation.annotationType();
                 if (PartialCacheKey.class.equals(annotationType)) {
-                    annotatedParameterIndices.add(i);
+                    mask[i] = true;
                     break;
                 }
             }
         }
         
-        return annotatedParameterIndices;
+        return ParameterMask.create(mask);
     }
 
     /**
@@ -333,7 +331,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      * @param ann The annotation to build the attributes from
      * @return The constructed cacheable advise attributes
      */
-    protected CacheableAttribute parseCacheableAnnotation(Cacheable ann, Set<Integer> annotatedMethodIndices) {
+    protected CacheableAttribute parseCacheableAnnotation(Cacheable ann, ParameterMask parameterMask) {
         Ehcache cache = this.getCache(ann.cacheName());
         ThreadLocal<MethodInvocation> entryFactory = null;
         if (ann.selfPopulating()) {
@@ -354,7 +352,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         final KeyGenerator keyGenerator = ann.keyGenerator();
         final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = this.getCacheKeyGenerator(keyGeneratorName, keyGenerator);
         
-        return new CacheableAttributeImpl(cache, exceptionCache, cacheKeyGenerator, annotatedMethodIndices, entryFactory);
+        return new CacheableAttributeImpl(cache, exceptionCache, cacheKeyGenerator, parameterMask, entryFactory);
     }
     
     /**
@@ -404,7 +402,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      * @param ann The annotation to build the attributes from
      * @return The constructed triggers remove advise attributes
      */
-    protected TriggersRemoveAttribute parseTriggersRemoveAnnotation(TriggersRemove ann, Set<Integer> annotatedMethodIndices) {
+    protected TriggersRemoveAttribute parseTriggersRemoveAnnotation(TriggersRemove ann, ParameterMask parameterMask) {
         final String[] cacheNames = ann.cacheName();
         final List<Ehcache> caches = new ArrayList<Ehcache>(cacheNames.length);
         for (final String cacheName : cacheNames) {
@@ -416,7 +414,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         final KeyGenerator keyGenerator = ann.keyGenerator();
         final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = this.getCacheKeyGenerator(keyGeneratorName, keyGenerator);
         
-        return new TriggersRemoveAttributeImpl(caches, cacheKeyGenerator, annotatedMethodIndices, ann.removeAll(), ann.when());
+        return new TriggersRemoveAttributeImpl(caches, cacheKeyGenerator, parameterMask, ann.removeAll(), ann.when());
     }
     
     /**

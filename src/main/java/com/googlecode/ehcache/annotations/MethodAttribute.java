@@ -17,8 +17,8 @@
 package com.googlecode.ehcache.annotations;
 
 import java.io.Serializable;
-import java.util.Set;
 
+import com.googlecode.ehcache.annotations.impl.ParameterMask;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 
 /**
@@ -39,7 +39,7 @@ public interface MethodAttribute {
     public CacheKeyGenerator<? extends Serializable> getCacheKeyGenerator();
     
     /**
-     * @return The parameter array indices of parameters annotated with {@link PartialCacheKey}. Immutable and not null.
+     * @return The parameter mask of parameters annotated with {@link PartialCacheKey}, will never be null
      */
-    public Set<Integer> getPartialCacheKeyParameterIndicies();
+    public ParameterMask getCacheKeyParameterMask();
 }

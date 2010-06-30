@@ -22,7 +22,6 @@ package com.googlecode.ehcache.annotations.impl;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import net.sf.ehcache.Ehcache;
 
@@ -40,16 +39,16 @@ import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
     private final List<Ehcache> caches;
     private final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator;
-    private final Set<Integer> partialCacheKeyParameterIndicies;
+    private final ParameterMask parameterMask;
     private final boolean removeAll;
     private final When when;
     
     TriggersRemoveAttributeImpl(List<Ehcache> caches, 
-            CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, Set<Integer> partialCacheKeyParameterIndicies,
+            CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, ParameterMask parameterMask,
             boolean removeAll, When when) {
         this.caches = Collections.unmodifiableList(caches);
         this.cacheKeyGenerator = cacheKeyGenerator;
-        this.partialCacheKeyParameterIndicies = Collections.unmodifiableSet(partialCacheKeyParameterIndicies);
+        this.parameterMask = parameterMask;
         this.removeAll = removeAll;
         this.when = when;
     }
@@ -89,20 +88,17 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
     /* (non-Javadoc)
      * @see com.googlecode.ehcache.annotations.MethodAttribute#getPartialCacheKeyParameterIndicies()
      */
-    public Set<Integer> getPartialCacheKeyParameterIndicies() {
-        return this.partialCacheKeyParameterIndicies;
+    public ParameterMask getCacheKeyParameterMask() {
+        return this.parameterMask;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((this.caches == null) ? 0 : this.caches.hashCode());
         result = prime * result + ((this.cacheKeyGenerator == null) ? 0 : this.cacheKeyGenerator.hashCode());
-        result = prime
-                * result
-                + ((this.partialCacheKeyParameterIndicies == null) ? 0 : this.partialCacheKeyParameterIndicies
-                        .hashCode());
+        result = prime * result + ((this.caches == null) ? 0 : this.caches.hashCode());
+        result = prime * result + ((this.parameterMask == null) ? 0 : this.parameterMask.hashCode());
         result = prime * result + (this.removeAll ? 1231 : 1237);
         result = prime * result + ((this.when == null) ? 0 : this.when.hashCode());
         return result;
@@ -120,14 +116,6 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
             return false;
         }
         TriggersRemoveAttributeImpl other = (TriggersRemoveAttributeImpl) obj;
-        if (this.caches == null) {
-            if (other.caches != null) {
-                return false;
-            }
-        }
-        else if (!this.caches.equals(other.caches)) {
-            return false;
-        }
         if (this.cacheKeyGenerator == null) {
             if (other.cacheKeyGenerator != null) {
                 return false;
@@ -136,12 +124,20 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
         else if (!this.cacheKeyGenerator.equals(other.cacheKeyGenerator)) {
             return false;
         }
-        if (this.partialCacheKeyParameterIndicies == null) {
-            if (other.partialCacheKeyParameterIndicies != null) {
+        if (this.caches == null) {
+            if (other.caches != null) {
                 return false;
             }
         }
-        else if (!this.partialCacheKeyParameterIndicies.equals(other.partialCacheKeyParameterIndicies)) {
+        else if (!this.caches.equals(other.caches)) {
+            return false;
+        }
+        if (this.parameterMask == null) {
+            if (other.parameterMask != null) {
+                return false;
+            }
+        }
+        else if (!this.parameterMask.equals(other.parameterMask)) {
             return false;
         }
         if (this.removeAll != other.removeAll) {
@@ -160,8 +156,8 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
 
     @Override
     public String toString() {
-        return "TriggersRemoveAttributeImpl [caches=" + this.caches + ", cacheKeyGenerator=" + this.cacheKeyGenerator
-                + ", partialCacheKeyParameterIndicies=" + this.partialCacheKeyParameterIndicies + ", removeAll="
-                + this.removeAll + ", when=" + this.when + "]";
+        return "TriggersRemoveAttributeImpl [cacheKeyGenerator=" + this.cacheKeyGenerator + ", caches=" + this.caches
+                + ", parameterMask=" + this.parameterMask + ", removeAll=" + this.removeAll + ", when=" + this.when
+                + "]";
     }
 }

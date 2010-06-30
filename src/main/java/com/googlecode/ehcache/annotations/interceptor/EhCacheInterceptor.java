@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Set;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -40,6 +39,7 @@ import com.googlecode.ehcache.annotations.MethodAttribute;
 import com.googlecode.ehcache.annotations.TriggersRemove;
 import com.googlecode.ehcache.annotations.TriggersRemoveAttribute;
 import com.googlecode.ehcache.annotations.When;
+import com.googlecode.ehcache.annotations.impl.ParameterMask;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 
 
@@ -263,9 +263,9 @@ public class EhCacheInterceptor implements MethodInterceptor {
     protected Serializable generateCacheKey(MethodInvocation methodInvocation, final MethodAttribute methodAttribute) {
         final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = methodAttribute.getCacheKeyGenerator();
         
-        final Set<Integer> partialCacheKeyParameterIndicies = methodAttribute.getPartialCacheKeyParameterIndicies();
-        if (partialCacheKeyParameterIndicies.size() > 0) {
-            methodInvocation = new ParameterFilteringMethodInvocation(methodInvocation, partialCacheKeyParameterIndicies);
+        final ParameterMask parameterMask = methodAttribute.getCacheKeyParameterMask();
+        if (parameterMask.shouldMask()) {
+            methodInvocation = new ParameterFilteringMethodInvocation(methodInvocation, parameterMask);
         }
         
         final Serializable cacheKey = cacheKeyGenerator.generateKey(methodInvocation);
@@ -275,27 +275,18 @@ public class EhCacheInterceptor implements MethodInterceptor {
     
     private static class ParameterFilteringMethodInvocation implements MethodInvocation {
         private final MethodInvocation methodInvocation;
-        private final Set<Integer> partialCacheKeyParameterIndicies;
+        private final ParameterMask parameterMask;
         private Object[] filteredArguments = null;
         
-        public ParameterFilteringMethodInvocation(MethodInvocation methodInvocation, Set<Integer> partialCacheKeyParameterIndicies) {
+        public ParameterFilteringMethodInvocation(MethodInvocation methodInvocation, ParameterMask parameterMask) {
             this.methodInvocation = methodInvocation;
-            this.partialCacheKeyParameterIndicies = partialCacheKeyParameterIndicies;
+            this.parameterMask = parameterMask;
         }
 
         public Object[] getArguments() {
             if (this.filteredArguments == null) {
-                int filteredIndex = 0;
-                final Object[] filteredArguments = new Object[this.partialCacheKeyParameterIndicies.size()];
-                
                 final Object[] arguments = this.methodInvocation.getArguments();
-                for (int index = 0; index < arguments.length; index++) {
-                    if (this.partialCacheKeyParameterIndicies.contains(index)) {
-                        filteredArguments[filteredIndex++] = arguments[index];
-                    }
-                }
-                
-                this.filteredArguments = filteredArguments;
+                this.filteredArguments = this.parameterMask.maskParameters(arguments);
             }
             
             return this.filteredArguments;
@@ -314,6 +305,11 @@ public class EhCacheInterceptor implements MethodInterceptor {
         }
 
         public Object proceed() throws Throwable {
+            if (this.filteredArguments != null) {
+                final Object[] arguments = this.methodInvocation.getArguments();
+                this.parameterMask.unmaskParameters(arguments, this.filteredArguments);
+            }
+            
             return this.methodInvocation.proceed();
         }
 

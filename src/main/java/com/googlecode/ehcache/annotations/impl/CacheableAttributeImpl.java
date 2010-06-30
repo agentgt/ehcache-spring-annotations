@@ -17,8 +17,6 @@
 package com.googlecode.ehcache.annotations.impl;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.Set;
 
 import net.sf.ehcache.Ehcache;
 
@@ -39,16 +37,16 @@ class CacheableAttributeImpl implements CacheableAttribute {
     private final Ehcache cache;
     private final Ehcache exceptionCache;
     private final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator;
-    private final Set<Integer> partialCacheKeyParameterIndicies;
+    private final ParameterMask parameterMask;
     private final ThreadLocal<MethodInvocation> entryFactory;
     
     public CacheableAttributeImpl(Ehcache cache, Ehcache exceptionCache, 
-            CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, Set<Integer> partialCacheKeyParameterIndicies, 
+            CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, ParameterMask parameterMask, 
             ThreadLocal<MethodInvocation> entryFactory) {
         this.cache = cache;
         this.exceptionCache = exceptionCache;
         this.cacheKeyGenerator = cacheKeyGenerator;
-        this.partialCacheKeyParameterIndicies = Collections.unmodifiableSet(partialCacheKeyParameterIndicies);
+        this.parameterMask = parameterMask;
         this.entryFactory = entryFactory;
     }
     
@@ -64,8 +62,8 @@ class CacheableAttributeImpl implements CacheableAttribute {
         return this.cacheKeyGenerator;
     }
     
-    public Set<Integer> getPartialCacheKeyParameterIndicies() {
-        return this.partialCacheKeyParameterIndicies;
+    public ParameterMask getCacheKeyParameterMask() {
+        return this.parameterMask;
     }
 
     public Ehcache getExceptionCache() {
@@ -75,7 +73,7 @@ class CacheableAttributeImpl implements CacheableAttribute {
     public ThreadLocal<MethodInvocation> getEntryFactory() {
         return this.entryFactory;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -84,10 +82,7 @@ class CacheableAttributeImpl implements CacheableAttribute {
         result = prime * result + ((this.cacheKeyGenerator == null) ? 0 : this.cacheKeyGenerator.hashCode());
         result = prime * result + ((this.entryFactory == null) ? 0 : this.entryFactory.hashCode());
         result = prime * result + ((this.exceptionCache == null) ? 0 : this.exceptionCache.hashCode());
-        result = prime
-                * result
-                + ((this.partialCacheKeyParameterIndicies == null) ? 0 : this.partialCacheKeyParameterIndicies
-                        .hashCode());
+        result = prime * result + ((this.parameterMask == null) ? 0 : this.parameterMask.hashCode());
         return result;
     }
 
@@ -135,12 +130,12 @@ class CacheableAttributeImpl implements CacheableAttribute {
         else if (!this.exceptionCache.equals(other.exceptionCache)) {
             return false;
         }
-        if (this.partialCacheKeyParameterIndicies == null) {
-            if (other.partialCacheKeyParameterIndicies != null) {
+        if (this.parameterMask == null) {
+            if (other.parameterMask != null) {
                 return false;
             }
         }
-        else if (!this.partialCacheKeyParameterIndicies.equals(other.partialCacheKeyParameterIndicies)) {
+        else if (!this.parameterMask.equals(other.parameterMask)) {
             return false;
         }
         return true;
@@ -149,7 +144,7 @@ class CacheableAttributeImpl implements CacheableAttribute {
     @Override
     public String toString() {
         return "CacheableAttributeImpl [cache=" + this.cache + ", cacheKeyGenerator=" + this.cacheKeyGenerator
-                + ", partialCacheKeyParameterIndicies=" + this.partialCacheKeyParameterIndicies + ", entryFactory="
-                + this.entryFactory + ", exceptionCache=" + this.exceptionCache + "]";
+                + ", entryFactory=" + this.entryFactory + ", exceptionCache=" + this.exceptionCache
+                + ", parameterMask=" + this.parameterMask + "]";
     }
 }
