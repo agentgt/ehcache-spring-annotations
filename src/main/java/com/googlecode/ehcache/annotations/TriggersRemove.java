@@ -35,7 +35,7 @@ import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 @Documented
 public @interface TriggersRemove {
     /**
-     * The name(s) of the cache to use
+     * The name(s) of the cache to use. Note that the same {@link CacheKeyGenerator} is used for all caches.
      */
     String[] cacheName();
 
@@ -46,15 +46,17 @@ public @interface TriggersRemove {
     boolean removeAll() default false;
     
     /**
-     * The Spring Bean name of the {@link CacheKeyGenerator} to use.
+     * The Spring Bean name of the {@link CacheKeyGenerator} to use for all caches.
      * Ignored if {@link #keyGenerator()} is specified. 
      * If this and {@link #keyGenerator()} are not specified the default generator will be used.
+     * If {@link #removeAll()} is true no {@link CacheKeyGenerator} is used.
      */
     String keyGeneratorName() default "";
     
     /**
-     * Used the specify and configure the {@link CacheKeyGenerator} to use.
+     * Used the specify and configure the {@link CacheKeyGenerator} to use for all caches.
      * If this and {@link #keyGeneratorName()} are not specified the default generator will be used.  
+     * If {@link #removeAll()} is true no {@link CacheKeyGenerator} is used.
      */
     KeyGenerator keyGenerator() default @KeyGenerator(name = "");
     
