@@ -24,7 +24,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -83,8 +82,8 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     /**
      * Caches for advice data
      */
-    private final Map<Object, Object> ingoredMethods = new ConcurrentHashMap<Object, Object>();
-    private final ConcurrentMap<Object, MethodAttribute> attributesCache = new ConcurrentHashMap<Object, MethodAttribute>();
+    private final MultiKeyConcurrentMap<Class<?>, Method, Boolean> ingoredMethods = new MultiKeyConcurrentMap<Class<?>, Method, Boolean>();
+    private final MultiKeyConcurrentMap<Class<?>, Method, MethodAttribute> attributesCache = new MultiKeyConcurrentMap<Class<?>, Method, MethodAttribute>();
     private final ConcurrentMap<String, SelfPopulatingCacheTracker> selfPopulatingCaches = new ConcurrentHashMap<String, SelfPopulatingCacheTracker>(); 
     
     private DefaultListableBeanFactory cacheKeyBeanFactory;
@@ -148,15 +147,13 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     }
     
     private MethodAttribute getMethodAttribute(final Method method, final Class<?> targetClass) {
-        final Object cacheKey = this.getCacheKey(method, targetClass);
-        
         //Check if the method has already been inspected and should be ignored
-        if (this.ingoredMethods.containsKey(cacheKey)) {
+        if (this.ingoredMethods.containsKey(targetClass, method)) {
             return null;
         }
         
         //Check the cache if the method has already had its advise attributes created
-        final MethodAttribute attributes = this.attributesCache.get(cacheKey);
+        final MethodAttribute attributes = this.attributesCache.get(targetClass, method);
         if (attributes != null) {
             return attributes;
         }
@@ -166,11 +163,11 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         
         // Put it in the cache.
         if (att == null) {
-            this.ingoredMethods.put(cacheKey, cacheKey);
+            this.ingoredMethods.put(targetClass, method, Boolean.TRUE);
         }
         else  {
-            this.logger.debug("Adding {} advised method '{}' under key '{}' with attribute: {}", new Object[] { att.getAdviceType(), method.getName(), cacheKey, att });
-            final MethodAttribute existing = this.attributesCache.putIfAbsent(cacheKey, att);
+            this.logger.debug("Adding {} advised method '{}' with attribute: {}", new Object[] { att.getAdviceType(), method.getName(), att });
+            final MethodAttribute existing = this.attributesCache.putIfAbsent(targetClass, method, att);
             if (existing != null) {
                 return existing;
             }
@@ -186,18 +183,6 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      */
     protected boolean allowPublicMethodsOnly() {
         return false;
-    }
-
-    /**
-     * Determine a cache key for the given method and target class.
-     * <p>Must not produce same key for overloaded methods.
-     * Must produce same key for different instances of the same method.
-     * @param method the method (never <code>null</code>)
-     * @param targetClass the target class (may be <code>null</code>)
-     * @return the cache key (never <code>null</code>)
-     */
-    protected Object getCacheKey(Method method, Class<?> targetClass) {
-        return new DefaultCacheKey(method, targetClass);
     }
     
     /**
