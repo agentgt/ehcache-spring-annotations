@@ -71,7 +71,7 @@ public final class MultiKeyConcurrentMap<K1, K2, V> implements Serializable {
      * @param key1 primary key
      * @param key2 sub key
      * @return the value to which the specified keys are mapped, or null if there is no value
-     * @see ConcurrentMap#get(Object, Object)
+     * @see ConcurrentMap#get(Object)
      */
     public V get(K1 key1, K2 key2) {
         final ConcurrentMap<K2, V> subMap = this.map.get(key1);
