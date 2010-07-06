@@ -21,6 +21,8 @@ import java.util.regex.PatternSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.googlecode.ehcache.annotations.impl.Vote;
+
 /**
  * Tests for {@link PatternCacheNameMatcherImpl}.
  * 

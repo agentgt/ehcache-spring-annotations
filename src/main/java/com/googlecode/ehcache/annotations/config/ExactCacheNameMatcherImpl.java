@@ -19,6 +19,9 @@
  */
 package com.googlecode.ehcache.annotations.config;
 
+import com.googlecode.ehcache.annotations.impl.CacheNameMatcher;
+import com.googlecode.ehcache.annotations.impl.Vote;
+
 /**
  * Implementation of {@link CacheNameMatcher} for
  * matching a specific name.
@@ -45,7 +48,7 @@ public class ExactCacheNameMatcherImpl implements CacheNameMatcher {
      * {@link Vote#ABSTAIN} otherwise.
      * 
      * @see String#equals(Object)
-     * @see com.googlecode.ehcache.annotations.config.CacheNameMatcher#matches(java.lang.String)
+     * @see com.googlecode.ehcache.annotations.impl.CacheNameMatcher#matches(java.lang.String)
      */
     public Vote matches(String cacheName) {
         boolean result = this.name.equals(cacheName);

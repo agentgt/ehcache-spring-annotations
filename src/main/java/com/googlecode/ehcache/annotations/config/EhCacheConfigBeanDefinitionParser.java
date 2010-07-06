@@ -32,6 +32,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.googlecode.ehcache.annotations.impl.CacheNameMatcher;
 import com.googlecode.ehcache.annotations.impl.ExpiredElementEvictor;
 
 /**

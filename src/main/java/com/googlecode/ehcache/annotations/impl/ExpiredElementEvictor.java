@@ -31,8 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.googlecode.ehcache.annotations.config.CacheNameMatcher;
-import com.googlecode.ehcache.annotations.config.Vote;
 
 /**
  * {@link TimerTask} implementation that depends on a {@link CacheManager}

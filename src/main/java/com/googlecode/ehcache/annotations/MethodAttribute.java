@@ -18,7 +18,6 @@ package com.googlecode.ehcache.annotations;
 
 import java.io.Serializable;
 
-import com.googlecode.ehcache.annotations.impl.ParameterMask;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 
 /**

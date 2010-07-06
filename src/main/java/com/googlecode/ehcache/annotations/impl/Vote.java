@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.ehcache.annotations.config;
+package com.googlecode.ehcache.annotations.impl;
+
 
 /**
  * Enum to represent the result of the {@link CacheNameMatcher#matches(String)} method.

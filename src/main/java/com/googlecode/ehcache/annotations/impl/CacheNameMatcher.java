@@ -17,7 +17,8 @@
 /**
  * 
  */
-package com.googlecode.ehcache.annotations.config;
+package com.googlecode.ehcache.annotations.impl;
+
 
 /**
  * Interface that defines a voting mechanism for matching cache names.

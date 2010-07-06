@@ -19,6 +19,8 @@ package com.googlecode.ehcache.annotations.config;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.googlecode.ehcache.annotations.impl.Vote;
+
 /**
  * Tests for {@link NotCacheNameMatcherImpl}.
  * 

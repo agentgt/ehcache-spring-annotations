@@ -19,6 +19,9 @@
  */
 package com.googlecode.ehcache.annotations.config;
 
+import com.googlecode.ehcache.annotations.impl.CacheNameMatcher;
+import com.googlecode.ehcache.annotations.impl.Vote;
+
 /**
  * {@link CacheNameMatcher} that wraps another {@link CacheNameMatcher}
  * and performs a logical NOT on the result of the wrapped {@link #matches(String)} method
@@ -45,7 +48,7 @@ public final class NotCacheNameMatcherImpl implements CacheNameMatcher {
      * return the {@link Vote#not(Vote)} of the result.
      * 
      * @see Vote#not(Vote)
-     * @see com.googlecode.ehcache.annotations.config.CacheNameMatcher#matches(java.lang.String)
+     * @see com.googlecode.ehcache.annotations.impl.CacheNameMatcher#matches(java.lang.String)
      */
     public Vote matches(String cacheName) {
         Vote result = this.wrapped.matches(cacheName);

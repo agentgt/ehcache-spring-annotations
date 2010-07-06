@@ -67,10 +67,10 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
     public static final String XSD_ATTR__DEFAULT_CACHE_KEY_GENERATOR = "default-cache-key-generator";
     public static final String XSD_ATTR__SELF_POPULATING_CACHE_SCOPE = "self-populating-cache-scope";
 
-    public static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAdvisor";
+    static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAdvisor";
     
-    public static final String DEFAULT_CACHE_KEY_GENERATOR = HashCodeCacheKeyGenerator.DEFAULT_BEAN_NAME;
-    public static final String CACHING_REFLECTION_HELPER_BEAN_NAME = CachingReflectionHelper.class.getName();
+    static final String DEFAULT_CACHE_KEY_GENERATOR = HashCodeCacheKeyGenerator.DEFAULT_BEAN_NAME;
+    static final String CACHING_REFLECTION_HELPER_BEAN_NAME = CachingReflectionHelper.class.getName();
     
     
     /* (non-Javadoc)
@@ -81,13 +81,15 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME)) {
             final Object elementSource = parserContext.extractSource(element);
             
-            this.setupCachingReflectionHelper(parserContext, elementSource);
+            final RuntimeBeanReference cachingReflectionHelperReference = 
+                this.setupCachingReflectionHelper(parserContext, elementSource);
             
             final RuntimeBeanReference defaultCacheKeyGeneratorReference = 
                 this.setupDefaultCacheKeyGenerators(element, parserContext, elementSource);
             
             final RuntimeBeanReference cacheAttributeSourceReference = 
-                this.setupCacheAttributeSource(element, parserContext, elementSource, defaultCacheKeyGeneratorReference);
+                this.setupCacheAttributeSource(element, parserContext, elementSource, 
+                        defaultCacheKeyGeneratorReference, cachingReflectionHelperReference);
             
             final RuntimeBeanReference pointcutReference = 
                 this.setupPointcut(element, parserContext, elementSource, cacheAttributeSourceReference);
@@ -101,13 +103,15 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         return null;
     }
 
-    protected final void setupCachingReflectionHelper(ParserContext parserContext, Object elementSource) {
+    protected RuntimeBeanReference setupCachingReflectionHelper(ParserContext parserContext, Object elementSource) {
         final RootBeanDefinition defaultKeyGenerator = new RootBeanDefinition(CachingReflectionHelper.class);
         defaultKeyGenerator.setSource(elementSource);
         defaultKeyGenerator.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         
         final BeanDefinitionRegistry registry = parserContext.getRegistry();
         registry.registerBeanDefinition(CACHING_REFLECTION_HELPER_BEAN_NAME, defaultKeyGenerator);
+        
+        return new RuntimeBeanReference(CACHING_REFLECTION_HELPER_BEAN_NAME);
     }
 
     /**
@@ -169,7 +173,9 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
      * 
      * @return Reference to the {@link CacheAttributeSource}. Should never be null.
      */
-    protected RuntimeBeanReference setupCacheAttributeSource(Element element, ParserContext parserContext, Object elementSource, RuntimeBeanReference defaultCacheKeyGenerator) {
+    protected RuntimeBeanReference setupCacheAttributeSource(Element element, ParserContext parserContext, Object elementSource, 
+            RuntimeBeanReference defaultCacheKeyGenerator, RuntimeBeanReference cachingReflectionHelper) {
+        
         final RootBeanDefinition cacheAttributeSource = new RootBeanDefinition(CacheAttributeSourceImpl.class);
         cacheAttributeSource.setSource(elementSource);
         cacheAttributeSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -179,6 +185,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         propertyValues.addPropertyValue("cacheManager", cacheManagerReference);
         propertyValues.addPropertyValue("createCaches", Boolean.parseBoolean(element.getAttribute(XSD_ATTR__CREATE_MISSING_CACHES)));
         propertyValues.addPropertyValue("defaultCacheKeyGenerator", defaultCacheKeyGenerator);
+        propertyValues.addPropertyValue("reflectionHelper", cachingReflectionHelper);
         final String blockingCacheScope = element.getAttribute(XSD_ATTR__SELF_POPULATING_CACHE_SCOPE);
         if (blockingCacheScope != null) {
             propertyValues.addPropertyValue("selfPopulatingCacheScope", SelfPopulatingCacheScope.valueOf(blockingCacheScope.toUpperCase()));

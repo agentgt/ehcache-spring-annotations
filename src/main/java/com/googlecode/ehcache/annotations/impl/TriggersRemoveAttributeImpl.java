@@ -26,6 +26,7 @@ import java.util.List;
 import net.sf.ehcache.Ehcache;
 
 import com.googlecode.ehcache.annotations.AdviceType;
+import com.googlecode.ehcache.annotations.ParameterMask;
 import com.googlecode.ehcache.annotations.TriggersRemoveAttribute;
 import com.googlecode.ehcache.annotations.When;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;

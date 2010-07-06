@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.ehcache.annotations.impl;
+package com.googlecode.ehcache.annotations;
 
 import java.util.Arrays;
 

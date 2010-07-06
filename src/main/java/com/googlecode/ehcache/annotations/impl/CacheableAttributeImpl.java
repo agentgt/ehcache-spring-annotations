@@ -24,6 +24,7 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import com.googlecode.ehcache.annotations.AdviceType;
 import com.googlecode.ehcache.annotations.CacheableAttribute;
+import com.googlecode.ehcache.annotations.ParameterMask;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 
 

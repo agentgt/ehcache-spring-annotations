@@ -24,7 +24,6 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.googlecode.ehcache.annotations.config.CacheNameMatcher;
 import com.googlecode.ehcache.annotations.config.EhCacheConfigBeanDefinitionParser;
 import com.googlecode.ehcache.annotations.config.ExactCacheNameMatcherImpl;
 import com.googlecode.ehcache.annotations.config.NotCacheNameMatcherImpl;

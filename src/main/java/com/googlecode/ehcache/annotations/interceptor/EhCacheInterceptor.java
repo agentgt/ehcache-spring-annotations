@@ -36,10 +36,10 @@ import com.googlecode.ehcache.annotations.CacheAttributeSource;
 import com.googlecode.ehcache.annotations.Cacheable;
 import com.googlecode.ehcache.annotations.CacheableAttribute;
 import com.googlecode.ehcache.annotations.MethodAttribute;
+import com.googlecode.ehcache.annotations.ParameterMask;
 import com.googlecode.ehcache.annotations.TriggersRemove;
 import com.googlecode.ehcache.annotations.TriggersRemoveAttribute;
 import com.googlecode.ehcache.annotations.When;
-import com.googlecode.ehcache.annotations.impl.ParameterMask;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 
 

@@ -56,13 +56,14 @@ import com.googlecode.ehcache.annotations.Cacheable;
 import com.googlecode.ehcache.annotations.CacheableAttribute;
 import com.googlecode.ehcache.annotations.KeyGenerator;
 import com.googlecode.ehcache.annotations.MethodAttribute;
+import com.googlecode.ehcache.annotations.ParameterMask;
 import com.googlecode.ehcache.annotations.PartialCacheKey;
 import com.googlecode.ehcache.annotations.Property;
 import com.googlecode.ehcache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ehcache.annotations.TriggersRemove;
 import com.googlecode.ehcache.annotations.TriggersRemoveAttribute;
-import com.googlecode.ehcache.annotations.config.AnnotationDrivenEhCacheBeanDefinitionParser;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
+import com.googlecode.ehcache.annotations.key.ReflectionHelper;
 import com.googlecode.ehcache.annotations.key.ReflectionHelperAware;
 
 
@@ -93,6 +94,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     private boolean createCaches = false;
     private CacheKeyGenerator<? extends Serializable> defaultCacheKeyGenerator;
     private SelfPopulatingCacheScope selfPopulatingCacheScope = SelfPopulatingCacheScope.SHARED;
+    private ReflectionHelper reflectionHelper;
 
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
@@ -109,6 +111,9 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     }
     public void setCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
+    }
+    public void setReflectionHelper(ReflectionHelper reflectionHelper) {
+        this.reflectionHelper = reflectionHelper;
     }
     /* (non-Javadoc)
      * @see com.googlecode.ehcache.annotations.CacheAttributeSource#getAdviceType(java.lang.reflect.Method, java.lang.Class)
@@ -480,8 +485,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         }
         
         if (ReflectionHelperAware.class.isAssignableFrom(beanDefinition.getBeanClass())) {
-            final RuntimeBeanReference cacheManagerReference = new RuntimeBeanReference(AnnotationDrivenEhCacheBeanDefinitionParser.CACHING_REFLECTION_HELPER_BEAN_NAME);
-            mutablePropertyValues.addPropertyValue("reflectionHelper", cacheManagerReference);
+            mutablePropertyValues.addPropertyValue("reflectionHelper", this.reflectionHelper);
         }
         
         beanDefinition.setPropertyValues(mutablePropertyValues);

@@ -22,6 +22,9 @@ package com.googlecode.ehcache.annotations.config;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.googlecode.ehcache.annotations.impl.CacheNameMatcher;
+import com.googlecode.ehcache.annotations.impl.Vote;
+
 /**
  * {@link CacheNameMatcher} that delegates to a {@link Pattern}.
  * 
