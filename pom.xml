@@ -4,7 +4,7 @@
     <parent>
         <artifactId>oss-parent</artifactId>
         <groupId>org.sonatype.oss</groupId>
-        <version>3</version>
+        <version>5</version>
     </parent>
     
     <groupId>com.googlecode.ehcache-spring-annotations</groupId>
@@ -64,8 +64,8 @@
         <!-- compile dependencies -->
         <aopalliance.version>1.0</aopalliance.version>
         <commons-codec.version>1.4</commons-codec.version>
-        <ehcache.version>2.1.0</ehcache.version>
-        <org.springframework.version>3.0.3.RELEASE</org.springframework.version>
+        <ehcache.version>2.2.0</ehcache.version>
+        <org.springframework.version>3.0.5.RELEASE</org.springframework.version>
         <slf4j.version>1.6.1</slf4j.version>
 
 
@@ -82,7 +82,7 @@
         <!-- test dependencies -->
         <cglib.version>2.2</cglib.version>
         <easymock.version>3.0</easymock.version>
-        <junit.version>4.8.1</junit.version>
+        <junit.version>4.8.2</junit.version>
         <log4j.version>1.2.16</log4j.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
