@@ -30,7 +30,7 @@ import org.aopalliance.intercept.MethodInvocation;
  * @version $Revision$
  */
 @SuppressWarnings("unchecked")
-public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest<ReadOnlyList<?>> {
+public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest<AbstractDeepCacheKeyGenerator<?, ReadOnlyList<?>>, ReadOnlyList<?>> {
 
     @Override
     protected AbstractDeepCacheKeyGenerator<?, ReadOnlyList<?>> getCacheKeyGenerator() {
@@ -48,9 +48,15 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
     @Override
     protected void verifyTestCircularReference(MethodInvocation invocation, ReadOnlyList<?> key) {
         final List<?> expected = Arrays.asList(
+                MethodInvocationHelper.class,
+                "testMethod1",
+                Object.class,
+                Arrays.asList(Object.class),
                 Arrays.asList(
-                    Arrays.asList(null, "childArgString"),
-                    "argString")
+                    Arrays.asList(
+                        Arrays.asList(null, "childArgString"),
+                        "argString")
+                    )
                 );
         
         assertEquals(expected, key);        
@@ -60,11 +66,17 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
     @Override
     protected void verifyTestCircularReferenceWithReflection(MethodInvocation invocation, ReadOnlyList<?> key) {
         final List<?> expected = Arrays.asList(
+                MethodInvocationHelper.class,
+                "testMethod1",
+                Object.class,
+                Arrays.asList(Object.class),
                 Arrays.asList(
                     Arrays.asList(
-                            Arrays.asList(RequiresReflectionKey.class, null), 
-                            "childArgString"),
-                    "argString")
+                        Arrays.asList(
+                                Arrays.asList(RequiresReflectionKey.class, null), 
+                                "childArgString"),
+                        "argString")
+                    )
                 );
          
         assertEquals(expected, key); 

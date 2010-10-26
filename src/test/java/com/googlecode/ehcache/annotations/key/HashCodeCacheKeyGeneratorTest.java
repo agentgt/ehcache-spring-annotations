@@ -24,7 +24,7 @@ import org.aopalliance.intercept.MethodInvocation;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class HashCodeCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest<Long> {
+public class HashCodeCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest<AbstractDeepCacheKeyGenerator<?, Long>, Long> {
 
     @Override
     protected AbstractDeepCacheKeyGenerator<?, Long> getCacheKeyGenerator() {
@@ -33,12 +33,12 @@ public class HashCodeCacheKeyGeneratorTest extends AbstractDeepCacheKeyGenerator
 
     @Override
     protected void verifyTestCircularReference(MethodInvocation invocation, Long key) {
-        assertEquals(Long.valueOf(55143650171l), key);
+        assertEquals(Long.valueOf(-75704985491986817l), key);
     }
     
     @Override
     protected void verifyTestCircularReferenceWithReflection(MethodInvocation invocation, Long key) {
-        assertEquals(Long.valueOf(14256610617786l), key);
+        assertEquals(Long.valueOf(-2346842003094128842l), key);
     }
     
     @Override
@@ -48,7 +48,7 @@ public class HashCodeCacheKeyGeneratorTest extends AbstractDeepCacheKeyGenerator
     
     @Override
     protected void verifyTestEnumHashCode(MethodInvocation invocation, Long key) {
-        assertEquals(Long.valueOf(-61927779584841l), key);        
+        assertEquals(Long.valueOf(-61968366238028l), key);        
     }
 
     @Override

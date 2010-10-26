@@ -24,7 +24,6 @@ import java.util.List;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.googlecode.ehcache.annotations.key.AbstractDeepCacheKeyGenerator;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 
 /**
@@ -32,13 +31,13 @@ import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
  * @version $Revision$
  */
 public class SwitchingCacheKeyGenerator implements CacheKeyGenerator<Serializable> {
-    private List<AbstractDeepCacheKeyGenerator<?, Serializable>> cacheKeyGenerators;
-    private Iterator<AbstractDeepCacheKeyGenerator<?, Serializable>> cacheKeyGeneratorIterator;
-    private volatile AbstractDeepCacheKeyGenerator<?, Serializable> currentCacheKeyGenerator;
+    private List<CacheKeyGenerator<Serializable>> cacheKeyGenerators;
+    private Iterator<CacheKeyGenerator<Serializable>> cacheKeyGeneratorIterator;
+    private volatile CacheKeyGenerator<Serializable> currentCacheKeyGenerator;
     
     @Autowired
-    public void setCacheKeyGenerators(List<AbstractDeepCacheKeyGenerator<?, Serializable>> cacheKeyGenerators) {
-        this.cacheKeyGenerators = new ArrayList<AbstractDeepCacheKeyGenerator<?, Serializable>>(cacheKeyGenerators);
+    public void setCacheKeyGenerators(List<CacheKeyGenerator<Serializable>> cacheKeyGenerators) {
+        this.cacheKeyGenerators = new ArrayList<CacheKeyGenerator<Serializable>>(cacheKeyGenerators);
         this.reset();
     }
     
@@ -51,7 +50,7 @@ public class SwitchingCacheKeyGenerator implements CacheKeyGenerator<Serializabl
         return cacheKeyGeneratorIterator.hasNext();
     }
 
-    public AbstractDeepCacheKeyGenerator<?, Serializable> nextCacheKeyGenerator() {
+    public CacheKeyGenerator<Serializable> nextCacheKeyGenerator() {
         if (this.cacheKeyGeneratorIterator.hasNext()) {
             this.currentCacheKeyGenerator = this.cacheKeyGeneratorIterator.next();
         }
@@ -62,7 +61,7 @@ public class SwitchingCacheKeyGenerator implements CacheKeyGenerator<Serializabl
         return this.currentCacheKeyGenerator;
     }
     
-    public AbstractDeepCacheKeyGenerator<?, Serializable> getCurrentCacheKeyGenerator() {
+    public CacheKeyGenerator<Serializable> getCurrentCacheKeyGenerator() {
         return currentCacheKeyGenerator;
     }
 

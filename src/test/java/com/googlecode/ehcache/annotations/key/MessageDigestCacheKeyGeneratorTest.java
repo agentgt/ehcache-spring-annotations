@@ -26,10 +26,10 @@ import org.aopalliance.intercept.MethodInvocation;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class MessageDigestCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest<String> {
+public class MessageDigestCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest<MessageDigestCacheKeyGenerator, String> {
     
     @Override
-    protected AbstractDeepCacheKeyGenerator<?, String> getCacheKeyGenerator() {
+    protected MessageDigestCacheKeyGenerator getCacheKeyGenerator() {
         try {
             return new MessageDigestCacheKeyGenerator();
         }
@@ -45,12 +45,12 @@ public class MessageDigestCacheKeyGeneratorTest extends AbstractDeepCacheKeyGene
 
     @Override
     protected void verifyTestCircularReference(MethodInvocation invocation, String key) {
-        assertEquals("o4DJ4OzLnJe8pcAtkSmlCBMDgoo", key);        
+        assertEquals("EkuuBNhNIgt8kz4WENI5aiqMaWI", key);        
     }
 
     @Override
     protected void verifyTestCircularReferenceWithReflection(MethodInvocation invocation, String key) {
-        assertEquals("U6ls2IuYhBvXnh1ZpM0ttVnFgmY", key);        
+        assertEquals("1BIF0TspJAkNyJO8zw15dwJcXjw", key);        
     }
 
     @Override
@@ -60,7 +60,7 @@ public class MessageDigestCacheKeyGeneratorTest extends AbstractDeepCacheKeyGene
 
     @Override
     protected void verifyTestEnumHashCode(MethodInvocation invocation, String key) {
-        assertEquals("dSNQU2ge7XsNlQ22TMQf5dTRT9Q", key);
+        assertEquals("Ln6CP-lyuxbCbbm-k1JuSVdK6ao", key);
     }
 
     @Override

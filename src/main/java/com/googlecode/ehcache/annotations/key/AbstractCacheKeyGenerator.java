@@ -118,7 +118,7 @@ public abstract class AbstractCacheKeyGenerator<T extends Serializable> implemen
     /* (non-Javadoc)
      * @see com.googlecode.ehcache.annotations.key.CacheKeyGenerator#generateKey(org.aopalliance.intercept.MethodInvocation)
      */
-    public final T generateKey(MethodInvocation methodInvocation) {
+    public T generateKey(MethodInvocation methodInvocation) {
         final Object[] arguments = methodInvocation.getArguments();
         
         if (this.includeMethod) {

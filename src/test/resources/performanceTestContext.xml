@@ -43,6 +43,9 @@
                 <bean id="messageDigestCacheKeyGenerator" class="com.googlecode.ehcache.annotations.key.MessageDigestCacheKeyGenerator" />
                 <bean id="listCacheKeyGenerator" class="com.googlecode.ehcache.annotations.key.ListCacheKeyGenerator" />
                 <bean id="stringCacheKeyGenerator" class="com.googlecode.ehcache.annotations.key.StringCacheKeyGenerator" />
+                <bean id="spELCacheKeyGeneratorHashCode" class="com.googlecode.ehcache.annotations.key.SpELCacheKeyGenerator">
+                    <property name="expression" value="#key.hash(#args, #args.length)" />
+                </bean>
             </list>
         </property>
     </bean>

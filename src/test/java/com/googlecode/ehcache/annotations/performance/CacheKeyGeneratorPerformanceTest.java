@@ -39,7 +39,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.googlecode.ehcache.annotations.key.AbstractDeepCacheKeyGenerator;
+import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 import com.googlecode.ehcache.annotations.key.CachingReflectionHelper;
+import com.googlecode.ehcache.annotations.key.ReflectionHelperAware;
 import com.googlecode.ehcache.annotations.key.RequiresReflectionKey;
 import com.googlecode.ehcache.annotations.util.ThreadGroupRunner;
 
@@ -98,47 +100,57 @@ public class CacheKeyGeneratorPerformanceTest {
             }
 
             this.switchingCacheKeyGenerator.reset();
-            AbstractDeepCacheKeyGenerator<?, Serializable> cacheKeyGenerator;
+            CacheKeyGenerator<Serializable> cacheKeyGenerator;
             while ((cacheKeyGenerator = this.switchingCacheKeyGenerator.nextCacheKeyGenerator()) != null) {
-                cacheKeyGenerator.setReflectionHelper(reflectionHelper);
+                if (cacheKeyGenerator instanceof ReflectionHelperAware) {
+                    ((ReflectionHelperAware)cacheKeyGenerator).setReflectionHelper(reflectionHelper);
+                }
                 
                 for (int configIndex = 0; configIndex < 4; configIndex++) {
                     final String generatorConfig;
-                    switch (configIndex) {
-                        case 0:
-                            cacheKeyGenerator.setCheckforCycles(true);
-                            cacheKeyGenerator.setIncludeMethod(false);
-                            cacheKeyGenerator.setIncludeParameterTypes(false);
-                            cacheKeyGenerator.setUseReflection(false);
-                            generatorConfig = "|false|false|false";
-                        break;
-                        
-                        case 1:
-                            cacheKeyGenerator.setCheckforCycles(true);
-                            cacheKeyGenerator.setIncludeMethod(true);
-                            cacheKeyGenerator.setIncludeParameterTypes(false);
-                            cacheKeyGenerator.setUseReflection(false);
-                            generatorConfig = "|true|false|false";
-                        break;
-                        
-                        case 2:
-                            cacheKeyGenerator.setCheckforCycles(true);
-                            cacheKeyGenerator.setIncludeMethod(true);
-                            cacheKeyGenerator.setIncludeParameterTypes(true);
-                            cacheKeyGenerator.setUseReflection(false);
-                            generatorConfig = "|true|true|false";
-                        break;
-                        
-                        case 3:
-                            cacheKeyGenerator.setCheckforCycles(true);
-                            cacheKeyGenerator.setIncludeMethod(true);
-                            cacheKeyGenerator.setIncludeParameterTypes(true);
-                            cacheKeyGenerator.setUseReflection(true);
-                            generatorConfig = "|true|true|true";
-                        break;
-                        
-                        default:
-                            throw new IllegalStateException();
+                    if (cacheKeyGenerator instanceof AbstractDeepCacheKeyGenerator) {
+                        final AbstractDeepCacheKeyGenerator<?, Serializable> deepCacheKeyGenerator = (AbstractDeepCacheKeyGenerator<?, Serializable>)cacheKeyGenerator;
+    
+                        switch (configIndex) {
+                            case 0:
+                                deepCacheKeyGenerator.setCheckforCycles(true);
+                                deepCacheKeyGenerator.setIncludeMethod(false);
+                                deepCacheKeyGenerator.setIncludeParameterTypes(false);
+                                deepCacheKeyGenerator.setUseReflection(false);
+                                generatorConfig = "|false|false|false";
+                            break;
+                            
+                            case 1:
+                                deepCacheKeyGenerator.setCheckforCycles(true);
+                                deepCacheKeyGenerator.setIncludeMethod(true);
+                                deepCacheKeyGenerator.setIncludeParameterTypes(false);
+                                deepCacheKeyGenerator.setUseReflection(false);
+                                generatorConfig = "|true|false|false";
+                            break;
+                            
+                            case 2:
+                                deepCacheKeyGenerator.setCheckforCycles(true);
+                                deepCacheKeyGenerator.setIncludeMethod(true);
+                                deepCacheKeyGenerator.setIncludeParameterTypes(true);
+                                deepCacheKeyGenerator.setUseReflection(false);
+                                generatorConfig = "|true|true|false";
+                            break;
+                            
+                            case 3:
+                                deepCacheKeyGenerator.setCheckforCycles(true);
+                                deepCacheKeyGenerator.setIncludeMethod(true);
+                                deepCacheKeyGenerator.setIncludeParameterTypes(true);
+                                deepCacheKeyGenerator.setUseReflection(true);
+                                generatorConfig = "|true|true|true";
+                            break;
+                            
+                            default:
+                                throw new IllegalStateException();
+                        }
+                    }
+                    else {
+                        generatorConfig = "basic";
+                        configIndex = 4;
                     }
                     
                     TASK_PICKER.setSeed(0);

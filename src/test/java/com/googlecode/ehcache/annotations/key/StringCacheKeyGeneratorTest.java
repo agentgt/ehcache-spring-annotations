@@ -26,10 +26,10 @@ import org.aopalliance.intercept.MethodInvocation;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class StringCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest<String> {
+public class StringCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest<StringCacheKeyGenerator, String> {
 
     @Override
-    protected AbstractDeepCacheKeyGenerator<?, String> getCacheKeyGenerator() {
+    protected StringCacheKeyGenerator getCacheKeyGenerator() {
         return new StringCacheKeyGenerator();
     }
 
@@ -42,14 +42,14 @@ public class StringCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTe
     @Override
     protected void verifyTestCircularReference(MethodInvocation invocation, String key) {
         assertEquals(
-                "[[[[...], childArgString], argString]]",
+                "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [[[[...], childArgString], argString]]]",
                 key);
     }
 
     @Override
     protected void verifyTestCircularReferenceWithReflection(MethodInvocation invocation, String key) {
         assertEquals(
-                "[[[[class com.googlecode.ehcache.annotations.key.RequiresReflectionKey, [...]], childArgString], argString]]", 
+                "[class com.googlecode.ehcache.annotations.key.MethodInvocationHelper, testMethod1, class java.lang.Object, [class java.lang.Object], [[[[class com.googlecode.ehcache.annotations.key.RequiresReflectionKey, [...]], childArgString], argString]]]", 
                 key);
     }
 
