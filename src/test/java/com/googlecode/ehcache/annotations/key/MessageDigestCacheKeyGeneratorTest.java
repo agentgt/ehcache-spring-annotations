@@ -60,7 +60,7 @@ public class MessageDigestCacheKeyGeneratorTest extends AbstractDeepCacheKeyGene
 
     @Override
     protected void verifyTestEnumHashCode(MethodInvocation invocation, String key) {
-        assertEquals("Ln6CP-lyuxbCbbm-k1JuSVdK6ao", key);
+        assertEquals("zMF6UoA9KaZ8yNYXtiTcY9tvtxY", key);
     }
 
     @Override

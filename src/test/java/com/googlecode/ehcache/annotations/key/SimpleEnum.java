@@ -19,7 +19,7 @@
 
 package com.googlecode.ehcache.annotations.key;
 
-public enum TestEnum {
+enum SimpleEnum {
     TEST1,
     TEST2;
 }

@@ -149,7 +149,7 @@ public class CacheKeyGeneratorPerformanceTest {
                         }
                     }
                     else {
-                        generatorConfig = "basic";
+                        generatorConfig = "|basicKeyGenerator";
                         configIndex = 4;
                     }
                     

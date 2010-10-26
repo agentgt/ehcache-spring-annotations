@@ -46,6 +46,9 @@
                 <bean id="spELCacheKeyGeneratorHashCode" class="com.googlecode.ehcache.annotations.key.SpELCacheKeyGenerator">
                     <property name="expression" value="#key.hash(#args, #args.length)" />
                 </bean>
+                <bean id="spELCacheKeyGeneratorDigest" class="com.googlecode.ehcache.annotations.key.SpELCacheKeyGenerator">
+                    <property name="expression" value="#key.digest(#args, #args.length)" />
+                </bean>
             </list>
         </property>
     </bean>

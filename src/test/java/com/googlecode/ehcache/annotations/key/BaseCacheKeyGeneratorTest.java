@@ -79,7 +79,7 @@ public abstract class BaseCacheKeyGeneratorTest<KG extends CacheKeyGenerator<T>,
         this.setupTestEnumHashCode(generator);
         
         final MethodInvocation invocation = createMock(MethodInvocation.class);
-        expect(invocation.getArguments()).andReturn(new Object[] { TimeUnit.SECONDS, TestEnum.TEST1 });
+        expect(invocation.getArguments()).andReturn(new Object[] { TimeUnit.SECONDS, SimpleEnum.TEST1 });
         
         final Method testMethod = MethodInvocationHelper.class.getMethod("testMethod1", Object.class);
         expect(invocation.getMethod()).andReturn(testMethod).anyTimes();
