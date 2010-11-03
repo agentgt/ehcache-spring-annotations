@@ -383,6 +383,17 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>LICENSE</exclude>
+                        <exclude>NOTICE</exclude>
+                        <exclude>src/main/java/com/googlecode/ehcache/annotations/util/guice/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.springsource.bundlor</groupId>
                 <artifactId>com.springsource.bundlor.maven</artifactId>
                 <version>1.0.0.RELEASE</version>
