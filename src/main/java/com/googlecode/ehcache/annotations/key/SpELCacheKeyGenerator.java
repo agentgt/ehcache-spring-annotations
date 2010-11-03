@@ -1,3 +1,19 @@
+/**
+ * Copyright 2010 Nicholas Blair, Eric Dalquist
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.googlecode.ehcache.annotations.key;
 
 import java.io.Serializable;
@@ -61,9 +77,9 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
  */
 public class SpELCacheKeyGenerator implements CacheKeyGenerator<Serializable>, BeanFactoryAware, InitializingBean, ReflectionHelperAware {
     
-    private static final Map<String, Class> DEFAULT_KEY_GENERATORS;
+    private static final Map<String, Class<?>> DEFAULT_KEY_GENERATORS;
     static {
-        final LinkedHashMap<String, Class> keyGenerators = new LinkedHashMap<String, Class>();
+        final LinkedHashMap<String, Class<?>> keyGenerators = new LinkedHashMap<String, Class<?>>();
         
         keyGenerators.put("hash", HashCodeCacheKeyGenerator.class);
         keyGenerators.put("string", StringCacheKeyGenerator.class);
@@ -122,10 +138,11 @@ public class SpELCacheKeyGenerator implements CacheKeyGenerator<Serializable>, B
      * Check that all {@link CacheKeyGenerator}s defined in the {@link #DEFAULT_KEY_GENERATORS} Map are registered
      * in the SpEL context as key functions.
      */
+    @SuppressWarnings("unchecked")
     protected final void registerDefaultKeyGenerators() {
-        for (final Entry<String, Class> defaultGeneratorEntry : DEFAULT_KEY_GENERATORS.entrySet()) {
+        for (final Entry<String, Class<?>> defaultGeneratorEntry : DEFAULT_KEY_GENERATORS.entrySet()) {
             final String name = defaultGeneratorEntry.getKey();
-            final Class<CacheKeyGenerator<Serializable>> keyGeneratorClass = defaultGeneratorEntry.getValue();
+            final Class<CacheKeyGenerator<Serializable>> keyGeneratorClass = (Class<CacheKeyGenerator<Serializable>>)defaultGeneratorEntry.getValue();
             
             if (!this.registeredKeyGenerators.containsKey(name)) {
                 final MutablePropertyValues properties = new MutablePropertyValues();
@@ -145,6 +162,7 @@ public class SpELCacheKeyGenerator implements CacheKeyGenerator<Serializable>, B
     /**
      * Create a new key generator with the specified name.
      */
+    @SuppressWarnings("unchecked")
     protected CacheKeyGenerator<Serializable> createKeyGenerator(
             String name, Class<CacheKeyGenerator<Serializable>> keyGeneratorClass,
             MutablePropertyValues properties) {
