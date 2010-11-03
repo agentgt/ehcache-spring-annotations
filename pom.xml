@@ -2,9 +2,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>oss-parent</artifactId>
-        <groupId>org.sonatype.oss</groupId>
-        <version>5</version>
+        <groupId>com.googlecode.ehcache-spring-annotations</groupId>
+        <artifactId>ehcache-spring-annotations-parent</artifactId>
+        <version>2</version>
     </parent>
     
     <groupId>com.googlecode.ehcache-spring-annotations</groupId>
@@ -379,21 +379,6 @@
                 <configuration>
                     <excludes>
                         <exclude>com/googlecode/ehcache/annotations/performance/**</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.mycila.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <version>1.5.1</version>
-                <configuration>
-                    <basedir>${basedir}</basedir>
-                    <header>${basedir}/src/etc/header.txt</header>
-                    <aggregate>true</aggregate>
-                    <excludes>
-                        <exclude>LICENSE</exclude>
-                        <exclude>NOTICE</exclude>
-                        <exclude>src/main/java/com/googlecode/ehcache/annotations/util/guice/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
