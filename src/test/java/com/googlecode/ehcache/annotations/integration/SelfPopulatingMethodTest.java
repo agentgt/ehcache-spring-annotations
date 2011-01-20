@@ -62,12 +62,12 @@ public class SelfPopulatingMethodTest {
      * 
      * @throws Exception
      */
-    @Test
+    @Test//(timeout=1000)
     public void testSelfPopulatingTrue() throws Exception {
         final CountDownLatch threadRunningLatch = new CountDownLatch(6);
-        final CountDownLatch proccedLatch = new CountDownLatch(1);
+        final CountDownLatch proceedLatch = new CountDownLatch(1);
         this.selfPopulatingTestInterface.setThreadRunningLatch(threadRunningLatch);
-        this.selfPopulatingTestInterface.setProccedLatch(proccedLatch);
+        this.selfPopulatingTestInterface.setProccedLatch(proceedLatch);
         
         Assert.assertEquals(0, this.selfPopulatingTestInterface.getBlockingAInvocationCount());
         Assert.assertEquals(0, this.selfPopulatingTestInterface.getBlockingBInvocationCount());
@@ -96,8 +96,8 @@ public class SelfPopulatingMethodTest {
         threadRunningLatch.await();
         
         // Let both threads complete
-        logger.trace("Waiting for threads to signal returns");
-        proccedLatch.countDown();
+        logger.trace("Signal threads to proceed");
+        proceedLatch.countDown();
         
         logger.trace("Waiting for threads to complete");
         threadGroup.join();

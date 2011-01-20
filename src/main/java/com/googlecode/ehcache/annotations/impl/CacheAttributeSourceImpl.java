@@ -21,19 +21,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.ObjectExistsException;
-import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
-import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 
-import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -41,6 +32,7 @@ import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
@@ -51,7 +43,6 @@ import org.springframework.util.StringUtils;
 
 import com.googlecode.ehcache.annotations.AdviceType;
 import com.googlecode.ehcache.annotations.CacheAttributeSource;
-import com.googlecode.ehcache.annotations.CacheNotFoundException;
 import com.googlecode.ehcache.annotations.Cacheable;
 import com.googlecode.ehcache.annotations.CacheableAttribute;
 import com.googlecode.ehcache.annotations.KeyGenerator;
@@ -59,12 +50,17 @@ import com.googlecode.ehcache.annotations.MethodAttribute;
 import com.googlecode.ehcache.annotations.ParameterMask;
 import com.googlecode.ehcache.annotations.PartialCacheKey;
 import com.googlecode.ehcache.annotations.Property;
+import com.googlecode.ehcache.annotations.ResolverFactory;
 import com.googlecode.ehcache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ehcache.annotations.TriggersRemove;
 import com.googlecode.ehcache.annotations.TriggersRemoveAttribute;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 import com.googlecode.ehcache.annotations.key.ReflectionHelper;
 import com.googlecode.ehcache.annotations.key.ReflectionHelperAware;
+import com.googlecode.ehcache.annotations.resolver.CacheResolverFactory;
+import com.googlecode.ehcache.annotations.resolver.CacheableCacheResolver;
+import com.googlecode.ehcache.annotations.resolver.DefaultCacheResolverFactory;
+import com.googlecode.ehcache.annotations.resolver.TriggersRemoveCacheResolver;
 
 
 /**
@@ -74,7 +70,7 @@ import com.googlecode.ehcache.annotations.key.ReflectionHelperAware;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFactoryAware {
+public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFactoryAware, InitializingBean {
     /**
      * Logger available to subclasses.
      */
@@ -85,29 +81,35 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      */
     private final MultiKeyConcurrentMap<Class<?>, Method, Boolean> ingoredMethods = new MultiKeyConcurrentMap<Class<?>, Method, Boolean>();
     private final MultiKeyConcurrentMap<Class<?>, Method, MethodAttribute> attributesCache = new MultiKeyConcurrentMap<Class<?>, Method, MethodAttribute>();
-    private final ConcurrentMap<String, SelfPopulatingCacheTracker> selfPopulatingCaches = new ConcurrentHashMap<String, SelfPopulatingCacheTracker>(); 
     
-    private DefaultListableBeanFactory cacheKeyBeanFactory;
+    private DefaultListableBeanFactory childBeanFactory;
     
     private CacheManager cacheManager;
     private BeanFactory beanFactory;
+    private SelfPopulatingCacheScope selfPopulatingCacheScope = SelfPopulatingCacheScope.SHARED;
     private boolean createCaches = false;
     private CacheKeyGenerator<? extends Serializable> defaultCacheKeyGenerator;
-    private SelfPopulatingCacheScope selfPopulatingCacheScope = SelfPopulatingCacheScope.SHARED;
     private ReflectionHelper reflectionHelper;
+    private DefaultCacheResolverFactory cacheResolverFactory;
 
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
-        this.cacheKeyBeanFactory = new DefaultListableBeanFactory(this.beanFactory);
+        this.childBeanFactory = new DefaultListableBeanFactory(this.beanFactory);
     }
     public void setCreateCaches(boolean createCaches) {
         this.createCaches = createCaches;
+        if (this.cacheResolverFactory != null) {
+            this.cacheResolverFactory.setCreateCaches(this.createCaches);
+        }
     }
     public void setDefaultCacheKeyGenerator(CacheKeyGenerator<? extends Serializable> defaultCacheKeyGenerator) {
         this.defaultCacheKeyGenerator = defaultCacheKeyGenerator;
     }
     public void setSelfPopulatingCacheScope(SelfPopulatingCacheScope selfPopulatingCacheScope) {
         this.selfPopulatingCacheScope = selfPopulatingCacheScope;
+        if (this.cacheResolverFactory != null) {
+            this.cacheResolverFactory.setSelfPopulatingCacheScope(this.selfPopulatingCacheScope);
+        }
     }
     public void setCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
@@ -115,6 +117,13 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     public void setReflectionHelper(ReflectionHelper reflectionHelper) {
         this.reflectionHelper = reflectionHelper;
     }
+    
+    public void afterPropertiesSet() throws Exception {
+        this.cacheResolverFactory = new DefaultCacheResolverFactory(this.getCacheManager());
+        this.cacheResolverFactory.setCreateCaches(this.createCaches);
+        this.cacheResolverFactory.setSelfPopulatingCacheScope(this.selfPopulatingCacheScope);
+    }
+    
     /* (non-Javadoc)
      * @see com.googlecode.ehcache.annotations.CacheAttributeSource#getAdviceType(java.lang.reflect.Method, java.lang.Class)
      */
@@ -196,35 +205,6 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     protected CacheManager getCacheManager() {
         return this.cacheManager;
     }
-
-    /**
-     * Get or create the specified cache if it does not exist and createCaches is set to true. 
-     * 
-     * @param cacheName The name of the cache to retrieve
-     * @return The cache
-     * @throws CacheNotFoundException if the cache does not exist and createCaches is false.
-     */
-    protected Ehcache getCache(String cacheName) {
-        final CacheManager cacheManager = this.getCacheManager();
-        
-        Ehcache cache = cacheManager.getEhcache(cacheName);
-        if (cache == null) {
-            if (this.createCaches) {
-                this.logger.warn("No cache named '{}' exists, it will be created from the defaultCache", cacheName);
-                try {
-                    cacheManager.addCache(cacheName);
-                }
-                catch (ObjectExistsException oee) {
-                    this.logger.trace("Race condition creating missing cache '{}', ignoring and retrieving existing cache", cacheName);
-                }
-                cache = cacheManager.getEhcache(cacheName);
-            }
-            else {
-                throw new CacheNotFoundException(cacheName);
-            }
-        }
-        return cache;
-    }
     
     private MethodAttribute computeMethodAttribute(Method method, Class<?> targetClass) {
         // Don't allow no-public methods as required.
@@ -265,13 +245,13 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         Cacheable cacheableAnnotation = method.getAnnotation(Cacheable.class);
         if (cacheableAnnotation != null) {
             final ParameterMask parameterMask = this.parsePartialCacheKeyAnnotations(method);
-            return this.parseCacheableAnnotation(cacheableAnnotation, parameterMask);
+            return this.parseCacheableAnnotation(cacheableAnnotation, method, parameterMask);
         }
         
         TriggersRemove triggersRemove = method.getAnnotation(TriggersRemove.class);
         if (triggersRemove != null) {
             final ParameterMask parameterMask = this.parsePartialCacheKeyAnnotations(method);
-            return this.parseTriggersRemoveAnnotation(triggersRemove, parameterMask);
+            return this.parseTriggersRemoveAnnotation(triggersRemove, method, parameterMask);
         }
         
         for (final Annotation metaAnn : method.getAnnotations()) {
@@ -279,13 +259,13 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
             cacheableAnnotation = annotationType.getAnnotation(Cacheable.class);
             if (cacheableAnnotation != null) {
                 final ParameterMask parameterMask = this.parsePartialCacheKeyAnnotations(method);
-                return this.parseCacheableAnnotation(cacheableAnnotation, parameterMask);
+                return this.parseCacheableAnnotation(cacheableAnnotation, method, parameterMask);
             }
             
             triggersRemove = annotationType.getAnnotation(TriggersRemove.class);
             if (triggersRemove != null) {
                 final ParameterMask parameterMask = this.parsePartialCacheKeyAnnotations(method);
-                return this.parseTriggersRemoveAnnotation(triggersRemove, parameterMask);
+                return this.parseTriggersRemoveAnnotation(triggersRemove, method, parameterMask);
             }
         }
 
@@ -321,69 +301,18 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      * @param ann The annotation to build the attributes from
      * @return The constructed cacheable advise attributes
      */
-    protected CacheableAttribute parseCacheableAnnotation(Cacheable ann, ParameterMask parameterMask) {
-        Ehcache cache = this.getCache(ann.cacheName());
-        ThreadLocal<MethodInvocation> entryFactory = null;
-        if (ann.selfPopulating()) {
-            final SelfPopulatingCacheTracker selfPopulatingCacheTracker = this.createSelfPopulatingCacheInternal(cache);
-            cache = selfPopulatingCacheTracker.selfPopulatingCache;
-            entryFactory = selfPopulatingCacheTracker.cacheEntryFactory;
-        }
+    protected CacheableAttribute parseCacheableAnnotation(Cacheable ann, Method method, ParameterMask parameterMask) {
+        final String resolverFactoryName = ann.resolverFactoryName();
+        final ResolverFactory resolverFactory = ann.resolverFactory();
+        final CacheResolverFactory cacheResolverFactory = this.getCacheResolverFactory(resolverFactoryName, resolverFactory);
         
-        final Ehcache exceptionCache;
-        if (StringUtils.hasLength(ann.exceptionCacheName())) {
-            exceptionCache = this.getCache(ann.exceptionCacheName());
-        }
-        else {
-            exceptionCache = null;
-        }
+        final CacheableCacheResolver cacheResolver = cacheResolverFactory.getCacheResolver(ann, method);
         
         final String keyGeneratorName = ann.keyGeneratorName();
         final KeyGenerator keyGenerator = ann.keyGenerator();
         final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = this.getCacheKeyGenerator(keyGeneratorName, keyGenerator);
-        
-        return new CacheableAttributeImpl(cache, exceptionCache, cacheKeyGenerator, parameterMask, entryFactory);
-    }
-    
-    /**
-     * Creates or retrieves a SelfPopulatingCacheTracker for the specified cache depending on the
-     * configured {@link SelfPopulatingCacheScope}
-     * 
-     * @param cache The cache to create a self populating instance of
-     * @return The SelfPopulatingCache and corresponding factory object to use
-     */
-    protected final SelfPopulatingCacheTracker createSelfPopulatingCacheInternal(Ehcache cache) {
-        //If method scoped just create a new instance 
-        if (SelfPopulatingCacheScope.METHOD == this.selfPopulatingCacheScope) {
-            return this.createSelfPopulatingCache(cache);
-        }
 
-        //Shared scope, try loading the instance from local Map
-        
-        //See if there is a cached SelfPopulatingCache for the name
-        final String cacheName = cache.getName();
-        SelfPopulatingCacheTracker selfPopulatingCacheTracker = this.selfPopulatingCaches.get(cacheName);
-        if (selfPopulatingCacheTracker == null) {
-            selfPopulatingCacheTracker = this.createSelfPopulatingCache(cache);
-            
-            //do putIfAbsent to handle concurrent creation. If a value is returned it was already put and that
-            //value should be used. If no value was returned the newly created selfPopulatingCache should be used
-            final SelfPopulatingCacheTracker existing = this.selfPopulatingCaches.putIfAbsent(cacheName, selfPopulatingCacheTracker);
-            if (existing != null) {
-                selfPopulatingCacheTracker = existing;
-            }
-        }
-        
-        return selfPopulatingCacheTracker;
-    }
-
-    /**
-     * Create a new {@link SelfPopulatingCache} and corresponding {@link CacheEntryFactory}
-     */
-    protected SelfPopulatingCacheTracker createSelfPopulatingCache(Ehcache cache) {
-        final ThreadLocalCacheEntryFactory cacheEntryFactory = new ThreadLocalCacheEntryFactory();
-        final SelfPopulatingCache selfPopulatingCache = new SelfPopulatingCache(cache, cacheEntryFactory);
-        return new SelfPopulatingCacheTracker(selfPopulatingCache, cacheEntryFactory.entryFactory);
+        return new CacheableAttributeImpl(cacheResolver, cacheKeyGenerator, parameterMask);
     }
 
     /**
@@ -392,19 +321,37 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
      * @param ann The annotation to build the attributes from
      * @return The constructed triggers remove advise attributes
      */
-    protected TriggersRemoveAttribute parseTriggersRemoveAnnotation(TriggersRemove ann, ParameterMask parameterMask) {
-        final String[] cacheNames = ann.cacheName();
-        final List<Ehcache> caches = new ArrayList<Ehcache>(cacheNames.length);
-        for (final String cacheName : cacheNames) {
-            final Ehcache cache = this.getCache(cacheName);
-            caches.add(cache);
-        }
+    protected TriggersRemoveAttribute parseTriggersRemoveAnnotation(TriggersRemove ann, Method method, ParameterMask parameterMask) {
+        final String resolverFactoryName = ann.resolverFactoryName();
+        final ResolverFactory resolverFactory = ann.resolverFactory();
+        final CacheResolverFactory cacheResolverFactory = this.getCacheResolverFactory(resolverFactoryName, resolverFactory);
+        
+        final TriggersRemoveCacheResolver cacheResolver = cacheResolverFactory.getCacheResolver(ann, method);
 
         final String keyGeneratorName = ann.keyGeneratorName();
         final KeyGenerator keyGenerator = ann.keyGenerator();
         final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = this.getCacheKeyGenerator(keyGeneratorName, keyGenerator);
         
-        return new TriggersRemoveAttributeImpl(caches, cacheKeyGenerator, parameterMask, ann.removeAll(), ann.when());
+        return new TriggersRemoveAttributeImpl(cacheResolver, cacheKeyGenerator, parameterMask, ann.removeAll(), ann.when());
+    }
+    
+    /**
+     * Get the {@link CacheResolverFactory} by name. Returning a default resolver factory if the name is empty or null
+     * 
+     * @param resolverFactoryName Name of the resolver factory to retrieve
+     * @return The named generator or the default generator if the name was empty or null
+     */
+    protected final CacheResolverFactory getCacheResolverFactory(String resolverFactoryName, ResolverFactory resolverFactory) {
+        String cacheResolverClassName = resolverFactory.name();
+        if (cacheResolverClassName.length() > 0) {
+            return this.getOrCreateCacheResolverFactory(resolverFactory);
+        }
+
+        if (StringUtils.hasLength(resolverFactoryName)) {
+            return this.beanFactory.getBean(resolverFactoryName, CacheResolverFactory.class);
+        }
+        
+        return this.cacheResolverFactory;
     }
     
     /**
@@ -431,19 +378,31 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     
     @SuppressWarnings("unchecked")
     protected final CacheKeyGenerator<? extends Serializable> getOrCreateCacheKeyGenerator(KeyGenerator keyGenerator) {
-        final StringBuilder beanNameBuilder = new StringBuilder();
-        
         String keyGeneratorClassName = keyGenerator.name();
         if (!keyGeneratorClassName.contains(".")) {
             keyGeneratorClassName  = "com.googlecode.ehcache.annotations.key." + keyGeneratorClassName;
         }
         
-        beanNameBuilder.append(keyGeneratorClassName);
+        return this.getOrCreateChildBean(CacheKeyGenerator.class, keyGeneratorClassName, keyGenerator.properties());
+    }
+    
+    protected final CacheResolverFactory getOrCreateCacheResolverFactory(ResolverFactory resolverFactory) {
+        String resolverFactoryClassName = resolverFactory.name();
+        if (!resolverFactoryClassName.contains(".")) {
+            resolverFactoryClassName  = "com.googlecode.ehcache.annotations.resolver." + resolverFactoryClassName;
+        }
+        
+        return this.getOrCreateChildBean(CacheResolverFactory.class, resolverFactoryClassName, resolverFactory.properties());
+    }
+    
+    protected final <T> T getOrCreateChildBean(Class<T> beanType, String beanClass, Property[] properties) {
+        final StringBuilder beanNameBuilder = new StringBuilder();
+        
+        beanNameBuilder.append(beanClass);
         
         final MutablePropertyValues mutablePropertyValues = new MutablePropertyValues();
         
         //Sort the properties array first so bean name generation is always consistent
-        final Property[] properties = keyGenerator.properties();
         Arrays.sort(properties, PropertyComparator.INSTANCE);
         
         for (Property property : properties) {
@@ -470,18 +429,18 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         
         final String beanName = beanNameBuilder.toString();
         
-        //See if the generator is already registered using the compiled bean name, if so just use that instance
-        if (this.cacheKeyBeanFactory.containsBean(beanName)) {
-            return this.cacheKeyBeanFactory.getBean(beanName, CacheKeyGenerator.class);
+        //See if the bean is already registered using the compiled bean name, if so just use that instance
+        if (this.childBeanFactory.containsBean(beanName)) {
+            return this.childBeanFactory.getBean(beanName, beanType);
         }
 
         //Create and register the bean if it didn't already exist
         final AbstractBeanDefinition beanDefinition;
         try {
-            beanDefinition = BeanDefinitionReaderUtils.createBeanDefinition(null, keyGeneratorClassName, ClassUtils.getDefaultClassLoader());
+            beanDefinition = BeanDefinitionReaderUtils.createBeanDefinition(null, beanClass, ClassUtils.getDefaultClassLoader());
         }
         catch (ClassNotFoundException e) {
-            throw new BeanCreationException("Could not find class '" + keyGeneratorClassName + "' to create CacheKeyGenerator from", e);
+            throw new BeanCreationException("Could not find class '" + beanClass + "' to create " + beanType + " from", e);
         }
         
         if (ReflectionHelperAware.class.isAssignableFrom(beanDefinition.getBeanClass())) {
@@ -489,48 +448,8 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         }
         
         beanDefinition.setPropertyValues(mutablePropertyValues);
-        this.cacheKeyBeanFactory.registerBeanDefinition(beanName, beanDefinition);
+        this.childBeanFactory.registerBeanDefinition(beanName, beanDefinition);
         
-        return this.cacheKeyBeanFactory.getBean(beanName, CacheKeyGenerator.class);
-    }
-    
-    static class SelfPopulatingCacheTracker {
-        public final SelfPopulatingCache selfPopulatingCache;
-        public final ThreadLocal<MethodInvocation> cacheEntryFactory;
-        
-        public SelfPopulatingCacheTracker(SelfPopulatingCache selfPopulatingCache, ThreadLocal<MethodInvocation> cacheEntryFactory) {
-            this.selfPopulatingCache = selfPopulatingCache;
-            this.cacheEntryFactory = cacheEntryFactory;
-        }
-    }
-
-    /**
-     * EhCache entry factory that uses a ThreadLocal to pass a MethodInvocation into the factory
-     * for object creation.
-     */
-    private static class ThreadLocalCacheEntryFactory implements CacheEntryFactory {
-        public final ThreadLocal<MethodInvocation> entryFactory = new ThreadLocal<MethodInvocation>();
-
-        public Object createEntry(Object arg0) throws Exception {
-            final MethodInvocation methodInvocation = this.entryFactory.get();
-            if (methodInvocation == null) {
-                throw new RuntimeException("No MethodInvocation specified in the ThreadLocal");
-            }
-            
-            try {
-                return methodInvocation.proceed();
-            }
-            catch (Throwable t) {
-                if (t instanceof Exception) {
-                    throw (Exception)t;
-                }
-                else if (t instanceof Error) {
-                    throw (Error)t;
-                }
-                
-                throw new Exception(t);
-            }
-        }
-        
+        return this.childBeanFactory.getBean(beanName, beanType);
     }
 }

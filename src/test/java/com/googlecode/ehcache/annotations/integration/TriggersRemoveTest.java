@@ -164,5 +164,13 @@ public class TriggersRemoveTest  {
         }
         public void notifyTimeTakenForGet(long arg0) {
         }
+        public void notifyCacheHitOffHeap() {
+        }
+        public void notifyCacheMissInMemory() {
+        }
+        public void notifyCacheMissOffHeap() {
+        }
+        public void notifyCacheMissOnDisk() {
+        }
     }
 }

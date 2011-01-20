@@ -24,6 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
+import com.googlecode.ehcache.annotations.resolver.CacheResolverFactory;
 
 
 /**
@@ -68,4 +69,17 @@ public @interface TriggersRemove {
      * Default value is {@link When#BEFORE_METHOD_INVOCATION}.
      */
     When when() default When.BEFORE_METHOD_INVOCATION;
+    
+    /**
+     * The Spring Bean name of the {@link CacheResolverFactory} to use to resolve the correct cache at runtime.
+     * Ignored if {@link #resolverFactory()} is specified.
+     * If this and {@link #resolverFactory()} are not specified the specified {@link #cacheName()} will be used.
+     */
+    String resolverFactoryName() default "";
+    
+    /**
+     * Used the specify and configure the {@link CacheResolverFactory} to use.
+     * If this and {@link #resolverFactoryName()} are not specified the specified {@link #cacheName()} will be used. 
+     */
+    ResolverFactory resolverFactory() default @ResolverFactory(name = "");
 }

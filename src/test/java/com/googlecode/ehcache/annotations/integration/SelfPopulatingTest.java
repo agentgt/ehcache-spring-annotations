@@ -57,7 +57,7 @@ public class SelfPopulatingTest {
      * 
      * @throws Exception
      */
-    @Test
+    @Test(timeout=1000)
     public void testSelfPopulatingFalse() throws Exception {
         final CountDownLatch threadRunningLatch = new CountDownLatch(2);
         final CountDownLatch proccedLatch = new CountDownLatch(1);
@@ -98,7 +98,7 @@ public class SelfPopulatingTest {
      * 
      * @throws Exception
      */
-    @Test
+    @Test(timeout=1000)
     public void testSelfPopulatingTrue() throws Exception {
         final CountDownLatch threadRunningLatch = new CountDownLatch(5);
         final CountDownLatch proccedLatch = new CountDownLatch(1);
@@ -153,7 +153,7 @@ public class SelfPopulatingTest {
     }
 
     
-    @Test
+    @Test(timeout=1000)
     public void testExceptionCaching() {
         final CountDownLatch threadRunningLatch = new CountDownLatch(0);
         final CountDownLatch proccedLatch = new CountDownLatch(0);

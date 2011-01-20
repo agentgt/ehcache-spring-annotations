@@ -23,9 +23,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
-
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+
+import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
+import com.googlecode.ehcache.annotations.resolver.CacheResolverFactory;
 
 /**
  * Annotation for methods whose return values should be cached.
@@ -64,4 +65,17 @@ public @interface Cacheable {
      * If this and {@link #keyGeneratorName()} are not specified the default generator will be used.  
      */
     KeyGenerator keyGenerator() default @KeyGenerator(name = "");
+    
+    /**
+     * The Spring Bean name of the {@link CacheResolverFactory} to use to resolve the correct cache at runtime.
+     * Ignored if {@link #resolverFactory()} is specified.
+     * If this and {@link #resolverFactory()} are not specified the specified {@link #cacheName()} will be used.
+     */
+    String resolverFactoryName() default "";
+    
+    /**
+     * Used the specify and configure the {@link CacheResolverFactory} to use.
+     * If this and {@link #resolverFactoryName()} are not specified the specified {@link #cacheName()} will be used. 
+     */
+    ResolverFactory resolverFactory() default @ResolverFactory(name = "");
 }

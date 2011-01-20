@@ -21,6 +21,8 @@ package com.googlecode.ehcache.annotations;
 
 import net.sf.ehcache.Ehcache;
 
+import com.googlecode.ehcache.annotations.resolver.TriggersRemoveCacheResolver;
+
 /**
  * Represents the objects needed to intercept calls to methods annotated
  * with {@link TriggersRemove}
@@ -30,9 +32,9 @@ import net.sf.ehcache.Ehcache;
  */
 public interface TriggersRemoveAttribute extends MethodAttribute {
     /**
-     * @return The cache to use, will never be null.
+     * @return The {@link TriggersRemoveCacheResolver} used to determine the Caches to use.
      */
-    public Iterable<Ehcache> getCaches();
+    public TriggersRemoveCacheResolver getCacheResolver();
     
     /**
      * @return true if {@link Ehcache#removeAll()} should be called.

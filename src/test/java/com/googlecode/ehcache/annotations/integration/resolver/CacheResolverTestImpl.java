@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-package com.googlecode.ehcache.annotations;
+package com.googlecode.ehcache.annotations.integration.resolver;
 
-import com.googlecode.ehcache.annotations.resolver.CacheableCacheResolver;
+
 
 /**
- * Represents the objects needed to intercept calls to methods annotated
- * with {@link com.googlecode.ehcache.annotations.Cacheable}
- * 
  * @author Eric Dalquist
  * @version $Revision$
  */
-public interface CacheableAttribute extends MethodAttribute {
-    /**
-     * @return The {@link CacheableCacheResolver} used to determine the Cache and ExceptionCache to use.
-     */
-    public CacheableCacheResolver getCacheResolver();
+public class CacheResolverTestImpl implements CacheResolverTestInterface {
+    private int interfaceCachedCount = 0;
+    
+    public String interfaceCached(String arg) {
+        interfaceCachedCount++;
+        return "Modified[" + arg + "]";
+    }
+
+    public int getInterfaceCachedCount() {
+        return interfaceCachedCount;
+    }
+    
 }
