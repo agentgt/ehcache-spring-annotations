@@ -27,6 +27,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+import net.sf.ehcache.util.ProductInfo;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
@@ -51,6 +52,7 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
      */
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     
+    private final boolean badSelfPopulatingCache;
     private final ConcurrentMap<String, SelfPopulatingCacheTracker> selfPopulatingCaches = new ConcurrentHashMap<String, SelfPopulatingCacheTracker>(); 
     private final CacheManager cacheManager;
     private boolean createCaches = false;
@@ -58,6 +60,10 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
     
     public DefaultCacheResolverFactory(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
+        
+        final ProductInfo productInfo = new ProductInfo();
+        final String version = productInfo.getVersion();
+        this.badSelfPopulatingCache = version.equals("2.3.0") || version.equals("2.3.1");
     }
     
     public boolean isCreateCaches() {
@@ -85,6 +91,10 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
         
         ThreadLocal<MethodInvocation> entryFactory = null; 
         if (cacheable.selfPopulating()) {
+            if (this.badSelfPopulatingCache) {
+                logger.error("SelfPopulatingCache in Ehcache 2.3.0 & 2.3.1 has a bug which can result in unexpected behavior, see EHC-828. {} may not behave as expected", cacheName);
+            }
+            
             final SelfPopulatingCacheTracker selfPopulatingCacheTracker = this.createSelfPopulatingCacheInternal(cache);
             cache = selfPopulatingCacheTracker.selfPopulatingCache;
             entryFactory = selfPopulatingCacheTracker.cacheEntryFactory;
