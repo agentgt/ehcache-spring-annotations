@@ -26,10 +26,12 @@ import static org.junit.Assert.assertFalse;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -127,11 +129,14 @@ public abstract class BaseCacheKeyGeneratorTest<KG extends CacheKeyGenerator<T>,
         
         final MethodInvocation invocation = createMock(MethodInvocation.class);
         expect(invocation.getMethod()).andReturn(testMethod).anyTimes();
+        
+        final Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        cal.setTimeInMillis(0);
         expect(invocation.getArguments()).andReturn(new Object[] { 
                 new int[] {1, 2, 3, 4}, 
                 "foo", 
                 new boolean[] {false, true},
-                new Object[] { null, new Date(0) }
+                new Object[] { null, cal }
                 });
         
         replay(invocation);

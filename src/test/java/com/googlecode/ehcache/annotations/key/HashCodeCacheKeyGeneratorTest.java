@@ -58,7 +58,7 @@ public class HashCodeCacheKeyGeneratorTest extends AbstractDeepCacheKeyGenerator
 
     @Override
     protected void verifyTestComplexHashCode(MethodInvocation invocation, Long key) {
-        assertEquals(Long.valueOf(7228491118809861513l), key);        
+        assertEquals(Long.valueOf(7228491118810439268l), key);        
     }
 
     @Override

@@ -63,7 +63,7 @@ public class SpELCacheKeyGeneratorTest extends BaseCacheKeyGeneratorTest<CacheKe
 
     @Override
     protected void verifyTestComplexHashCode(MethodInvocation invocation, Serializable key) {
-        assertEquals("[testMethod2, [[1, 2, 3, 4], foo, [false, true], [null, Wed Dec 31 18:00:00 CST 1969]]]", key);
+        assertEquals("[testMethod2, [[1, 2, 3, 4], foo, [false, true], [null, java.util.GregorianCalendar[time=0,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"GMT\",offset=0,dstSavings=0,useDaylight=false,transitions=0,lastRule=null],firstDayOfWeek=1,minimalDaysInFirstWeek=1,ERA=1,YEAR=1970,MONTH=0,WEEK_OF_YEAR=1,WEEK_OF_MONTH=1,DAY_OF_MONTH=1,DAY_OF_YEAR=1,DAY_OF_WEEK=5,DAY_OF_WEEK_IN_MONTH=1,AM_PM=0,HOUR=0,HOUR_OF_DAY=0,MINUTE=0,SECOND=0,MILLISECOND=0,ZONE_OFFSET=0,DST_OFFSET=0]]]]", key);
     }
 
     @Override

@@ -19,8 +19,10 @@ package com.googlecode.ehcache.annotations.key;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -85,6 +87,9 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
 
     @Override
     protected void verifyTestComplexHashCode(MethodInvocation invocation, ReadOnlyList<?> key) {
+        final Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        cal.setTimeInMillis(0);
+        
         final List<Object> expected = Arrays.asList(
                 MethodInvocationHelper.class,
                 "testMethod2",
@@ -93,7 +98,7 @@ public class ListCacheKeyGeneratorTest extends AbstractDeepCacheKeyGeneratorTest
                     Arrays.asList(1, 2, 3, 4),
                     "foo",
                     Arrays.asList(false, true),
-                    Arrays.asList(null, new Date(0))
+                    Arrays.asList(null, cal)
                 ));
         
         assertEquals(expected, key);
