@@ -30,4 +30,9 @@ public interface CacheableAttribute extends MethodAttribute {
      * @return The {@link CacheableCacheResolver} used to determine the Cache and ExceptionCache to use.
      */
     public CacheableCacheResolver getCacheResolver();
+    
+    /**
+     * @return true If the null return values should be cached.
+     */
+    public boolean isCacheNull();
 }

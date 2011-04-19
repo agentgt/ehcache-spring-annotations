@@ -40,6 +40,7 @@ public class CacheableTestImpl implements CacheableTestInterface {
     private int interfaceDefinedCount = 0;
     private int enumParameterCount = 0;
     private int arrayReturnCount = 0;
+    private int noNullCacheCount = 0;
     
     public String interfaceAnnotatedExceptionCached(boolean throwsException) {
         if (throwsException) {
@@ -105,7 +106,18 @@ public class CacheableTestImpl implements CacheableTestInterface {
         return this.arrayReturnCount;
     }
     
-    
+    public String noNullCache(boolean returnNull) {
+        this.noNullCacheCount++;
+        if (returnNull) {
+            return null;
+        }
+        return "noNullCache(" + returnNull + ")";
+    }
+
+    public int noNullCacheCount() {
+        return this.noNullCacheCount;
+    }
+
     @Autowired
     public void setCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;

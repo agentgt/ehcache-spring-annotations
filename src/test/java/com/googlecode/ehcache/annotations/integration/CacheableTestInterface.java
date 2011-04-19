@@ -52,6 +52,10 @@ public interface CacheableTestInterface {
     public String[] arrayReturn(String a, String b);
     public int arrayReturnCount();
     
+    @Cacheable(cacheName="noNullCache", cacheNull=false)
+    public String noNullCache(boolean returnNull);
+    public int noNullCacheCount();
+    
     public CacheManager getCacheManager();
     public CacheManager getCacheManagerField();
 }

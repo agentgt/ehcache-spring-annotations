@@ -42,6 +42,12 @@ public @interface Cacheable {
      * The name of the cache to use
      */
     String cacheName();
+    
+    /**
+     * If true null return values will be cached. If false they will not. Defaults to true.
+     * NOTE that if {@link #selfPopulating()} is true this setting is effectively set to true.
+     */
+    boolean cacheNull() default true;
 
     /**
      * If a EhCache {@link SelfPopulatingCache} wrapper should be used to ensure only one

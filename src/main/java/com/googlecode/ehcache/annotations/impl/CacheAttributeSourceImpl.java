@@ -311,8 +311,13 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         final String keyGeneratorName = ann.keyGeneratorName();
         final KeyGenerator keyGenerator = ann.keyGenerator();
         final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = this.getCacheKeyGenerator(keyGeneratorName, keyGenerator);
+        
+        final boolean cacheNull = ann.cacheNull();
+        if (!cacheNull && ann.selfPopulating()) {
+            this.logger.warn("cacheNull is set to false and selfPopulating is set to true, cacheNull will be ignored on: " + method);
+        }
 
-        return new CacheableAttributeImpl(cacheResolver, cacheKeyGenerator, parameterMask);
+        return new CacheableAttributeImpl(cacheResolver, cacheKeyGenerator, parameterMask, cacheNull);
     }
 
     /**

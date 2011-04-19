@@ -35,12 +35,14 @@ class CacheableAttributeImpl implements CacheableAttribute {
     private final CacheableCacheResolver cacheInstanceResolver;
     private final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator;
     private final ParameterMask parameterMask;
+    private final boolean cacheNull;
     
-    public CacheableAttributeImpl(CacheableCacheResolver cacheInstanceResolver, 
-            CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, ParameterMask parameterMask) {
+    public CacheableAttributeImpl(CacheableCacheResolver cacheInstanceResolver,
+            CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, ParameterMask parameterMask, boolean cacheNull) {
         this.cacheInstanceResolver = cacheInstanceResolver;
         this.cacheKeyGenerator = cacheKeyGenerator;
         this.parameterMask = parameterMask;
+        this.cacheNull = cacheNull;
     }
     
     public AdviceType getAdviceType() {
@@ -55,6 +57,10 @@ class CacheableAttributeImpl implements CacheableAttribute {
         return this.cacheKeyGenerator;
     }
     
+    public boolean isCacheNull() {
+        return this.cacheNull;
+    }
+    
     public ParameterMask getCacheKeyParameterMask() {
         return this.parameterMask;
     }
@@ -63,9 +69,10 @@ class CacheableAttributeImpl implements CacheableAttribute {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((this.cacheInstanceResolver == null) ? 0 : this.cacheInstanceResolver.hashCode());
-        result = prime * result + ((this.cacheKeyGenerator == null) ? 0 : this.cacheKeyGenerator.hashCode());
-        result = prime * result + ((this.parameterMask == null) ? 0 : this.parameterMask.hashCode());
+        result = prime * result + ((cacheInstanceResolver == null) ? 0 : cacheInstanceResolver.hashCode());
+        result = prime * result + ((cacheKeyGenerator == null) ? 0 : cacheKeyGenerator.hashCode());
+        result = prime * result + (cacheNull ? 1231 : 1237);
+        result = prime * result + ((parameterMask == null) ? 0 : parameterMask.hashCode());
         return result;
     }
 
@@ -78,30 +85,32 @@ class CacheableAttributeImpl implements CacheableAttribute {
         if (getClass() != obj.getClass())
             return false;
         CacheableAttributeImpl other = (CacheableAttributeImpl) obj;
-        if (this.cacheInstanceResolver == null) {
+        if (cacheInstanceResolver == null) {
             if (other.cacheInstanceResolver != null)
                 return false;
         }
-        else if (!this.cacheInstanceResolver.equals(other.cacheInstanceResolver))
+        else if (!cacheInstanceResolver.equals(other.cacheInstanceResolver))
             return false;
-        if (this.cacheKeyGenerator == null) {
+        if (cacheKeyGenerator == null) {
             if (other.cacheKeyGenerator != null)
                 return false;
         }
-        else if (!this.cacheKeyGenerator.equals(other.cacheKeyGenerator))
+        else if (!cacheKeyGenerator.equals(other.cacheKeyGenerator))
             return false;
-        if (this.parameterMask == null) {
+        if (cacheNull != other.cacheNull)
+            return false;
+        if (parameterMask == null) {
             if (other.parameterMask != null)
                 return false;
         }
-        else if (!this.parameterMask.equals(other.parameterMask))
+        else if (!parameterMask.equals(other.parameterMask))
             return false;
         return true;
     }
 
     @Override
     public String toString() {
-        return "CacheableAttributeImpl [cacheInstanceResolver=" + this.cacheInstanceResolver + ", cacheKeyGenerator="
-                + this.cacheKeyGenerator + ", parameterMask=" + this.parameterMask + "]";
+        return "CacheableAttributeImpl [cacheInstanceResolver=" + cacheInstanceResolver + ", cacheKeyGenerator="
+                + cacheKeyGenerator + ", parameterMask=" + parameterMask + ", cacheNull=" + cacheNull + "]";
     }
 }

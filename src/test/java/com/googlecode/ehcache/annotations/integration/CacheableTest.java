@@ -46,6 +46,23 @@ public class CacheableTest {
     }
 
     @Test
+    public void testNoNullCache() {
+        Assert.assertEquals(0, cacheableTestInterface.noNullCacheCount());
+        
+        Assert.assertEquals("noNullCache(false)", cacheableTestInterface.noNullCache(false));
+        Assert.assertEquals(1, cacheableTestInterface.noNullCacheCount());
+        
+        Assert.assertNull(cacheableTestInterface.noNullCache(true));
+        Assert.assertEquals(2, cacheableTestInterface.noNullCacheCount());
+        
+        Assert.assertEquals("noNullCache(false)", cacheableTestInterface.noNullCache(false));
+        Assert.assertEquals(2, cacheableTestInterface.noNullCacheCount());
+        
+        Assert.assertNull(cacheableTestInterface.noNullCache(true));
+        Assert.assertEquals(3, cacheableTestInterface.noNullCacheCount());
+    }
+
+    @Test
     public void testCachingOnTheInterfaceWithArgs() {
         Assert.assertEquals(0, cacheableTestInterface.interfaceAnnotatedCachedCount());
         

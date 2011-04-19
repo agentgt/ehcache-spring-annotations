@@ -137,6 +137,11 @@ public class EhCacheInterceptor implements MethodInterceptor {
             throw t;
         }
         
+        //If we're not caching null return values 
+        if (value == null && !cacheableAttribute.isCacheNull()) {
+            return value;
+        }
+        
         //Cache and return the value
         cache.put(new Element(cacheKey, value));
         return value;
