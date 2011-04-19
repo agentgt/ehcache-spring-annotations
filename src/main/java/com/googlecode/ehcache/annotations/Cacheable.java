@@ -81,6 +81,10 @@ public @interface Cacheable {
      * If this and {@link #keyGeneratorName()} are not specified the default generator will be used.  
      */
     KeyGenerator keyGenerator() default @KeyGenerator(name = "");
+    /**
+     * The Spring Bean name of the {@link CacheableInterceptor} to use when intercepting invocations.
+     */
+    String cacheableInteceptorName() default "";
     
     /**
      * The Spring Bean name of the {@link CacheResolverFactory} to use to resolve the correct cache at runtime.

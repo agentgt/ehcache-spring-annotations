@@ -45,6 +45,8 @@ import com.googlecode.ehcache.annotations.AdviceType;
 import com.googlecode.ehcache.annotations.CacheAttributeSource;
 import com.googlecode.ehcache.annotations.Cacheable;
 import com.googlecode.ehcache.annotations.CacheableAttribute;
+import com.googlecode.ehcache.annotations.CacheableInterceptor;
+import com.googlecode.ehcache.annotations.DefaultCacheableInterceptor;
 import com.googlecode.ehcache.annotations.KeyGenerator;
 import com.googlecode.ehcache.annotations.MethodAttribute;
 import com.googlecode.ehcache.annotations.ParameterMask;
@@ -61,7 +63,7 @@ import com.googlecode.ehcache.annotations.resolver.CacheResolverFactory;
 import com.googlecode.ehcache.annotations.resolver.CacheableCacheResolver;
 import com.googlecode.ehcache.annotations.resolver.DefaultCacheResolverFactory;
 import com.googlecode.ehcache.annotations.resolver.TriggersRemoveCacheResolver;
-
+    
 
 /**
  * Provides logic for determining if a class + method are advised and to then setup the
@@ -86,11 +88,12 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     
     private CacheManager cacheManager;
     private BeanFactory beanFactory;
-    private SelfPopulatingCacheScope selfPopulatingCacheScope = SelfPopulatingCacheScope.SHARED;
-    private boolean createCaches = false;
+    private SelfPopulatingCacheScope selfPopulatingCacheScope;
+    private Boolean createCaches;
     private CacheKeyGenerator<? extends Serializable> defaultCacheKeyGenerator;
+    private CacheableInterceptor defaultCacheableInterceptor = DefaultCacheableInterceptor.INSTANCE;
     private ReflectionHelper reflectionHelper;
-    private DefaultCacheResolverFactory cacheResolverFactory;
+    private CacheResolverFactory cacheResolverFactory;
 
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
@@ -98,18 +101,15 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     }
     public void setCreateCaches(boolean createCaches) {
         this.createCaches = createCaches;
-        if (this.cacheResolverFactory != null) {
-            this.cacheResolverFactory.setCreateCaches(this.createCaches);
-        }
     }
     public void setDefaultCacheKeyGenerator(CacheKeyGenerator<? extends Serializable> defaultCacheKeyGenerator) {
         this.defaultCacheKeyGenerator = defaultCacheKeyGenerator;
     }
+    public void setDefaultCacheableInterceptor(CacheableInterceptor defaultCacheableInterceptor) {
+        this.defaultCacheableInterceptor = defaultCacheableInterceptor;
+    }
     public void setSelfPopulatingCacheScope(SelfPopulatingCacheScope selfPopulatingCacheScope) {
         this.selfPopulatingCacheScope = selfPopulatingCacheScope;
-        if (this.cacheResolverFactory != null) {
-            this.cacheResolverFactory.setSelfPopulatingCacheScope(this.selfPopulatingCacheScope);
-        }
     }
     public void setCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
@@ -117,11 +117,30 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     public void setReflectionHelper(ReflectionHelper reflectionHelper) {
         this.reflectionHelper = reflectionHelper;
     }
+    public void setCacheResolverFactory(CacheResolverFactory cacheResolverFactory) {
+        this.cacheResolverFactory = cacheResolverFactory;
+    }
     
     public void afterPropertiesSet() throws Exception {
-        this.cacheResolverFactory = new DefaultCacheResolverFactory(this.getCacheManager());
-        this.cacheResolverFactory.setCreateCaches(this.createCaches);
-        this.cacheResolverFactory.setSelfPopulatingCacheScope(this.selfPopulatingCacheScope);
+        if (this.cacheResolverFactory == null) {
+            final DefaultCacheResolverFactory defaultCacheResolverFactory = new DefaultCacheResolverFactory(this.getCacheManager());
+            if (this.createCaches != null) {
+                defaultCacheResolverFactory.setCreateCaches(this.createCaches);
+            }
+            if (this.selfPopulatingCacheScope != null) {
+                defaultCacheResolverFactory.setSelfPopulatingCacheScope(this.selfPopulatingCacheScope);
+            }
+            
+            this.cacheResolverFactory = defaultCacheResolverFactory;
+        }
+        else {
+            if (this.createCaches != null) {
+                this.logger.warn("createCaches was specified but a custom CacheResolverFactory was also configured. The createCaches value will be ignored.");
+            }
+            if (this.selfPopulatingCacheScope != null) {
+                this.logger.warn("selfPopulatingCacheScope was specified but a custom CacheResolverFactory was also configured. The selfPopulatingCacheScope value will be ignored.");
+            }
+        }
     }
     
     /* (non-Javadoc)
@@ -312,12 +331,15 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         final KeyGenerator keyGenerator = ann.keyGenerator();
         final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = this.getCacheKeyGenerator(keyGeneratorName, keyGenerator);
         
+        final String cacheableInteceptorName = ann.cacheableInteceptorName();
+        final CacheableInterceptor cacheInterceptor = this.getCacheInterceptor(cacheableInteceptorName);
+        
         final boolean cacheNull = ann.cacheNull();
         if (!cacheNull && ann.selfPopulating()) {
             this.logger.warn("cacheNull is set to false and selfPopulating is set to true, cacheNull will be ignored on: " + method);
         }
 
-        return new CacheableAttributeImpl(cacheResolver, cacheKeyGenerator, parameterMask, cacheNull);
+        return new CacheableAttributeImpl(cacheResolver, cacheKeyGenerator, parameterMask, cacheNull, cacheInterceptor);
     }
 
     /**
@@ -338,6 +360,20 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = this.getCacheKeyGenerator(keyGeneratorName, keyGenerator);
         
         return new TriggersRemoveAttributeImpl(cacheResolver, cacheKeyGenerator, parameterMask, ann.removeAll(), ann.when());
+    }
+    
+    /**
+     * Get the {@link CacheableInterceptor} by name. Returning a default resolver factory if the name is empty or null
+     * 
+     * @param resolverFactoryName Name of the resolver factory to retrieve
+     * @return The named generator or the default generator if the name was empty or null
+     */
+    protected final CacheableInterceptor getCacheInterceptor(String cacheableInteceptorName) {
+        if (StringUtils.hasLength(cacheableInteceptorName)) {
+            return this.beanFactory.getBean(cacheableInteceptorName, CacheableInterceptor.class);
+        }
+        
+        return this.defaultCacheableInterceptor;
     }
     
     /**

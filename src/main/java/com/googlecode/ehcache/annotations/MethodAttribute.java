@@ -28,17 +28,17 @@ import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
  */
 public interface MethodAttribute {
     /**
-     * @return The type of advice this attribute represents. Will never be null or {@link AdviceType#NONE}
+     * @return The type of advice this attribute represents. Will never be null or {@link AdviceType#NONE} Cannot return null.
      */
     public AdviceType getAdviceType();
     
     /**
-     * @return The key generator to use, will never be null.
+     * @return The key generator to use, Cannot return null.
      */
     public CacheKeyGenerator<? extends Serializable> getCacheKeyGenerator();
     
     /**
-     * @return The parameter mask of parameters annotated with {@link PartialCacheKey}, will never be null
+     * @return The parameter mask of parameters annotated with {@link PartialCacheKey}, Cannot return null.
      */
     public ParameterMask getCacheKeyParameterMask();
 }

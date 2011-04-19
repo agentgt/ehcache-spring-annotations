@@ -27,7 +27,7 @@ import com.googlecode.ehcache.annotations.resolver.CacheableCacheResolver;
  */
 public interface CacheableAttribute extends MethodAttribute {
     /**
-     * @return The {@link CacheableCacheResolver} used to determine the Cache and ExceptionCache to use.
+     * @return The {@link CacheableCacheResolver} used to determine the Cache and ExceptionCache to use. Cannot return null.
      */
     public CacheableCacheResolver getCacheResolver();
     
@@ -35,4 +35,9 @@ public interface CacheableAttribute extends MethodAttribute {
      * @return true If the null return values should be cached.
      */
     public boolean isCacheNull();
+    
+    /**
+     * @return The CacheInterceptor to use when handling intercepted method invocations. Cannot return null.
+     */
+    public CacheableInterceptor getCacheInterceptor();
 }

@@ -19,6 +19,7 @@ package com.googlecode.ehcache.annotations.impl;
 import java.io.Serializable;
 
 import com.googlecode.ehcache.annotations.AdviceType;
+import com.googlecode.ehcache.annotations.CacheableInterceptor;
 import com.googlecode.ehcache.annotations.CacheableAttribute;
 import com.googlecode.ehcache.annotations.ParameterMask;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
@@ -36,13 +37,16 @@ class CacheableAttributeImpl implements CacheableAttribute {
     private final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator;
     private final ParameterMask parameterMask;
     private final boolean cacheNull;
+    private final CacheableInterceptor cacheInterceptor;
     
-    public CacheableAttributeImpl(CacheableCacheResolver cacheInstanceResolver,
-            CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, ParameterMask parameterMask, boolean cacheNull) {
+    public CacheableAttributeImpl(
+            CacheableCacheResolver cacheInstanceResolver,CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, 
+            ParameterMask parameterMask, boolean cacheNull, CacheableInterceptor cacheInterceptor) {
         this.cacheInstanceResolver = cacheInstanceResolver;
         this.cacheKeyGenerator = cacheKeyGenerator;
         this.parameterMask = parameterMask;
         this.cacheNull = cacheNull;
+        this.cacheInterceptor = cacheInterceptor;
     }
     
     public AdviceType getAdviceType() {
@@ -65,11 +69,16 @@ class CacheableAttributeImpl implements CacheableAttribute {
         return this.parameterMask;
     }
 
+    public CacheableInterceptor getCacheInterceptor() {
+		return this.cacheInterceptor;
+	}
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((cacheInstanceResolver == null) ? 0 : cacheInstanceResolver.hashCode());
+        result = prime * result + ((cacheInterceptor == null) ? 0 : cacheInterceptor.hashCode());
         result = prime * result + ((cacheKeyGenerator == null) ? 0 : cacheKeyGenerator.hashCode());
         result = prime * result + (cacheNull ? 1231 : 1237);
         result = prime * result + ((parameterMask == null) ? 0 : parameterMask.hashCode());
@@ -91,6 +100,12 @@ class CacheableAttributeImpl implements CacheableAttribute {
         }
         else if (!cacheInstanceResolver.equals(other.cacheInstanceResolver))
             return false;
+        if (cacheInterceptor == null) {
+            if (other.cacheInterceptor != null)
+                return false;
+        }
+        else if (!cacheInterceptor.equals(other.cacheInterceptor))
+            return false;
         if (cacheKeyGenerator == null) {
             if (other.cacheKeyGenerator != null)
                 return false;
@@ -111,6 +126,7 @@ class CacheableAttributeImpl implements CacheableAttribute {
     @Override
     public String toString() {
         return "CacheableAttributeImpl [cacheInstanceResolver=" + cacheInstanceResolver + ", cacheKeyGenerator="
-                + cacheKeyGenerator + ", parameterMask=" + parameterMask + ", cacheNull=" + cacheNull + "]";
+                + cacheKeyGenerator + ", parameterMask=" + parameterMask + ", cacheNull=" + cacheNull
+                + ", cacheInterceptor=" + cacheInterceptor + "]";
     }
 }

@@ -59,6 +59,7 @@ public class CacheableClassTest {
         Assert.assertEquals("classAnnotatedCached(bar)", cacheableClassTestImpl.classAnnotatedCached("bar"));
         Assert.assertEquals(2, cacheableClassTestImpl.getClassAnnotatedCachedCount());
     }
+    
 }
 
 

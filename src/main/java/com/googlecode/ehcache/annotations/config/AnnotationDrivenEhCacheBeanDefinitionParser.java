@@ -65,6 +65,8 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
     public static final String XSD_ATTR__CREATE_MISSING_CACHES = "create-missing-caches";
     public static final String XSD_ATTR__CACHE_MANAGER = "cache-manager";
     public static final String XSD_ATTR__DEFAULT_CACHE_KEY_GENERATOR = "default-cache-key-generator";
+    public static final String XSD_ATTR__DEFAULT_CACHE_RESOLVER_FACTORY = "default-cache-resolver-factory";
+    public static final String XSD_ATTR__DEFAULT_CACHEABLE_INTECEPTOR = "default-cacheable-interceptor";
     public static final String XSD_ATTR__SELF_POPULATING_CACHE_SCOPE = "self-populating-cache-scope";
 
     static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAdvisor";
@@ -81,15 +83,8 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME)) {
             final Object elementSource = parserContext.extractSource(element);
             
-            final RuntimeBeanReference cachingReflectionHelperReference = 
-                this.setupCachingReflectionHelper(parserContext, elementSource);
-            
-            final RuntimeBeanReference defaultCacheKeyGeneratorReference = 
-                this.setupDefaultCacheKeyGenerators(element, parserContext, elementSource);
-            
             final RuntimeBeanReference cacheAttributeSourceReference = 
-                this.setupCacheAttributeSource(element, parserContext, elementSource, 
-                        defaultCacheKeyGeneratorReference, cachingReflectionHelperReference);
+                this.setupCacheAttributeSource(element, parserContext, elementSource);
             
             final RuntimeBeanReference pointcutReference = 
                 this.setupPointcut(element, parserContext, elementSource, cacheAttributeSourceReference);
@@ -112,6 +107,38 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         registry.registerBeanDefinition(CACHING_REFLECTION_HELPER_BEAN_NAME, defaultKeyGenerator);
         
         return new RuntimeBeanReference(CACHING_REFLECTION_HELPER_BEAN_NAME);
+    }
+
+    /**
+     * Setup the default cache resolver factory 
+     * 
+     * @return A reference to the default cache resolver factory.
+     */
+    protected RuntimeBeanReference setupDefaultCacheResolverFactory(Element element, ParserContext parserContext, Object elementSource) {
+        //If the default cache resolver factory was specified simply return a bean reference for that
+        final String defaultCacheResolverFactoryName = element.getAttribute(XSD_ATTR__DEFAULT_CACHE_RESOLVER_FACTORY);
+        if (StringUtils.hasLength(defaultCacheResolverFactoryName)) {
+            return new RuntimeBeanReference(defaultCacheResolverFactoryName);
+        }
+        
+        //Use no reference
+        return null;
+    }
+
+    /**
+     * Setup the default cache interceptor 
+     * 
+     * @return A reference to the default cache interceptor.
+     */
+    protected RuntimeBeanReference setupDefaultCacheableInterceptor(Element element, ParserContext parserContext, Object elementSource) {
+        //If the default cache resolver factory was specified simply return a bean reference for that
+        final String defaultCacheableInterceptor = element.getAttribute(XSD_ATTR__DEFAULT_CACHEABLE_INTECEPTOR);
+        if (StringUtils.hasLength(defaultCacheableInterceptor)) {
+            return new RuntimeBeanReference(defaultCacheableInterceptor);
+        }
+        
+        //Use no reference
+        return null;
     }
 
     /**
@@ -173,8 +200,19 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
      * 
      * @return Reference to the {@link CacheAttributeSource}. Should never be null.
      */
-    protected RuntimeBeanReference setupCacheAttributeSource(Element element, ParserContext parserContext, Object elementSource, 
-            RuntimeBeanReference defaultCacheKeyGenerator, RuntimeBeanReference cachingReflectionHelper) {
+    protected RuntimeBeanReference setupCacheAttributeSource(Element element, ParserContext parserContext, Object elementSource) {
+        
+        final RuntimeBeanReference cachingReflectionHelper = 
+            this.setupCachingReflectionHelper(parserContext, elementSource);
+        
+        final RuntimeBeanReference defaultCacheKeyGenerator = 
+            this.setupDefaultCacheKeyGenerators(element, parserContext, elementSource);
+        
+        final RuntimeBeanReference defaultCacheResolverFactory = 
+            this.setupDefaultCacheResolverFactory(element, parserContext, elementSource);
+        
+        final RuntimeBeanReference defaultCacheableInterceptor = 
+            this.setupDefaultCacheableInterceptor(element, parserContext, elementSource);
         
         final RootBeanDefinition cacheAttributeSource = new RootBeanDefinition(CacheAttributeSourceImpl.class);
         cacheAttributeSource.setSource(elementSource);
@@ -186,6 +224,12 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         propertyValues.addPropertyValue("createCaches", Boolean.parseBoolean(element.getAttribute(XSD_ATTR__CREATE_MISSING_CACHES)));
         propertyValues.addPropertyValue("defaultCacheKeyGenerator", defaultCacheKeyGenerator);
         propertyValues.addPropertyValue("reflectionHelper", cachingReflectionHelper);
+        if (defaultCacheResolverFactory != null) {
+            propertyValues.addPropertyValue("cacheResolverFactory", defaultCacheResolverFactory);
+        }
+        if (defaultCacheableInterceptor != null) {
+            propertyValues.addPropertyValue("cacheableInterceptor", defaultCacheableInterceptor);
+        }
         final String blockingCacheScope = element.getAttribute(XSD_ATTR__SELF_POPULATING_CACHE_SCOPE);
         if (blockingCacheScope != null) {
             propertyValues.addPropertyValue("selfPopulatingCacheScope", SelfPopulatingCacheScope.valueOf(blockingCacheScope.toUpperCase()));

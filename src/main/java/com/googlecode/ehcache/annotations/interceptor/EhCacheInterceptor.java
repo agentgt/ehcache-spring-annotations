@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.googlecode.ehcache.annotations.AdviceType;
 import com.googlecode.ehcache.annotations.CacheAttributeSource;
+import com.googlecode.ehcache.annotations.CacheableInterceptor;
 import com.googlecode.ehcache.annotations.Cacheable;
 import com.googlecode.ehcache.annotations.CacheableAttribute;
 import com.googlecode.ehcache.annotations.MethodAttribute;
@@ -121,10 +122,17 @@ public class EhCacheInterceptor implements MethodInterceptor {
                     cache, entryFactory, cacheKey);
         }
 
+        final CacheableInterceptor cacheInterceptor = cacheableAttribute.getCacheInterceptor();
+        
         //See if there is a cached result
         final Element element = cache.get(cacheKey);
         if (element != null) {
-            return element.getObjectValue();
+            final Object value = element.getObjectValue();
+            
+            final boolean ignoreValue = cacheInterceptor.preInvokeCachable(cache, methodInvocation, cacheKey, value);
+            if (!ignoreValue) {
+                return value;
+            }
         }
 
         //No cached value or exception, proceed
@@ -137,13 +145,12 @@ public class EhCacheInterceptor implements MethodInterceptor {
             throw t;
         }
         
-        //If we're not caching null return values 
-        if (value == null && !cacheableAttribute.isCacheNull()) {
-            return value;
+        //Check both the null-cache flag and with the interceptor if the value should be cached
+        final boolean shouldCache = cacheInterceptor.postInvokeCacheable(cache, methodInvocation, cacheKey, value);
+        if ((value != null || cacheableAttribute.isCacheNull()) && shouldCache) {
+            cache.put(new Element(cacheKey, value));
         }
-        
-        //Cache and return the value
-        cache.put(new Element(cacheKey, value));
+
         return value;
     }
 
@@ -243,7 +250,15 @@ public class EhCacheInterceptor implements MethodInterceptor {
             //See if there is a cached exception
             final Element execptionElement = exceptionCache.get(key);
             if (execptionElement != null) {
-                throw (Throwable)execptionElement.getObjectValue();
+                final Throwable t = (Throwable)execptionElement.getObjectValue();
+                
+                final CacheableInterceptor cacheInterceptor = cacheableAttribute.getCacheInterceptor();
+                final boolean ignoreException = cacheInterceptor.preInvokeCacheableException(exceptionCache, methodInvocation, key, t);
+                if (ignoreException) {
+                    return;
+                }
+                
+                throw t;
             }
         }
     }
@@ -259,7 +274,12 @@ public class EhCacheInterceptor implements MethodInterceptor {
         final CacheableCacheResolver cacheResolver = cacheableAttribute.getCacheResolver();
         final Ehcache exceptionCache = cacheResolver.resolveExceptionCache(key, methodInvocation, t);
         if (exceptionCache != null) {
-            exceptionCache.put(new Element(key, t));
+            final CacheableInterceptor cacheInterceptor = cacheableAttribute.getCacheInterceptor();
+            
+            final boolean cacheException = cacheInterceptor.postInvokeCacheableException(exceptionCache, methodInvocation, key, t);
+            if (cacheException) {
+                exceptionCache.put(new Element(key, t));
+            }
         }
     }
 
