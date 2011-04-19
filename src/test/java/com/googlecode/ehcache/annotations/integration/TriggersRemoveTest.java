@@ -172,5 +172,11 @@ public class TriggersRemoveTest  {
         }
         public void notifyCacheMissOnDisk() {
         }
+        public void notifyCacheSearch(long executeTime) {
+        }
+        public void notifyXaCommit() {
+        }
+        public void notifyXaRollback() {
+        }
     }
 }

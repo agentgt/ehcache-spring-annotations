@@ -208,8 +208,6 @@ public class CacheKeyGeneratorPerformanceTest {
         }
         
         threadGroupRunner.join();
-        
-        reflectionHelper.destroy();
     }
     
     private <T> T[] sort(T[] a) {
