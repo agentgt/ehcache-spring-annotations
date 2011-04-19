@@ -125,7 +125,7 @@ public class EhCacheInterceptor implements MethodInterceptor {
         final CacheableInterceptor cacheInterceptor = cacheableAttribute.getCacheInterceptor();
         
         //See if there is a cached result
-        final Element element = cache.get(cacheKey);
+        final Element element = cache.getWithLoader(cacheKey, null, methodInvocation);
         if (element != null) {
             final Object value = element.getObjectValue();
             
