@@ -23,6 +23,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import net.sf.ehcache.constructs.blocking.BlockingCache;
+import net.sf.ehcache.constructs.blocking.LockTimeoutException;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
@@ -46,6 +48,14 @@ public @interface Cacheable {
      * value per key is created.
      */
     boolean selfPopulating() default false;
+    
+    /**
+     * Sets the time in ms to wait to acquire a lock. Only used if {@link #selfPopulating()} is true.
+     * Must be greater than or equal to 0. A value of 0 means wait forever, any positive value means wait for
+     * that many milliseconds before throwing a {@link LockTimeoutException} 
+     * @see BlockingCache#setTimeoutMillis(int)
+     */
+    int selfPopulatingTimeout() default 0;
     
     /**
      * The Spring Bean name of the {@link CacheKeyGenerator} to use.

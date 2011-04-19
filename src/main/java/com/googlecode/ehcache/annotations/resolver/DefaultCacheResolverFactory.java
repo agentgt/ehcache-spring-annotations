@@ -95,7 +95,8 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
                 logger.error("SelfPopulatingCache in Ehcache 2.3.0 & 2.3.1 has a bug which can result in unexpected behavior, see EHC-828. {} may not behave as expected", cacheName);
             }
             
-            final SelfPopulatingCacheTracker selfPopulatingCacheTracker = this.createSelfPopulatingCacheInternal(cache);
+            final int selfPopulatingTimeout = cacheable.selfPopulatingTimeout();
+            final SelfPopulatingCacheTracker selfPopulatingCacheTracker = this.createSelfPopulatingCacheInternal(cache, selfPopulatingTimeout);
             cache = selfPopulatingCacheTracker.selfPopulatingCache;
             entryFactory = selfPopulatingCacheTracker.cacheEntryFactory;
         }
@@ -152,25 +153,38 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
      * @param cache The cache to create a self populating instance of
      * @return The SelfPopulatingCache and corresponding factory object to use
      */
-    protected final SelfPopulatingCacheTracker createSelfPopulatingCacheInternal(Ehcache cache) {
+    protected final SelfPopulatingCacheTracker createSelfPopulatingCacheInternal(Ehcache cache, int timeout) {
         //If method scoped just create a new instance 
         if (SelfPopulatingCacheScope.METHOD == this.selfPopulatingCacheScope) {
-            return this.createSelfPopulatingCache(cache);
+            return this.createSelfPopulatingCache(cache, timeout);
         }
 
         //Shared scope, try loading the instance from local Map
+        boolean newCache = false;
         
         //See if there is a cached SelfPopulatingCache for the name
         final String cacheName = cache.getName();
         SelfPopulatingCacheTracker selfPopulatingCacheTracker = this.selfPopulatingCaches.get(cacheName);
         if (selfPopulatingCacheTracker == null) {
-            selfPopulatingCacheTracker = this.createSelfPopulatingCache(cache);
+            selfPopulatingCacheTracker = this.createSelfPopulatingCache(cache, timeout);
             
             //do putIfAbsent to handle concurrent creation. If a value is returned it was already put and that
             //value should be used. If no value was returned the newly created selfPopulatingCache should be used
             final SelfPopulatingCacheTracker existing = this.selfPopulatingCaches.putIfAbsent(cacheName, selfPopulatingCacheTracker);
             if (existing != null) {
                 selfPopulatingCacheTracker = existing;
+            }
+            //If the new cache was created and didn't replace an existing entry in the map
+            else {
+                newCache = true;
+            }
+        }
+
+        if (!newCache) {
+            //Check if the timeouts match
+            final int timeoutMillis = selfPopulatingCacheTracker.selfPopulatingCache.getTimeoutMillis();
+            if (timeoutMillis != timeout) {
+                this.logger.warn("SelfPopulatingCache " + cacheName + " was already created by another annotation but has a different timeout of " + timeoutMillis + ". The timeout " + timeout + " for the current annotation will be ignored.", new Throwable());
             }
         }
         
@@ -180,9 +194,10 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
     /**
      * Create a new {@link SelfPopulatingCache} and corresponding {@link CacheEntryFactory}
      */
-    protected SelfPopulatingCacheTracker createSelfPopulatingCache(Ehcache cache) {
+    protected SelfPopulatingCacheTracker createSelfPopulatingCache(Ehcache cache, int timeout) {
         final ThreadLocalCacheEntryFactory cacheEntryFactory = new ThreadLocalCacheEntryFactory();
         final SelfPopulatingCache selfPopulatingCache = new SelfPopulatingCache(cache, cacheEntryFactory);
+        selfPopulatingCache.setTimeoutMillis(timeout);
         return new SelfPopulatingCacheTracker(selfPopulatingCache, cacheEntryFactory.entryFactory);
     }
     
