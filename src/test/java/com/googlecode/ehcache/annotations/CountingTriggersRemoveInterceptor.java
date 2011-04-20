@@ -44,6 +44,11 @@ public class CountingTriggersRemoveInterceptor extends DefaultTriggersRemoveInte
         preInvRemoveAll++;
         return super.preInvokeTriggersRemoveAll(cache, methodInvocation);
     }
+    
+    public void resetCounters() {
+        this.preInvRemove = 0;
+        this.preInvRemoveAll = 0;
+    }
 
     public int getPreInvRemove() {
         return this.preInvRemove;

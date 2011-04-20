@@ -37,11 +37,9 @@ public interface InterceptorTestInterface {
     
     @TriggersRemove(cacheName="interfaceAnnotatedCached")
     public String interfaceAnnotatedTriggersRemove(int argument);
-    public int interfaceAnnotatedTriggersRemoveCount();
     
     @TriggersRemove(cacheName="interfaceAnnotatedCached", removeAll=true)
     public String interfaceAnnotatedTriggersRemoveAll(int argument);
-    public int interfaceAnnotatedTriggersRemoveAllCount();
     
     
     @Cacheable(cacheName="interfaceAnnotatedCache", cacheableInteceptorName="customCacheableInterceptor")
@@ -56,9 +54,7 @@ public interface InterceptorTestInterface {
     
     @TriggersRemove(cacheName="interfaceAnnotatedCached", triggersRemoveInteceptorName="customTriggersRemoveInterceptor")
     public String interfaceAnnotatedTriggersRemoveInterceptor(int argument);
-    public int interfaceAnnotatedTriggersRemoveInterceptorCount();
     
     @TriggersRemove(cacheName="interfaceAnnotatedCached", removeAll=true, triggersRemoveInteceptorName="customTriggersRemoveInterceptor")
     public String interfaceAnnotatedTriggersRemoveAllInterceptor(int argument);
-    public int interfaceAnnotatedTriggersRemoveAllInterceptorCount();
 }

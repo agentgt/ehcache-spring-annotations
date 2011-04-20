@@ -36,5 +36,5 @@
     <bean id="customCacheableInterceptor" class="com.googlecode.ehcache.annotations.CountingCacheableInterceptor" />
     <bean id="customTriggersRemoveInterceptor" class="com.googlecode.ehcache.annotations.CountingTriggersRemoveInterceptor" />
     
-    <bean id="cacheableTestImpl" class="com.googlecode.ehcache.annotations.integration.CacheableTestImpl"/>
+    <bean id="interceptorTestImpl" class="com.googlecode.ehcache.annotations.config.InterceptorTestImpl"/>
 </beans>

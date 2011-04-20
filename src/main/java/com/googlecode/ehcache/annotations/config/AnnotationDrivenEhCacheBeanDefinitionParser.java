@@ -248,10 +248,10 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
             propertyValues.addPropertyValue("cacheResolverFactory", defaultCacheResolverFactory);
         }
         if (defaultCacheableInterceptor != null) {
-            propertyValues.addPropertyValue("cacheableInterceptor", defaultCacheableInterceptor);
+            propertyValues.addPropertyValue("defaultCacheableInterceptor", defaultCacheableInterceptor);
         }
         if (defaultTriggersRemoveInterceptor != null) {
-            propertyValues.addPropertyValue("triggersRemoveInterceptor", defaultTriggersRemoveInterceptor);
+            propertyValues.addPropertyValue("defaultTriggersRemoveInterceptor", defaultTriggersRemoveInterceptor);
         }
         final String blockingCacheScope = element.getAttribute(XSD_ATTR__SELF_POPULATING_CACHE_SCOPE);
         if (blockingCacheScope != null) {

@@ -40,7 +40,7 @@ public class InterceptorTestImpl implements InterceptorTestInterface {
         }
         
         this.interfaceAnnotatedCached++;
-        return "interfaceAnnotatedExceptionCached(" + throwsException + ")";
+        return "interfaceAnnotatedCached(" + throwsException + ")";
     }
     public int interfaceAnnotatedCachedCount() {
         return interfaceAnnotatedCached;
@@ -66,23 +66,11 @@ public class InterceptorTestImpl implements InterceptorTestInterface {
     }
 
     public String interfaceAnnotatedTriggersRemove(int argument) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public int interfaceAnnotatedTriggersRemoveCount() {
-        // TODO Auto-generated method stub
-        return 0;
+        return "interfaceAnnotatedTriggersRemove(" + argument + ")";
     }
 
     public String interfaceAnnotatedTriggersRemoveAll(int argument) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public int interfaceAnnotatedTriggersRemoveAllCount() {
-        // TODO Auto-generated method stub
-        return 0;
+        return "interfaceAnnotatedTriggersRemoveAll(" + argument + ")";
     }
 
     public String interfaceAnnotatedCachedInterceptor(boolean throwsException) {
@@ -92,7 +80,7 @@ public class InterceptorTestImpl implements InterceptorTestInterface {
         }
         
         this.interfaceAnnotatedCachedInterceptor++;
-        return "interfaceAnnotatedExceptionCached(" + throwsException + ")";
+        return "interfaceAnnotatedCachedInterceptor(" + throwsException + ")";
     }
     public int interfaceAnnotatedCachedInterceptorCount() {
         return interfaceAnnotatedCachedInterceptor;
@@ -108,7 +96,7 @@ public class InterceptorTestImpl implements InterceptorTestInterface {
         }
         
         this.interfaceAnnotatedExceptionCachedInterceptor++;
-        return "interfaceAnnotatedExceptionCached(" + throwsException + ")";
+        return "interfaceAnnotatedExceptionCachedInterceptor(" + throwsException + ")";
     }
 
     public int interfaceAnnotatedExceptionCachedInterceptorCount() {
@@ -120,24 +108,10 @@ public class InterceptorTestImpl implements InterceptorTestInterface {
     }
 
     public String interfaceAnnotatedTriggersRemoveInterceptor(int argument) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public int interfaceAnnotatedTriggersRemoveInterceptorCount() {
-        // TODO Auto-generated method stub
-        return 0;
+        return "interfaceAnnotatedTriggersRemoveInterceptor(" + argument + ")";
     }
 
     public String interfaceAnnotatedTriggersRemoveAllInterceptor(int argument) {
-        // TODO Auto-generated method stub
-        return null;
+        return "interfaceAnnotatedTriggersRemoveAllInterceptor(" + argument + ")";
     }
-
-    public int interfaceAnnotatedTriggersRemoveAllInterceptorCount() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-    
-
 }

@@ -60,6 +60,13 @@ public class CountingCacheableInterceptor extends DefaultCacheableInterceptor {
         postInvCacheEx++;
         return super.postInvokeCacheableException(exceptionCache, methodInvocation, key, t);
     }
+    
+    public void resetCounters() {
+        this.preInvCache = 0;
+        this.preInvCacheEx = 0;
+        this.postInvCache = 0;
+        this.postInvCacheEx = 0;
+    }
 
     public int getPreInvCache() {
         return this.preInvCache;
