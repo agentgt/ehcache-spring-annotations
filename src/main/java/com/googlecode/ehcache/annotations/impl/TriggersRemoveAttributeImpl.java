@@ -24,6 +24,7 @@ import java.io.Serializable;
 import com.googlecode.ehcache.annotations.AdviceType;
 import com.googlecode.ehcache.annotations.ParameterMask;
 import com.googlecode.ehcache.annotations.TriggersRemoveAttribute;
+import com.googlecode.ehcache.annotations.TriggersRemoveInterceptor;
 import com.googlecode.ehcache.annotations.When;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 import com.googlecode.ehcache.annotations.resolver.TriggersRemoveCacheResolver;
@@ -37,15 +38,18 @@ import com.googlecode.ehcache.annotations.resolver.TriggersRemoveCacheResolver;
 class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
     private final TriggersRemoveCacheResolver cacheResolver;
     private final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator;
+    private final TriggersRemoveInterceptor triggersRemoveInterceptor;
     private final ParameterMask parameterMask;
     private final boolean removeAll;
     private final When when;
     
-    TriggersRemoveAttributeImpl(TriggersRemoveCacheResolver cacheResolver, 
-            CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, ParameterMask parameterMask,
+    TriggersRemoveAttributeImpl(
+            TriggersRemoveCacheResolver cacheResolver, CacheKeyGenerator<? extends Serializable> cacheKeyGenerator, 
+            ParameterMask parameterMask, TriggersRemoveInterceptor triggersRemoveInterceptor,
             boolean removeAll, When when) {
         this.cacheResolver = cacheResolver;
         this.cacheKeyGenerator = cacheKeyGenerator;
+        this.triggersRemoveInterceptor = triggersRemoveInterceptor;
         this.parameterMask = parameterMask;
         this.removeAll = removeAll;
         this.when = when;
@@ -57,6 +61,10 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
     
     public TriggersRemoveCacheResolver getCacheResolver() {
         return this.cacheResolver;
+    }
+    
+    public TriggersRemoveInterceptor getTriggersRemoveInterceptor() {
+        return this.triggersRemoveInterceptor;
     }
 
     /* (non-Javadoc)
@@ -91,10 +99,12 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((this.cacheResolver == null) ? 0 : this.cacheResolver.hashCode());
         result = prime * result + ((this.cacheKeyGenerator == null) ? 0 : this.cacheKeyGenerator.hashCode());
+        result = prime * result + ((this.cacheResolver == null) ? 0 : this.cacheResolver.hashCode());
         result = prime * result + ((this.parameterMask == null) ? 0 : this.parameterMask.hashCode());
         result = prime * result + (this.removeAll ? 1231 : 1237);
+        result = prime * result
+                + ((this.triggersRemoveInterceptor == null) ? 0 : this.triggersRemoveInterceptor.hashCode());
         result = prime * result + ((this.when == null) ? 0 : this.when.hashCode());
         return result;
     }
@@ -108,17 +118,17 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
         if (getClass() != obj.getClass())
             return false;
         TriggersRemoveAttributeImpl other = (TriggersRemoveAttributeImpl) obj;
-        if (this.cacheResolver == null) {
-            if (other.cacheResolver != null)
-                return false;
-        }
-        else if (!this.cacheResolver.equals(other.cacheResolver))
-            return false;
         if (this.cacheKeyGenerator == null) {
             if (other.cacheKeyGenerator != null)
                 return false;
         }
         else if (!this.cacheKeyGenerator.equals(other.cacheKeyGenerator))
+            return false;
+        if (this.cacheResolver == null) {
+            if (other.cacheResolver != null)
+                return false;
+        }
+        else if (!this.cacheResolver.equals(other.cacheResolver))
             return false;
         if (this.parameterMask == null) {
             if (other.parameterMask != null)
@@ -128,6 +138,12 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
             return false;
         if (this.removeAll != other.removeAll)
             return false;
+        if (this.triggersRemoveInterceptor == null) {
+            if (other.triggersRemoveInterceptor != null)
+                return false;
+        }
+        else if (!this.triggersRemoveInterceptor.equals(other.triggersRemoveInterceptor))
+            return false;
         if (this.when != other.when)
             return false;
         return true;
@@ -135,8 +151,9 @@ class TriggersRemoveAttributeImpl implements TriggersRemoveAttribute {
 
     @Override
     public String toString() {
-        return "TriggersRemoveAttributeImpl [cacheInstanceResolver=" + this.cacheResolver
-                + ", cacheKeyGenerator=" + this.cacheKeyGenerator + ", parameterMask=" + this.parameterMask
-                + ", removeAll=" + this.removeAll + ", when=" + this.when + "]";
+        return "TriggersRemoveAttributeImpl [cacheResolver=" + this.cacheResolver + ", cacheKeyGenerator="
+                + this.cacheKeyGenerator + ", triggersRemoveInterceptor=" + this.triggersRemoveInterceptor
+                + ", parameterMask=" + this.parameterMask + ", removeAll=" + this.removeAll + ", when=" + this.when
+                + "]";
     }
 }

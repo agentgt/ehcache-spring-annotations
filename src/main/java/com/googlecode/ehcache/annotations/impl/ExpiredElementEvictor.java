@@ -17,7 +17,6 @@
 package com.googlecode.ehcache.annotations.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +48,6 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
     private List<CacheNameMatcher> cacheNameMatchers = new ArrayList<CacheNameMatcher>();
     private Timer timer;
     private long interval;
-    private Set<String> cacheNames = new HashSet<String>();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
@@ -71,12 +69,6 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
         this.interval = interval * MILLIS_PER_MINUTE;
     }
     /**
-     * @return the cacheNames
-     */
-    public Set<String> getCacheNames() {
-        return cacheNames;
-    }
-    /**
      * @return the cacheNameMatchers
      */
     public List<CacheNameMatcher> getCacheNameMatchers() {
@@ -95,9 +87,12 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
     @Override
     public void run() {
         final long startTime = System.currentTimeMillis();
+        
+        final String[] cacheNames = this.cacheManager.getCacheNames();
+        final Set<String> evictableCacheNames = this.calculateEvictableCacheNames(cacheNames);
 
         long evictedTotal = 0;
-        for(String cacheName : this.cacheNames) {
+        for(String cacheName : evictableCacheNames) {
             Ehcache cache = this.cacheManager.getEhcache(cacheName);
             if(null != cache) {
                 long preEvictSize = cache.getMemoryStoreSize();
@@ -116,7 +111,7 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
         }
 
         if(logger.isDebugEnabled()) {
-            logger.debug("Evicted " + evictedTotal + " elements from " + cacheNames.size() + " caches  in " + (System.currentTimeMillis() - startTime) + " ms");
+            logger.debug("Evicted " + evictedTotal + " elements from " + evictableCacheNames.size() + " caches  in " + (System.currentTimeMillis() - startTime) + " ms");
         }
     }
     
@@ -128,9 +123,6 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
         if(null == this.cacheManager) {
             throw new IllegalStateException("cacheManager reference must be set");
         }
-        
-        cacheNames = calculateEvictableCacheNames(this.cacheManager.getCacheNames());
-        cacheNames = Collections.unmodifiableSet(cacheNames);
         
         timer = new Timer(this.cacheManager.getName() + "expiredElementEvictorTimer", true);
         timer.schedule(this, interval, interval);
@@ -145,7 +137,7 @@ public final class ExpiredElementEvictor extends TimerTask implements Initializi
     /**
      * @return Get the set of caches to do eviction for based on the full array of cache names in the cache manager
      */
-    protected Set<String> calculateEvictableCacheNames(final String [] cacheManagerCacheNames) {
+    protected Set<String> calculateEvictableCacheNames(final String[] cacheManagerCacheNames) {
         Set<String> result = new HashSet<String>();
         // from the list of matchers, calculate the cacheNames set
         for(String cacheManagerCacheName: cacheManagerCacheNames) {

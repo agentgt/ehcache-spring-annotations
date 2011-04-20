@@ -28,13 +28,17 @@ import com.googlecode.ehcache.annotations.resolver.TriggersRemoveCacheResolver;
  * with {@link TriggersRemove}
  * 
  * @author Nicholas Blair
- *
  */
 public interface TriggersRemoveAttribute extends MethodAttribute {
     /**
      * @return The {@link TriggersRemoveCacheResolver} used to determine the Caches to use.
      */
     public TriggersRemoveCacheResolver getCacheResolver();
+    
+    /**
+     * @return The {@link TriggersRemoveInterceptor} to use when handling intercepted method invocations. Cannot return null.
+     */
+    public TriggersRemoveInterceptor getTriggersRemoveInterceptor();
     
     /**
      * @return true if {@link Ehcache#removeAll()} should be called.

@@ -23,7 +23,7 @@ import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -148,12 +148,17 @@ public class EhCacheConfigBeanDefinitionParserTest {
      */
     @Test
     public void testLoadControlContext() {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/com/googlecode/ehcache/annotations/config/evictExpiredElementsTestControl.xml");
-        ExpiredElementEvictor evictor = (ExpiredElementEvictor) applicationContext.getBean(EhCacheConfigBeanDefinitionParser.EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME);
-        Assert.assertNotNull(evictor);
-        // minutes from configuration gets converted into milliseconds
-        Assert.assertEquals(20, evictor.getInterval());
-        Assert.assertEquals(1, evictor.getCacheNameMatchers().size());
+        AbstractApplicationContext applicationContext = new ClassPathXmlApplicationContext("/com/googlecode/ehcache/annotations/config/evictExpiredElementsTestControl.xml");
+        try {
+            ExpiredElementEvictor evictor = (ExpiredElementEvictor) applicationContext.getBean(EhCacheConfigBeanDefinitionParser.EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME);
+            Assert.assertNotNull(evictor);
+            // minutes from configuration gets converted into milliseconds
+            Assert.assertEquals(20, evictor.getInterval());
+            Assert.assertEquals(1, evictor.getCacheNameMatchers().size());
+        }
+        finally {
+            applicationContext.destroy();
+        }
     }
     
     /**
@@ -161,12 +166,17 @@ public class EhCacheConfigBeanDefinitionParserTest {
      */
     @Test
     public void testLoadContextTest1() {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/com/googlecode/ehcache/annotations/config/evictExpiredElementsTest1.xml");
-        ExpiredElementEvictor evictor = (ExpiredElementEvictor) applicationContext.getBean(EhCacheConfigBeanDefinitionParser.EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME);
-        Assert.assertNotNull(evictor);
-        // minutes from configuration gets converted into milliseconds
-        Assert.assertEquals(10, evictor.getInterval());
-        Assert.assertEquals(3, evictor.getCacheNameMatchers().size());
+        AbstractApplicationContext applicationContext = new ClassPathXmlApplicationContext("/com/googlecode/ehcache/annotations/config/evictExpiredElementsTest1.xml");
+        try {
+            ExpiredElementEvictor evictor = (ExpiredElementEvictor) applicationContext.getBean(EhCacheConfigBeanDefinitionParser.EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME);
+            Assert.assertNotNull(evictor);
+            // minutes from configuration gets converted into milliseconds
+            Assert.assertEquals(10, evictor.getInterval());
+            Assert.assertEquals(3, evictor.getCacheNameMatchers().size());
+        }
+        finally {
+            applicationContext.destroy();
+        }
     }
     
     /**
@@ -174,12 +184,17 @@ public class EhCacheConfigBeanDefinitionParserTest {
      */
     @Test
     public void testLoadContextTest2() {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/com/googlecode/ehcache/annotations/config/evictExpiredElementsTest2.xml");
-        ExpiredElementEvictor evictor = (ExpiredElementEvictor) applicationContext.getBean(EhCacheConfigBeanDefinitionParser.EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME);
-        Assert.assertNotNull(evictor);
-        // minutes from configuration gets converted into milliseconds
-        Assert.assertEquals(20, evictor.getInterval());
-        Assert.assertEquals(4, evictor.getCacheNameMatchers().size());
+        AbstractApplicationContext applicationContext = new ClassPathXmlApplicationContext("/com/googlecode/ehcache/annotations/config/evictExpiredElementsTest2.xml");
+        try {
+            ExpiredElementEvictor evictor = (ExpiredElementEvictor) applicationContext.getBean(EhCacheConfigBeanDefinitionParser.EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME);
+            Assert.assertNotNull(evictor);
+            // minutes from configuration gets converted into milliseconds
+            Assert.assertEquals(20, evictor.getInterval());
+            Assert.assertEquals(4, evictor.getCacheNameMatchers().size());
+        }
+        finally {
+            applicationContext.destroy();
+        }
     }
     
     /**
@@ -187,11 +202,16 @@ public class EhCacheConfigBeanDefinitionParserTest {
      */
     @Test
     public void testLoadContextTest3() {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/com/googlecode/ehcache/annotations/config/evictExpiredElementsTest3.xml");
-        ExpiredElementEvictor evictor = (ExpiredElementEvictor) applicationContext.getBean(EhCacheConfigBeanDefinitionParser.EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME);
-        Assert.assertNotNull(evictor);
-        // minutes from configuration gets converted into milliseconds
-        Assert.assertEquals(20, evictor.getInterval());
-        Assert.assertEquals(3, evictor.getCacheNameMatchers().size());
+        AbstractApplicationContext applicationContext = new ClassPathXmlApplicationContext("/com/googlecode/ehcache/annotations/config/evictExpiredElementsTest3.xml");
+        try {
+            ExpiredElementEvictor evictor = (ExpiredElementEvictor) applicationContext.getBean(EhCacheConfigBeanDefinitionParser.EHCACHE_CONFIG_EVICTION_TASK_BEAN_NAME);
+            Assert.assertNotNull(evictor);
+            // minutes from configuration gets converted into milliseconds
+            Assert.assertEquals(20, evictor.getInterval());
+            Assert.assertEquals(3, evictor.getCacheNameMatchers().size());
+        }
+        finally {
+            applicationContext.destroy();
+        }
     }
 }

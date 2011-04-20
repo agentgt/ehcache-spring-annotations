@@ -67,6 +67,7 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
     public static final String XSD_ATTR__DEFAULT_CACHE_KEY_GENERATOR = "default-cache-key-generator";
     public static final String XSD_ATTR__DEFAULT_CACHE_RESOLVER_FACTORY = "default-cache-resolver-factory";
     public static final String XSD_ATTR__DEFAULT_CACHEABLE_INTECEPTOR = "default-cacheable-interceptor";
+    public static final String XSD_ATTR__DEFAULT_TRIGGERS_REMOVE_INTECEPTOR = "default-triggers-remove-interceptor";
     public static final String XSD_ATTR__SELF_POPULATING_CACHE_SCOPE = "self-populating-cache-scope";
 
     static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAdvisor";
@@ -135,6 +136,22 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         final String defaultCacheableInterceptor = element.getAttribute(XSD_ATTR__DEFAULT_CACHEABLE_INTECEPTOR);
         if (StringUtils.hasLength(defaultCacheableInterceptor)) {
             return new RuntimeBeanReference(defaultCacheableInterceptor);
+        }
+        
+        //Use no reference
+        return null;
+    }
+
+    /**
+     * Setup the default cache interceptor 
+     * 
+     * @return A reference to the default cache interceptor.
+     */
+    protected RuntimeBeanReference setupDefaultTriggersRemoveInterceptor(Element element, ParserContext parserContext, Object elementSource) {
+        //If the default cache resolver factory was specified simply return a bean reference for that
+        final String defaultTriggersRemoveInterceptor = element.getAttribute(XSD_ATTR__DEFAULT_TRIGGERS_REMOVE_INTECEPTOR);
+        if (StringUtils.hasLength(defaultTriggersRemoveInterceptor)) {
+            return new RuntimeBeanReference(defaultTriggersRemoveInterceptor);
         }
         
         //Use no reference
@@ -214,6 +231,9 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         final RuntimeBeanReference defaultCacheableInterceptor = 
             this.setupDefaultCacheableInterceptor(element, parserContext, elementSource);
         
+        final RuntimeBeanReference defaultTriggersRemoveInterceptor = 
+            this.setupDefaultTriggersRemoveInterceptor(element, parserContext, elementSource);
+        
         final RootBeanDefinition cacheAttributeSource = new RootBeanDefinition(CacheAttributeSourceImpl.class);
         cacheAttributeSource.setSource(elementSource);
         cacheAttributeSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -229,6 +249,9 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         }
         if (defaultCacheableInterceptor != null) {
             propertyValues.addPropertyValue("cacheableInterceptor", defaultCacheableInterceptor);
+        }
+        if (defaultTriggersRemoveInterceptor != null) {
+            propertyValues.addPropertyValue("triggersRemoveInterceptor", defaultTriggersRemoveInterceptor);
         }
         final String blockingCacheScope = element.getAttribute(XSD_ATTR__SELF_POPULATING_CACHE_SCOPE);
         if (blockingCacheScope != null) {

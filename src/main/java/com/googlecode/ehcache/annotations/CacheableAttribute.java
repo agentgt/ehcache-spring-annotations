@@ -37,7 +37,7 @@ public interface CacheableAttribute extends MethodAttribute {
     public boolean isCacheNull();
     
     /**
-     * @return The CacheInterceptor to use when handling intercepted method invocations. Cannot return null.
+     * @return The {@link CacheableInterceptor} to use when handling intercepted method invocations. Cannot return null.
      */
     public CacheableInterceptor getCacheInterceptor();
 }

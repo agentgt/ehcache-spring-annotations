@@ -71,6 +71,11 @@ public @interface TriggersRemove {
     When when() default When.BEFORE_METHOD_INVOCATION;
     
     /**
+     * The Spring Bean name of the {@link TriggersRemoveInterceptor} to use when intercepting invocations.
+     */
+    String triggersRemoveInteceptorName() default "";
+    
+    /**
      * The Spring Bean name of the {@link CacheResolverFactory} to use to resolve the correct cache at runtime.
      * Ignored if {@link #resolverFactory()} is specified.
      * If this and {@link #resolverFactory()} are not specified the specified {@link #cacheName()} will be used.

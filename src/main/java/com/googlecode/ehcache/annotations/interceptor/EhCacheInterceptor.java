@@ -33,13 +33,14 @@ import org.slf4j.LoggerFactory;
 
 import com.googlecode.ehcache.annotations.AdviceType;
 import com.googlecode.ehcache.annotations.CacheAttributeSource;
-import com.googlecode.ehcache.annotations.CacheableInterceptor;
 import com.googlecode.ehcache.annotations.Cacheable;
 import com.googlecode.ehcache.annotations.CacheableAttribute;
+import com.googlecode.ehcache.annotations.CacheableInterceptor;
 import com.googlecode.ehcache.annotations.MethodAttribute;
 import com.googlecode.ehcache.annotations.ParameterMask;
 import com.googlecode.ehcache.annotations.TriggersRemove;
 import com.googlecode.ehcache.annotations.TriggersRemoveAttribute;
+import com.googlecode.ehcache.annotations.TriggersRemoveInterceptor;
 import com.googlecode.ehcache.annotations.When;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 import com.googlecode.ehcache.annotations.resolver.CacheableCacheResolver;
@@ -219,18 +220,25 @@ public class EhCacheInterceptor implements MethodInterceptor {
             final TriggersRemoveAttribute triggersRemoveAttribute) {
         
         final TriggersRemoveCacheResolver cacheResolver = triggersRemoveAttribute.getCacheResolver();
+        final TriggersRemoveInterceptor triggersRemoveInterceptor = triggersRemoveAttribute.getTriggersRemoveInterceptor();
         
         if (triggersRemoveAttribute.isRemoveAll()) {
             final Iterable<Ehcache> caches = cacheResolver.resolveRemoveAllCaches(methodInvocation);
             for (final Ehcache ehcache : caches) {
-                ehcache.removeAll();
+                final boolean shouldRemove = triggersRemoveInterceptor.preInvokeTriggersRemoveAll(ehcache, methodInvocation);
+                if (shouldRemove) {
+                    ehcache.removeAll();
+                }
             }
         }
         else {
             final Serializable cacheKey = generateCacheKey(methodInvocation, triggersRemoveAttribute);
             final Iterable<Ehcache> caches = cacheResolver.resolveRemoveCaches(cacheKey, methodInvocation);
             for (final Ehcache ehcache : caches) {
-                ehcache.remove(cacheKey);
+                final boolean shouldRemove = triggersRemoveInterceptor.preInvokeTriggersRemove(ehcache, methodInvocation, cacheKey);
+                if (shouldRemove) {
+                    ehcache.remove(cacheKey);
+                }
             }
         }
     }

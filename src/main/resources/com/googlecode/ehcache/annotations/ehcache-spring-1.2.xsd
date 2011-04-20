@@ -89,6 +89,14 @@ is not 'cacheManager'.
                                 ]]></xsd:documentation>
                         </xsd:annotation>
                     </xsd:attribute>
+                    <xsd:attribute name="default-triggers-remove-interceptor" type="xsd:string" use="optional">
+                        <xsd:annotation>
+                            <xsd:documentation><![CDATA[
+            Default TriggersRemoveInterceptor implementation to use. If not specified 
+            DefaultTriggersRemoveInterceptor will be used as the default.
+                                ]]></xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
                     <xsd:attribute name="self-populating-cache-scope" default="shared">
                         <xsd:annotation>
                             <xsd:documentation><![CDATA[

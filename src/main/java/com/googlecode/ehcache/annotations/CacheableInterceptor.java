@@ -33,7 +33,7 @@ import org.aopalliance.intercept.MethodInvocation;
  */
 public interface CacheableInterceptor {
     /**
-     * Called after the cache lookup but before the method invocation.
+     * Called after a cache hit but before the method invocation.
      * 
      * <b>Not used when {@link Cacheable#selfPopulating()} is set to true.</b>
      * 

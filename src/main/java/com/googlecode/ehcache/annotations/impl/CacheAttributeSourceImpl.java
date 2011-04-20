@@ -47,6 +47,7 @@ import com.googlecode.ehcache.annotations.Cacheable;
 import com.googlecode.ehcache.annotations.CacheableAttribute;
 import com.googlecode.ehcache.annotations.CacheableInterceptor;
 import com.googlecode.ehcache.annotations.DefaultCacheableInterceptor;
+import com.googlecode.ehcache.annotations.DefaultTriggersRemoveInterceptor;
 import com.googlecode.ehcache.annotations.KeyGenerator;
 import com.googlecode.ehcache.annotations.MethodAttribute;
 import com.googlecode.ehcache.annotations.ParameterMask;
@@ -56,6 +57,8 @@ import com.googlecode.ehcache.annotations.ResolverFactory;
 import com.googlecode.ehcache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ehcache.annotations.TriggersRemove;
 import com.googlecode.ehcache.annotations.TriggersRemoveAttribute;
+import com.googlecode.ehcache.annotations.TriggersRemoveInterceptor;
+import com.googlecode.ehcache.annotations.When;
 import com.googlecode.ehcache.annotations.key.CacheKeyGenerator;
 import com.googlecode.ehcache.annotations.key.ReflectionHelper;
 import com.googlecode.ehcache.annotations.key.ReflectionHelperAware;
@@ -92,6 +95,7 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     private Boolean createCaches;
     private CacheKeyGenerator<? extends Serializable> defaultCacheKeyGenerator;
     private CacheableInterceptor defaultCacheableInterceptor = DefaultCacheableInterceptor.INSTANCE;
+    private TriggersRemoveInterceptor defaultTriggersRemoveInterceptor = DefaultTriggersRemoveInterceptor.INSTANCE;
     private ReflectionHelper reflectionHelper;
     private CacheResolverFactory cacheResolverFactory;
 
@@ -107,6 +111,9 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     }
     public void setDefaultCacheableInterceptor(CacheableInterceptor defaultCacheableInterceptor) {
         this.defaultCacheableInterceptor = defaultCacheableInterceptor;
+    }
+    public void setDefaultTriggersRemoveInterceptor(TriggersRemoveInterceptor defaultTriggersRemoveInterceptor) {
+        this.defaultTriggersRemoveInterceptor = defaultTriggersRemoveInterceptor;
     }
     public void setSelfPopulatingCacheScope(SelfPopulatingCacheScope selfPopulatingCacheScope) {
         this.selfPopulatingCacheScope = selfPopulatingCacheScope;
@@ -359,7 +366,13 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         final KeyGenerator keyGenerator = ann.keyGenerator();
         final CacheKeyGenerator<? extends Serializable> cacheKeyGenerator = this.getCacheKeyGenerator(keyGeneratorName, keyGenerator);
         
-        return new TriggersRemoveAttributeImpl(cacheResolver, cacheKeyGenerator, parameterMask, ann.removeAll(), ann.when());
+        final String triggersRemoveInteceptorName = ann.triggersRemoveInteceptorName();
+        final TriggersRemoveInterceptor triggersRemoveInterceptor = this.getTriggersRemoveInterceptor(triggersRemoveInteceptorName);
+        
+        final boolean removeAll = ann.removeAll();
+        final When when = ann.when();
+        
+        return new TriggersRemoveAttributeImpl(cacheResolver, cacheKeyGenerator, parameterMask, triggersRemoveInterceptor, removeAll, when);
     }
     
     /**
@@ -374,6 +387,20 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         }
         
         return this.defaultCacheableInterceptor;
+    }
+    
+    /**
+     * Get the {@link TriggersRemoveInterceptor} by name. Returning a default resolver factory if the name is empty or null
+     * 
+     * @param resolverFactoryName Name of the resolver factory to retrieve
+     * @return The named generator or the default generator if the name was empty or null
+     */
+    protected final TriggersRemoveInterceptor getTriggersRemoveInterceptor(String triggersRemoveInterceptorName) {
+        if (StringUtils.hasLength(triggersRemoveInterceptorName)) {
+            return this.beanFactory.getBean(triggersRemoveInterceptorName, TriggersRemoveInterceptor.class);
+        }
+        
+        return this.defaultTriggersRemoveInterceptor;
     }
     
     /**

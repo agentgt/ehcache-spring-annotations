@@ -16,10 +16,13 @@
 
 package com.googlecode.ehcache.annotations.impl;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import net.sf.ehcache.CacheManager;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,6 +38,24 @@ import com.googlecode.ehcache.annotations.config.NotCacheNameMatcherImpl;
  * @version $Id$
  */
 public class ExpiredElementEvictorTest {
+    @Test
+    public void testRunEvictor() {
+        final InputStream cacheConfig = this.getClass().getResourceAsStream("/ehcache.xml");
+        final CacheManager cacheManager = new CacheManager(cacheConfig);
+        try {
+            final ExpiredElementEvictor evictor = new ExpiredElementEvictor();
+            evictor.setCacheManager(cacheManager);
+            evictor.getCacheNameMatchers().add(new CacheNameMatcher() {
+                public Vote matches(String cacheName) {
+                    return Vote.YEA;
+                }
+            });
+            evictor.run();
+        }
+        finally {
+            cacheManager.shutdown();
+        }
+    }
 
     /**
      * 

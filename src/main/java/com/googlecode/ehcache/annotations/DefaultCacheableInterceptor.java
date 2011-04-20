@@ -26,7 +26,7 @@ import net.sf.ehcache.Ehcache;
 import org.aopalliance.intercept.MethodInvocation;
 
 /**
- * Default inteceptor that always returns cached values, throws cached exceptions and always caches values and
+ * Default interceptor that always returns cached values, throws cached exceptions and always caches values and
  * exceptions.
  * 
  * @author Eric Dalquist
