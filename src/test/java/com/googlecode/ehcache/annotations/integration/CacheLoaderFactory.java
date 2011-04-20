@@ -42,11 +42,11 @@ public class CacheLoaderFactory extends net.sf.ehcache.loader.CacheLoaderFactory
 				return CacheLoaderTest.CACHE_LOADER_VALUE;
 			}
 
-			public Map loadAll(Collection keys) {
+			public Map<?, ?> loadAll(@SuppressWarnings("rawtypes") Collection keys) {
 				return null;
 			}
 
-			public Map loadAll(Collection keys, Object argument) {
+			public Map<?, ?>  loadAll(@SuppressWarnings("rawtypes") Collection keys, Object argument) {
 				return null;
 			}
 		};

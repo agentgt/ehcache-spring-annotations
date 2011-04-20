@@ -109,6 +109,7 @@ public class CacheKeyGeneratorPerformanceTest {
                 for (int configIndex = 0; configIndex < 4; configIndex++) {
                     final String generatorConfig;
                     if (cacheKeyGenerator instanceof AbstractDeepCacheKeyGenerator) {
+                        @SuppressWarnings("unchecked")
                         final AbstractDeepCacheKeyGenerator<?, Serializable> deepCacheKeyGenerator = (AbstractDeepCacheKeyGenerator<?, Serializable>)cacheKeyGenerator;
     
                         switch (configIndex) {
