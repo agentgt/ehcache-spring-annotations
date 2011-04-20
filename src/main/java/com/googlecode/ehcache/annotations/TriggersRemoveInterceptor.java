@@ -29,23 +29,29 @@ import org.aopalliance.intercept.MethodInvocation;
  * Used by {@link TriggersRemove} to allow logic to be injected into the triggers remove API.
  * 
  * Remove workflow looks like:
- *      - If {@link TriggersRemove#when()} is set to {@link When#BEFORE_METHOD_INVOCATION}
- *          - Proceede with method invocation and capture the returned value
- *      - Generate cache key 
- *      - ForEach {@link TriggersRemove#cacheName()}
- *          - Call {@link #preInvokeTriggersRemove(Ehcache, MethodInvocation, Serializable)}
- *          - If preInvokeTriggersRemove returns true remove the key from the cache
- *      - If {@link TriggersRemove#when()} is set to {@link When#AFTER_METHOD_INVOCATION}
- *          - Proceede with method invocation and capture the returned value
+ * 
+ * <ol>
+ *  <li>If {@link TriggersRemove#when()} is set to {@link When#BEFORE_METHOD_INVOCATION}, proceed with method invocation and capture the returned value</li>
+ *  <li>Generate cache key</li>
+ *  <li>ForEach {@link TriggersRemove#cacheName()}:
+ *  	<ol>
+ *      	<li>Call {@link #preInvokeTriggersRemove(Ehcache, MethodInvocation, Serializable)}
+ *      	<li>If preInvokeTriggersRemove returns true remove the key from the cache</li>
+ *      </ol></li>
+ *  <li>If {@link TriggersRemove#when()} is set to {@link When#AFTER_METHOD_INVOCATION}, proceed with method invocation and capture the returned value</li>
+ * </ol>
  *          
  * Remove All workflow looks like:
- *      - If {@link TriggersRemove#when()} is set to {@link When#BEFORE_METHOD_INVOCATION}
- *          - Proceede with method invocation and capture the returned value
- *      - ForEach {@link TriggersRemove#cacheName()}
- *          - Call {@link #preInvokeTriggersRemoveAll(Ehcache, MethodInvocation)}
- *          - If preInvokeTriggersRemoveAll returns true removeAll is called on the cache
- *      - If {@link TriggersRemove#when()} is set to {@link When#AFTER_METHOD_INVOCATION}
- *          - Proceede with method invocation and capture the returned value
+ * 
+ * <ol>
+ *  <li>If {@link TriggersRemove#when()} is set to {@link When#BEFORE_METHOD_INVOCATION}, proceed with method invocation and capture the returned value</li>
+ *  <li>ForEach {@link TriggersRemove#cacheName()}:
+ *  	<ol>
+ *      	<li>Call {@link #preInvokeTriggersRemoveAll(Ehcache, MethodInvocation)}</li>
+ *          <li>If preInvokeTriggersRemoveAll returns true removeAll is called on the cache</li>
+ *      </ol></li>
+ *  <li>If {@link TriggersRemove#when()} is set to {@link When#AFTER_METHOD_INVOCATION}, proceed with method invocation and capture the returned value</li>
+ * </ol>
  * 
  * @author Eric Dalquist
  * @version $Revision$
