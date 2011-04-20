@@ -28,6 +28,25 @@ import org.aopalliance.intercept.MethodInvocation;
 /**
  * Used by {@link TriggersRemove} to allow logic to be injected into the triggers remove API.
  * 
+ * Remove workflow looks like:
+ *      - If {@link TriggersRemove#when()} is set to {@link When#BEFORE_METHOD_INVOCATION}
+ *          - Proceede with method invocation and capture the returned value
+ *      - Generate cache key 
+ *      - ForEach {@link TriggersRemove#cacheName()}
+ *          - Call {@link #preInvokeTriggersRemove(Ehcache, MethodInvocation, Serializable)}
+ *          - If preInvokeTriggersRemove returns true remove the key from the cache
+ *      - If {@link TriggersRemove#when()} is set to {@link When#AFTER_METHOD_INVOCATION}
+ *          - Proceede with method invocation and capture the returned value
+ *          
+ * Remove All workflow looks like:
+ *      - If {@link TriggersRemove#when()} is set to {@link When#BEFORE_METHOD_INVOCATION}
+ *          - Proceede with method invocation and capture the returned value
+ *      - ForEach {@link TriggersRemove#cacheName()}
+ *          - Call {@link #preInvokeTriggersRemoveAll(Ehcache, MethodInvocation)}
+ *          - If preInvokeTriggersRemoveAll returns true removeAll is called on the cache
+ *      - If {@link TriggersRemove#when()} is set to {@link When#AFTER_METHOD_INVOCATION}
+ *          - Proceede with method invocation and capture the returned value
+ * 
  * @author Eric Dalquist
  * @version $Revision$
  */

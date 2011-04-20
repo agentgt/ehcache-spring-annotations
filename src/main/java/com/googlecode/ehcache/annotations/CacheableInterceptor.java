@@ -28,6 +28,34 @@ import org.aopalliance.intercept.MethodInvocation;
 /**
  * Used by {@link Cacheable} to allow logic to be injected into the caching API.
  * 
+ * Normal execution workflow looks like:
+ *      - Generate cache key 
+ *      - Cache lookup
+ *      - If lookup finds an entry {@link #preInvokeCachable(Ehcache, MethodInvocation, Serializable, Object)} is called
+ *          - If preInvokeCachable returns false the cached value is retuned
+ *      - Proceede with method invocation and capture the returned value
+ *      - Call {@link #postInvokeCacheable(Ehcache, MethodInvocation, Serializable, Object)}
+ *      - If postInvokeCacheable returns true the value is cached
+ *      - Return the value
+ *
+ * Exception execution workflow looks like (as long as {@link Cacheable#exceptionCacheName()} is defined):
+ *      - Generate cache key 
+ *      - Exception cache lookup
+ *      - If lookup finds an exception {@link #preInvokeCacheableException(Ehcache, MethodInvocation, Serializable, Throwable)} is called
+ *          - If preInvokeCacheableException returns false the cached exception is thrown
+ *      - Cache lookup
+ *      - If lookup finds an entry {@link #preInvokeCachable(Ehcache, MethodInvocation, Serializable, Object)} is called
+ *          - If preInvokeCachable returns false the cached value is retuned
+ *      - Proceede with method invocation and capture the returned value
+ *      - If an exception is thrown by the method invocation
+ *          - Call {@link #postInvokeCacheableException(Ehcache, MethodInvocation, Serializable, Throwable)}
+ *          - If postInvokeCacheableException returns true the exception is cached
+ *          - Throw the exception
+ *      - Else
+ *          - Call {@link #postInvokeCacheable(Ehcache, MethodInvocation, Serializable, Object)}
+ *          - If postInvokeCacheable returns true the value is cached
+ *          - Return the value
+ * 
  * @author Eric Dalquist
  * @version $Revision$
  */
@@ -78,7 +106,7 @@ public interface CacheableInterceptor {
      * @param methodInvocation The method invocation that has been intercepted
      * @param key The generated cache key
      * @param t The exception thrown by the invocation
-     * @return true if the value should be cached, false if not
+     * @return true if the exception should be cached, false if not
      */
     public boolean postInvokeCacheableException(Ehcache exceptionCache, MethodInvocation methodInvocation, Serializable key, Throwable t);
 }
