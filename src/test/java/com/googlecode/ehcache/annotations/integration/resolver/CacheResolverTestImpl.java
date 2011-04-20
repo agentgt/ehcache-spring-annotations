@@ -24,14 +24,25 @@ package com.googlecode.ehcache.annotations.integration.resolver;
  */
 public class CacheResolverTestImpl implements CacheResolverTestInterface {
     private int interfaceCachedCount = 0;
+    private int interfaceCachedDefaultResolverCount = 0;
     
     public String interfaceCached(String arg) {
         interfaceCachedCount++;
-        return "Modified[" + arg + "]";
+        return "interfaceCached[" + arg + "]";
     }
 
     public int getInterfaceCachedCount() {
         return interfaceCachedCount;
     }
+
+    public String interfaceCachedDefaultResolver(String arg) {
+        interfaceCachedDefaultResolverCount++;
+        return "interfaceCachedDefaultResolver[" + arg + "]";
+    }
+
+    public int getInterfaceCachedDefaultResolverCount() {
+        return interfaceCachedDefaultResolverCount;
+    }
+ 
     
 }

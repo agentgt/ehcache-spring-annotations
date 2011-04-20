@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -34,8 +35,12 @@ public class CacheResolverTest {
     @Autowired
     private CacheResolverTestInterface cacheResolverTestInterface;
     
-    @Autowired
+    @Autowired @Qualifier("testCacheResolverFactory")
     private LoggingCacheResolverFactory cacheResolverFactory;
+    
+    @Autowired @Qualifier("defaultCacheResolverFactory")
+    private LoggingCacheResolverFactory defaultCacheResolverFactory;
+    
     
     @Test
     public void testCacheResolver() {
@@ -43,19 +48,40 @@ public class CacheResolverTest {
         assertEquals(0, cacheResolverFactory.getResolvedKeys().size());
         
         final String result1 = cacheResolverTestInterface.interfaceCached("test");
-        assertEquals("Modified[test]", result1);
+        assertEquals("interfaceCached[test]", result1);
         assertEquals(1, cacheResolverTestInterface.getInterfaceCachedCount());
         assertEquals(1, cacheResolverFactory.getResolvedKeys().size());
         
         final String result2 = cacheResolverTestInterface.interfaceCached("test");
-        assertEquals("Modified[test]", result2);
+        assertEquals("interfaceCached[test]", result2);
         assertEquals(1, cacheResolverTestInterface.getInterfaceCachedCount());
         assertEquals(1, cacheResolverFactory.getResolvedKeys().size());
         
         
         final String result3 = cacheResolverTestInterface.interfaceCached("foo");
-        assertEquals("Modified[foo]", result3);
+        assertEquals("interfaceCached[foo]", result3);
         assertEquals(2, cacheResolverTestInterface.getInterfaceCachedCount());
         assertEquals(2, cacheResolverFactory.getResolvedKeys().size());
+    }
+    
+    @Test
+    public void testDefaultCacheResolver() {
+        assertEquals(0, cacheResolverTestInterface.getInterfaceCachedDefaultResolverCount());
+        assertEquals(0, defaultCacheResolverFactory.getResolvedKeys().size());
+        
+        final String result1 = cacheResolverTestInterface.interfaceCachedDefaultResolver("test");
+        assertEquals("interfaceCachedDefaultResolver[test]", result1);
+        assertEquals(1, cacheResolverTestInterface.getInterfaceCachedDefaultResolverCount());
+        assertEquals(1, defaultCacheResolverFactory.getResolvedKeys().size());
+        
+        final String result2 = cacheResolverTestInterface.interfaceCachedDefaultResolver("test");
+        assertEquals("interfaceCachedDefaultResolver[test]", result2);
+        assertEquals(1, cacheResolverTestInterface.getInterfaceCachedDefaultResolverCount());
+        assertEquals(1, defaultCacheResolverFactory.getResolvedKeys().size());
+        
+        final String result3 = cacheResolverTestInterface.interfaceCachedDefaultResolver("foo");
+        assertEquals("interfaceCachedDefaultResolver[foo]", result3);
+        assertEquals(2, cacheResolverTestInterface.getInterfaceCachedDefaultResolverCount());
+        assertEquals(2, defaultCacheResolverFactory.getResolvedKeys().size());
     }
 }

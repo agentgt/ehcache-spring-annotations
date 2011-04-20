@@ -27,4 +27,8 @@ public interface CacheResolverTestInterface {
     @Cacheable(cacheName="interfaceCached", resolverFactoryName = "testCacheResolverFactory")
     public String interfaceCached(String arg);
     public int getInterfaceCachedCount();
+    
+    @Cacheable(cacheName="interfaceCached")
+    public String interfaceCachedDefaultResolver(String arg);
+    public int getInterfaceCachedDefaultResolverCount();
 }
