@@ -14,23 +14,24 @@ under the License.
 This project includes:
   AOP alliance under Public Domain
   Apache Log4j under The Apache Software License, Version 2.0
-  ASM Core under Apache License, Version 2.0
+  ASM Core under Apache License, Version 2
   Code Generation Library under ASF 2.0
-  Commons Codec under Apache License, Version 2.0
+  Commons Codec under The Apache Software License, Version 2.0
   EasyMock under Apache 2
   Ehcache Core under The Apache Software License, Version 2.0
   Ehcache Spring Annotations under Apache 2
+  Guava (Google Common Libraries) under The Apache Software License, Version 2.0
   JCL 1.1.1 implemented over SLF4J under MIT License
   JUnit under Common Public License Version 1.0
   Objenesis under Apache 2
   SLF4J API Module under MIT License
   SLF4J LOG4J-12 Binding under MIT License
-  spring-aop under Apache License, Version 2.0
-  spring-asm under Apache License, Version 2.0
-  spring-beans under Apache License, Version 2.0
-  spring-context under Apache License, Version 2.0
-  spring-context-support under Apache License, Version 2.0
-  spring-core under Apache License, Version 2.0
-  spring-expression under Apache License, Version 2.0
-  spring-test under Apache License, Version 2.0
+  spring-aop under Apache License, Version 2
+  spring-asm under Apache License, Version 2
+  spring-beans under Apache License, Version 2
+  spring-context under Apache License, Version 2
+  spring-context-support under Apache License, Version 2
+  spring-core under Apache License, Version 2
+  spring-expression under Apache License, Version 2
+  spring-test under Apache License, Version 2
 

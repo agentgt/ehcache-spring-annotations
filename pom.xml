@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.googlecode.ehcache-spring-annotations</groupId>
         <artifactId>ehcache-spring-annotations-parent</artifactId>
-        <version>2</version>
+        <version>3</version>
     </parent>
     
     <groupId>com.googlecode.ehcache-spring-annotations</groupId>
@@ -15,47 +15,11 @@
     <description>Provides a simple model for integrating Ehcache in a Spring project via annotations.</description>
     <url>http://code.google.com/p/ehcache-spring-annotations/</url>
 
-    <developers>
-        <developer>
-            <name>Nicholas Blair</name>
-            <email>nblair@doit.wisc.edu</email>
-            <organization>University of Wisconsin-Madison, Division of Information Technology</organization>
-        </developer>
-        <developer>
-            <name>Eric Dalquist</name>
-            <email>eric.dalquist@doit.wisc.edu</email>
-            <organization>University of Wisconsin-Madison, Division of Information Technology</organization>
-        </developer>
-    </developers>
-
-    <licenses>
-        <license>
-            <name>Apache 2</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    
     <scm>
         <connection>scm:svn:http://ehcache-spring-annotations.googlecode.com/svn/trunk/</connection>
         <developerConnection>scm:svn:https://ehcache-spring-annotations.googlecode.com/svn/trunk/</developerConnection>
         <url>http://ehcache-spring-annotations.googlecode.com/svn/trunk/</url>
     </scm>
-    
-    <issueManagement>
-        <url>http://code.google.com/p/ehcache-spring-annotations/issues</url>
-        <system>Google Code</system>
-    </issueManagement>
-    
-    <mailingLists>
-        <mailingList>
-            <name>ehcache-spring-annotations</name>
-            <post>ehcache-spring-annotations@googlegroups.com</post>
-            <archive>http://groups.google.com/group/ehcache-spring-annotations</archive>
-            <subscribe>http://groups.google.com/group/ehcache-spring-annotations/subscribe</subscribe>
-            <unsubscribe>http://groups.google.com/group/ehcache-spring-annotations/subscribe</unsubscribe>
-        </mailingList>
-    </mailingLists>
 
     <properties>
         <bundle.version>1.1.0</bundle.version>
@@ -84,11 +48,6 @@
         <easymock.version>3.0</easymock.version>
         <junit.version>4.8.2</junit.version>
         <log4j.version>1.2.16</log4j.version>
-
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        
-        <m2st-gatc-id>UA-15487466-1</m2st-gatc-id>
-        <m2st-gatc-config>_setDetectFlash(true),_setDetectTitle(false)</m2st-gatc-config>
     </properties>
     
     <repositories>
@@ -328,21 +287,6 @@
     </dependencies>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.jasig.maven</groupId>
-                    <artifactId>maven-notice-plugin</artifactId>
-                    <version>1.0.0-SNAPSHOT</version>
-                    <configuration>
-                        <licenseLookup>
-                            <param>https://source.jasig.org/licenses/license-mappings.xml</param>
-                            <param>license-mappings.xml</param>
-                        </licenseLookup>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -500,16 +444,6 @@
                 <configuration>
                     <excludes>
                         <exclude>com/googlecode/ehcache/annotations/performance/**</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.mycila.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>LICENSE</exclude>
-                        <exclude>NOTICE</exclude>
                     </excludes>
                 </configuration>
             </plugin>
