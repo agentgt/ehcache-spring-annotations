@@ -38,6 +38,7 @@ import com.googlecode.ehcache.annotations.CacheableAttribute;
 import com.googlecode.ehcache.annotations.CacheableInterceptor;
 import com.googlecode.ehcache.annotations.MethodAttribute;
 import com.googlecode.ehcache.annotations.ParameterMask;
+import com.googlecode.ehcache.annotations.RefreshableCacheEntry;
 import com.googlecode.ehcache.annotations.TriggersRemove;
 import com.googlecode.ehcache.annotations.TriggersRemoveAttribute;
 import com.googlecode.ehcache.annotations.TriggersRemoveInterceptor;
@@ -187,7 +188,14 @@ public class EhCacheInterceptor implements MethodInterceptor {
            throw new IllegalStateException("the supposed SelfPopulatingCache returned null, which violates the contract it should always return an Element; perhaps the cache is not truly a SelfPopulatingCache?");
         }
         
-        return element.getObjectValue();
+        final Object value = element.getObjectValue();
+
+        //If the value is from a refreshable cache return the wrapped value
+        if (value instanceof RefreshableCacheEntry) {
+        	return ((RefreshableCacheEntry) value).getValue();
+        }
+        
+        return value;
     }
     
     /**

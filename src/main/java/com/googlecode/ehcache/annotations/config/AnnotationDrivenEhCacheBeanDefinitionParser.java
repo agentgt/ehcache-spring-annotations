@@ -69,6 +69,8 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
     public static final String XSD_ATTR__DEFAULT_CACHEABLE_INTECEPTOR = "default-cacheable-interceptor";
     public static final String XSD_ATTR__DEFAULT_TRIGGERS_REMOVE_INTECEPTOR = "default-triggers-remove-interceptor";
     public static final String XSD_ATTR__SELF_POPULATING_CACHE_SCOPE = "self-populating-cache-scope";
+    public static final String XSD_ATTR__SCHEDULER = "scheduler";
+    public static final String XSD_ATTR__EXECUTOR = "executor";
 
     static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAdvisor";
     
@@ -256,6 +258,14 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
         final String blockingCacheScope = element.getAttribute(XSD_ATTR__SELF_POPULATING_CACHE_SCOPE);
         if (blockingCacheScope != null) {
             propertyValues.addPropertyValue("selfPopulatingCacheScope", SelfPopulatingCacheScope.valueOf(blockingCacheScope.toUpperCase()));
+        }
+        if(element.hasAttribute(XSD_ATTR__EXECUTOR)){
+           	RuntimeBeanReference executorReference = new RuntimeBeanReference(element.getAttribute(XSD_ATTR__EXECUTOR));
+           	propertyValues.addPropertyValue("executor", executorReference);
+        }
+        if(element.hasAttribute(XSD_ATTR__SCHEDULER)){
+           	RuntimeBeanReference schedulerReference = new RuntimeBeanReference(element.getAttribute(XSD_ATTR__SCHEDULER));
+           	propertyValues.addPropertyValue("scheduler", schedulerReference);
         }
 
         final XmlReaderContext readerContext = parserContext.getReaderContext();

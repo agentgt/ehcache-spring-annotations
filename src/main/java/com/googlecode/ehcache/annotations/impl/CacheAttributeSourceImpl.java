@@ -38,6 +38,8 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.core.BridgeMethodResolver;
+import org.springframework.scheduling.SchedulingTaskExecutor;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
@@ -46,6 +48,7 @@ import com.googlecode.ehcache.annotations.CacheAttributeSource;
 import com.googlecode.ehcache.annotations.Cacheable;
 import com.googlecode.ehcache.annotations.CacheableAttribute;
 import com.googlecode.ehcache.annotations.CacheableInterceptor;
+import com.googlecode.ehcache.annotations.DecoratedCacheType;
 import com.googlecode.ehcache.annotations.DefaultCacheableInterceptor;
 import com.googlecode.ehcache.annotations.DefaultTriggersRemoveInterceptor;
 import com.googlecode.ehcache.annotations.KeyGenerator;
@@ -99,6 +102,17 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     private ReflectionHelper reflectionHelper;
     private CacheResolverFactory cacheResolverFactory;
 
+    private TaskScheduler scheduler;
+    private SchedulingTaskExecutor executor;
+    	
+    public void setScheduler(TaskScheduler scheduler) {
+    	this.scheduler = scheduler;
+    }
+    
+    public void setExecutor(SchedulingTaskExecutor executor) {
+    	this.executor = executor;
+    }
+    
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
         this.childBeanFactory = new DefaultListableBeanFactory(this.beanFactory);
@@ -137,7 +151,8 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
             if (this.selfPopulatingCacheScope != null) {
                 defaultCacheResolverFactory.setSelfPopulatingCacheScope(this.selfPopulatingCacheScope);
             }
-            
+            defaultCacheResolverFactory.setExecutor(executor);
+            defaultCacheResolverFactory.setScheduler(scheduler);            
             this.cacheResolverFactory = defaultCacheResolverFactory;
         }
         else {
@@ -146,6 +161,12 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
             }
             if (this.selfPopulatingCacheScope != null) {
                 this.logger.warn("selfPopulatingCacheScope was specified but a custom CacheResolverFactory was also configured. The selfPopulatingCacheScope value will be ignored.");
+            }
+            if (this.executor != null) {
+                this.logger.warn("executor was specified but a custom CacheResolverFactory was also configured. The executor value will be ignored.");
+            }
+            if (this.scheduler != null) {
+                this.logger.warn("scheduler was specified but a custom CacheResolverFactory was also configured. The scheduler value will be ignored.");
             }
         }
     }
@@ -342,8 +363,9 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
         final CacheableInterceptor cacheInterceptor = this.getCacheInterceptor(cacheableInteceptorName);
         
         final boolean cacheNull = ann.cacheNull();
-        if (!cacheNull && ann.selfPopulating()) {
-            this.logger.warn("cacheNull is set to false and selfPopulating is set to true, cacheNull will be ignored on: " + method);
+        final DecoratedCacheType decoratedCacheType = DecoratedCacheType.getDecoratedCacheType(ann, method);
+        if (!cacheNull && (decoratedCacheType == DecoratedCacheType.REFRESHING_SELF_POPULATING_CACHE || decoratedCacheType == DecoratedCacheType.SELF_POPULATING_CACHE)) {
+            this.logger.warn("cacheNull is set to false and decoratedCacheType is " + decoratedCacheType + ", cacheNull will be ignored on: " + method);
         }
 
         return new CacheableAttributeImpl(cacheResolver, cacheKeyGenerator, parameterMask, cacheNull, cacheInterceptor);

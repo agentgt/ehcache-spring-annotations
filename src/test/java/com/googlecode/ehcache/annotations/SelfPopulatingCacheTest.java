@@ -20,6 +20,7 @@
 package com.googlecode.ehcache.annotations;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -40,7 +41,7 @@ import com.googlecode.ehcache.annotations.util.ThreadGroupRunner;
 public class SelfPopulatingCacheTest {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     
-    private volatile int invocationCount = 0;
+    private final AtomicInteger invocationCount = new AtomicInteger(0);
     
     @Test
     public void testSelfPopulatingCache() throws Exception {
@@ -53,7 +54,7 @@ public class SelfPopulatingCacheTest {
         
         final CountDownLatch threadRunningLatch = new CountDownLatch(threads + 1);
         final CountDownLatch proceedLatch = new CountDownLatch(1);
-        invocationCount = 0;
+        invocationCount.set(0);
         
         final SelfPopulatingCache selfPopulatingCache = new SelfPopulatingCache(ehcache, new CacheEntryFactory() {
             public Object createEntry(Object key) throws Exception {
@@ -66,7 +67,7 @@ public class SelfPopulatingCacheTest {
                 catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                invocationCount++;
+                invocationCount.incrementAndGet();
                 logger.trace("Returning from createEntry({})", key);
                 return "Created: " + key;
             }
@@ -98,6 +99,6 @@ public class SelfPopulatingCacheTest {
         threadGroup.join();
         
         // verify only 1 call
-        Assert.assertEquals(1, invocationCount);
+        Assert.assertEquals(1, invocationCount.get());
     }
 }

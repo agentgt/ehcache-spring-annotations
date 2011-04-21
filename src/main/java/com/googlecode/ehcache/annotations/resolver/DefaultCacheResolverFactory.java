@@ -32,10 +32,15 @@ import net.sf.ehcache.util.ProductInfo;
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.SchedulingTaskExecutor;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.util.StringUtils;
 
 import com.googlecode.ehcache.annotations.CacheNotFoundException;
 import com.googlecode.ehcache.annotations.Cacheable;
+import com.googlecode.ehcache.annotations.DecoratedCacheType;
+import com.googlecode.ehcache.annotations.RefreshingCacheEntryFactory;
+import com.googlecode.ehcache.annotations.RefreshingSelfPopulatingCache;
 import com.googlecode.ehcache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ehcache.annotations.TriggersRemove;
 
@@ -57,6 +62,8 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
     private final CacheManager cacheManager;
     private boolean createCaches = false;
     private SelfPopulatingCacheScope selfPopulatingCacheScope = SelfPopulatingCacheScope.SHARED;
+    private TaskScheduler scheduler;
+    private SchedulingTaskExecutor executor;
     
     public DefaultCacheResolverFactory(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
@@ -65,7 +72,15 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
         final String version = productInfo.getVersion();
         this.badSelfPopulatingCache = version.equals("2.3.0") || version.equals("2.3.1");
     }
+
+    public void setScheduler(TaskScheduler scheduler) {
+        this.scheduler = scheduler;
+    }
     
+    public void setExecutor(SchedulingTaskExecutor executor) {
+        this.executor = executor;
+    }
+
     public boolean isCreateCaches() {
         return this.createCaches;
     }
@@ -90,13 +105,17 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
         Ehcache cache = this.getCache(cacheName);
         
         ThreadLocal<MethodInvocation> entryFactory = null; 
-        if (cacheable.selfPopulating()) {
+        
+        final DecoratedCacheType decoratedCacheType = DecoratedCacheType.getDecoratedCacheType(cacheable, method);
+        if (decoratedCacheType == DecoratedCacheType.SELF_POPULATING_CACHE || decoratedCacheType == DecoratedCacheType.REFRESHING_SELF_POPULATING_CACHE) {
             if (this.badSelfPopulatingCache) {
                 logger.error("SelfPopulatingCache in Ehcache 2.3.0 & 2.3.1 has a bug which can result in unexpected behavior, see EHC-828. {} may not behave as expected", cacheName);
             }
             
             final int selfPopulatingTimeout = cacheable.selfPopulatingTimeout();
-            final SelfPopulatingCacheTracker selfPopulatingCacheTracker = this.createSelfPopulatingCacheInternal(cache, selfPopulatingTimeout);
+            final long refreshInterval = cacheable.refreshInterval();
+            final SelfPopulatingCacheTracker selfPopulatingCacheTracker = this.createSelfPopulatingCacheInternal(cache, selfPopulatingTimeout, decoratedCacheType, refreshInterval);
+            
             cache = selfPopulatingCacheTracker.selfPopulatingCache;
             entryFactory = selfPopulatingCacheTracker.cacheEntryFactory;
         }
@@ -153,10 +172,10 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
      * @param cache The cache to create a self populating instance of
      * @return The SelfPopulatingCache and corresponding factory object to use
      */
-    protected final SelfPopulatingCacheTracker createSelfPopulatingCacheInternal(Ehcache cache, int timeout) {
+    protected final SelfPopulatingCacheTracker createSelfPopulatingCacheInternal(Ehcache cache, int timeout, DecoratedCacheType type, long refreshinterval) {
         //If method scoped just create a new instance 
         if (SelfPopulatingCacheScope.METHOD == this.selfPopulatingCacheScope) {
-            return this.createSelfPopulatingCache(cache, timeout);
+            return this.createSelfPopulatingCache(cache, timeout, type, refreshinterval);
         }
 
         //Shared scope, try loading the instance from local Map
@@ -166,7 +185,7 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
         final String cacheName = cache.getName();
         SelfPopulatingCacheTracker selfPopulatingCacheTracker = this.selfPopulatingCaches.get(cacheName);
         if (selfPopulatingCacheTracker == null) {
-            selfPopulatingCacheTracker = this.createSelfPopulatingCache(cache, timeout);
+            selfPopulatingCacheTracker = this.createSelfPopulatingCache(cache, timeout, type, refreshinterval);
             
             //do putIfAbsent to handle concurrent creation. If a value is returned it was already put and that
             //value should be used. If no value was returned the newly created selfPopulatingCache should be used
@@ -194,11 +213,30 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
     /**
      * Create a new {@link SelfPopulatingCache} and corresponding {@link CacheEntryFactory}
      */
-    protected SelfPopulatingCacheTracker createSelfPopulatingCache(Ehcache cache, int timeout) {
-        final ThreadLocalCacheEntryFactory cacheEntryFactory = new ThreadLocalCacheEntryFactory();
-        final SelfPopulatingCache selfPopulatingCache = new SelfPopulatingCache(cache, cacheEntryFactory);
+    protected SelfPopulatingCacheTracker createSelfPopulatingCache(Ehcache cache, int timeout, DecoratedCacheType type, long refreshinterval) {
+        final SelfPopulatingCache selfPopulatingCache;
+        final ThreadLocal<MethodInvocation> invocationLocal;
+        
+        switch (type) {
+            case REFRESHING_SELF_POPULATING_CACHE: {
+                final RefreshingCacheEntryFactory cacheEntryFactory = new RefreshingCacheEntryFactory();
+                selfPopulatingCache = new RefreshingSelfPopulatingCache(cache, cacheEntryFactory, scheduler, executor, refreshinterval);
+                invocationLocal = cacheEntryFactory.entryFactory;
+                break;
+            }
+            case SELF_POPULATING_CACHE: {
+                final ThreadLocalCacheEntryFactory cacheEntryFactory = new ThreadLocalCacheEntryFactory();
+                selfPopulatingCache = new SelfPopulatingCache(cache, cacheEntryFactory);
+                invocationLocal = cacheEntryFactory.entryFactory;
+                break;
+            }
+            default: {
+                throw new IllegalArgumentException("DecoratedCacheType " + type + " is not a supported self-populating type");
+            }
+        }
+        
         selfPopulatingCache.setTimeoutMillis(timeout);
-        return new SelfPopulatingCacheTracker(selfPopulatingCache, cacheEntryFactory.entryFactory);
+        return new SelfPopulatingCacheTracker(selfPopulatingCache, invocationLocal);
     }
     
     protected static class SelfPopulatingCacheTracker {
@@ -208,35 +246,6 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
         public SelfPopulatingCacheTracker(SelfPopulatingCache selfPopulatingCache, ThreadLocal<MethodInvocation> cacheEntryFactory) {
             this.selfPopulatingCache = selfPopulatingCache;
             this.cacheEntryFactory = cacheEntryFactory;
-        }
-    }
-
-    /**
-     * EhCache entry factory that uses a ThreadLocal to pass a MethodInvocation into the factory
-     * for object creation.
-     */
-    protected static class ThreadLocalCacheEntryFactory implements CacheEntryFactory {
-        public final ThreadLocal<MethodInvocation> entryFactory = new ThreadLocal<MethodInvocation>();
-
-        public Object createEntry(Object key) throws Exception {
-            final MethodInvocation methodInvocation = this.entryFactory.get();
-            if (methodInvocation == null) {
-                throw new RuntimeException("No MethodInvocation specified in the ThreadLocal");
-            }
-            
-            try {
-                return methodInvocation.proceed();
-            }
-            catch (Throwable t) {
-                if (t instanceof Exception) {
-                    throw (Exception)t;
-                }
-                else if (t instanceof Error) {
-                    throw (Error)t;
-                }
-                
-                throw new Exception(t);
-            }
         }
     }
 }

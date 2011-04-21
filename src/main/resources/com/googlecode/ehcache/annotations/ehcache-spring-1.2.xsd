@@ -56,6 +56,28 @@ is not 'cacheManager'.
         <xsd:complexType>
             <xsd:complexContent>
                 <xsd:extension base="cache-manager-aware_type">
+<xsd:attribute name="executor" type="xsd:string" use="optional">
+<xsd:annotation>
+<xsd:documentation>
+	Specifies the java.util.Executor instance to use when invoking asynchronous methods.
+	If not provided, an instance of org.springframework.core.task.SimpleAsyncTaskExecutor
+	will be used by default.				
+</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>              
+
+<xsd:attribute name="scheduler" type="xsd:string" use="optional">
+<xsd:annotation>
+<xsd:documentation>
+
+	Specifies the org.springframework.scheduling.TaskScheduler or
+	java.util.ScheduledExecutorService instance to use when invoking scheduled
+	methods. If no reference is provided, a TaskScheduler backed by a single
+	thread scheduled executor will be used.
+					
+</xsd:documentation>
+</xsd:annotation>
+</xsd:attribute>                     
                     <xsd:attribute name="create-missing-caches" type="xsd:boolean" default="false">
                         <xsd:annotation>
                             <xsd:documentation><![CDATA[

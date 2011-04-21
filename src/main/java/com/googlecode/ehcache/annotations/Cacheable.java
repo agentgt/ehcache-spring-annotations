@@ -45,23 +45,44 @@ public @interface Cacheable {
     
     /**
      * If true null return values will be cached. If false they will not. Defaults to true.
-     * NOTE that if {@link #selfPopulating()} is true this setting is effectively set to true.
+     * NOTE that if {@link #decoratedCacheType()} is set to {@link DecoratedCacheType#SELF_POPULATING_CACHE} or
+     * {@link DecoratedCacheType#REFRESHING_SELF_POPULATING_CACHE} this setting is assumed to be true.
      */
     boolean cacheNull() default true;
+    
+    /**
+     * The type of cache decoration to use. Defaults to {@link DecoratedCacheType#NONE}.
+     */
+    DecoratedCacheType decoratedCacheType() default DecoratedCacheType.NONE;
 
     /**
      * If a EhCache {@link SelfPopulatingCache} wrapper should be used to ensure only one
      * value per key is created.
+     * @deprecated use {@link #decoratedCacheType()}. Ignored if {@link #decoratedCacheType()} is set to anything other than NONE
      */
+    @Deprecated
     boolean selfPopulating() default false;
     
     /**
-     * Sets the time in ms to wait to acquire a lock. Only used if {@link #selfPopulating()} is true.
+     * Sets the time in ms to wait to acquire a lock. Only used if {@link #decoratedCacheType()} is set to
+     * {@link DecoratedCacheType#SELF_POPULATING_CACHE} or {@link DecoratedCacheType#REFRESHING_SELF_POPULATING_CACHE}.
+     * 
      * Must be greater than or equal to 0. A value of 0 means wait forever, any positive value means wait for
-     * that many milliseconds before throwing a {@link LockTimeoutException} 
+     * that many milliseconds before throwing a {@link LockTimeoutException}
+     *  
      * @see BlockingCache#setTimeoutMillis(int)
      */
     int selfPopulatingTimeout() default 0;
+    
+    /**
+     * Sets the time in ms between cache refreshes. Only used if {@link #decoratedCacheType()} is set to
+     * {@link DecoratedCacheType#REFRESHING_SELF_POPULATING_CACHE}. Defaults to 1 minute.
+     * 
+     * Must be greater than 0.
+     * 
+     * @see RefreshingSelfPopulatingCache#setRefreshInterval(long)
+     */
+    long refreshInterval() default 60 * 1000;
     
     /**
      * The Spring Bean name of the {@link CacheKeyGenerator} to use.
