@@ -96,6 +96,7 @@ public class SpELCacheKeyGenerator implements CacheKeyGenerator<Serializable>, B
     //Used to create auto-registered key generators for function calls
     private DefaultListableBeanFactory cacheKeyBeanFactory;
     private Map<String, CacheKeyGenerator<Serializable>> registeredKeyGenerators;
+    private Map<String, MethodExecutor> keyGeneratorMethodExecutors;
 	private Expression expression;
 	private BeanFactory beanFactory;
 	private ReflectionHelper reflectionHelper;
@@ -131,6 +132,8 @@ public class SpELCacheKeyGenerator implements CacheKeyGenerator<Serializable>, B
         
         //Make sure the default generators are all configured
         this.registerDefaultKeyGenerators();
+        
+        this.createKeyGeneratorMethodExecutors();
     }
 
     /**
@@ -155,6 +158,21 @@ public class SpELCacheKeyGenerator implements CacheKeyGenerator<Serializable>, B
                 final CacheKeyGenerator<Serializable> keyGenerator = createKeyGenerator(reflectionName, keyGeneratorClass, properties);
                 this.registeredKeyGenerators.put(reflectionName, keyGenerator);
             }
+        }
+    }
+    
+    /**
+     * Add {@link MethodExecutor} wrapper around all of the registered {@link CacheKeyGenerator}s to avoid
+     * creating the wrappers on every use.
+     */
+    protected final void createKeyGeneratorMethodExecutors() {
+        this.keyGeneratorMethodExecutors = new LinkedHashMap<String, MethodExecutor>(this.registeredKeyGenerators.size());
+        
+        for (final Entry<String, CacheKeyGenerator<Serializable>> keyGeneratorEntry : this.registeredKeyGenerators.entrySet()) {
+            final String name = keyGeneratorEntry.getKey();
+            final CacheKeyGenerator<Serializable> keyGenerator = keyGeneratorEntry.getValue();
+            final KeyGeneratorMethodExecutor keyGeneratorMethodExecutor = new KeyGeneratorMethodExecutor(keyGenerator);
+            this.keyGeneratorMethodExecutors.put(name, keyGeneratorMethodExecutor);
         }
     }
 
@@ -222,16 +240,23 @@ public class SpELCacheKeyGenerator implements CacheKeyGenerator<Serializable>, B
                 return null;
             }
             
-            final CacheKeyGenerator<Serializable> cacheKeyGenerator = registeredKeyGenerators.get(name);
-            if (cacheKeyGenerator == null) {
-                return null;
-            }
-            
-            return new MethodExecutor() {
-                public TypedValue execute(EvaluationContext context, Object target, Object... arguments) throws AccessException {
-                    return new TypedValue(cacheKeyGenerator.generateKey(arguments));
-                }
-            };
+            return keyGeneratorMethodExecutors.get(name);
+        }
+    }
+    
+    /**
+     * {@link MethodExecutor} wrapper around a cache key generator that delegates to
+     * {@link CacheKeyGenerator#generateKey(Object...)}
+     */
+    private static final class KeyGeneratorMethodExecutor implements MethodExecutor {
+        private final CacheKeyGenerator<Serializable> cacheKeyGenerator;
+
+        private KeyGeneratorMethodExecutor(CacheKeyGenerator<Serializable> cacheKeyGenerator) {
+            this.cacheKeyGenerator = cacheKeyGenerator;
+        }
+
+        public TypedValue execute(EvaluationContext context, Object target, Object... arguments) throws AccessException {
+            return new TypedValue(this.cacheKeyGenerator.generateKey(arguments));
         }
     }
 }
