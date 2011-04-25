@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.googlecode.ehcache-spring-annotations</groupId>
         <artifactId>ehcache-spring-annotations-parent</artifactId>
-        <version>1.2.0-M1</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
     
     <artifactId>ehcache-spring-annotations</artifactId>
@@ -13,9 +13,9 @@
     <description>Provides a simple model for integrating Ehcache in a Spring project via annotations.</description>
     
     <scm>
-        <connection>scm:svn:http://ehcache-spring-annotations.googlecode.com/svn/tags/ehcache-spring-annotations-1.2.0-M1/core</connection>
-        <developerConnection>scm:svn:https://ehcache-spring-annotations.googlecode.com/svn/tags/ehcache-spring-annotations-1.2.0-M1/core</developerConnection>
-        <url>http://ehcache-spring-annotations.googlecode.com/svn/tags/ehcache-spring-annotations-1.2.0-M1/core</url>
+        <connection>scm:svn:http://ehcache-spring-annotations.googlecode.com/svn/trunk/core</connection>
+        <developerConnection>scm:svn:https://ehcache-spring-annotations.googlecode.com/svn/trunk/core</developerConnection>
+        <url>http://ehcache-spring-annotations.googlecode.com/svn/trunk/core</url>
     </scm>
     
     <dependencies>
