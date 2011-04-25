@@ -35,20 +35,20 @@ import org.springframework.util.Assert;
 public final class TaskSchedulerAdapterFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskSchedulerAdapterFactory.class);
     
-    private static Class<?> TASK_SCHEDULER_CLASS = null;
-    private static Class<?> SPRING3_TASK_SCHEDULER_ADAPTOR_CLASS = null;
-    private static Constructor<?> SPRING3_TASK_SCHEDULER_ADAPTOR_CONSTRUCTOR = null;
-    private static boolean SPRING3 = false;
+    private final static Class<?> TASK_SCHEDULER_CLASS ;
+    private final static Class<?> SPRING3_TASK_SCHEDULER_ADAPTOR_CLASS ;
+    private final static Constructor<?> SPRING3_TASK_SCHEDULER_ADAPTOR_CONSTRUCTOR ;
+    private final static boolean SPRING3;
     
     static {
+        //Use local variables so that the static class variables can be final
+        Class<?> taskSchedulerClass = null;
+        Class<?> spring3TaskSchedulerAdaptorClass = null;
+        Constructor<?> spring3TaskSchedulerAdpatorConstructor = null;
         try {
-            TASK_SCHEDULER_CLASS = Class.forName("org.springframework.scheduling.TaskScheduler");
-            SPRING3_TASK_SCHEDULER_ADAPTOR_CLASS = Class.forName("com.googlecode.ehcache.annotations.support.Spring3TaskSchedulerAdapter");
-            SPRING3_TASK_SCHEDULER_ADAPTOR_CONSTRUCTOR = SPRING3_TASK_SCHEDULER_ADAPTOR_CLASS.getConstructor(TASK_SCHEDULER_CLASS);
-            
-            SPRING3 = TASK_SCHEDULER_CLASS != null && 
-                SPRING3_TASK_SCHEDULER_ADAPTOR_CLASS != null && 
-                SPRING3_TASK_SCHEDULER_ADAPTOR_CONSTRUCTOR != null;
+            taskSchedulerClass = Class.forName("org.springframework.scheduling.TaskScheduler");
+            spring3TaskSchedulerAdaptorClass = Class.forName("com.googlecode.ehcache.annotations.support.Spring3TaskSchedulerAdapter");
+            spring3TaskSchedulerAdpatorConstructor = spring3TaskSchedulerAdaptorClass.getConstructor(taskSchedulerClass);
             
             LOGGER.debug("Found Spring 3.0 TaskScheduler, will use Spring3TaskSchedulerAdapter if provided with a TaskScheduler");
         }
@@ -56,6 +56,15 @@ public final class TaskSchedulerAdapterFactory {
             //Ignore, assume we're not running in Spring 3.0
             LOGGER.debug("Could not find Spring 3.0 TaskScheduler, will use TimerTaskSchedulerAdapter if provided with a Timer");
         }
+        
+        //init static class variables
+        TASK_SCHEDULER_CLASS = taskSchedulerClass;
+        SPRING3_TASK_SCHEDULER_ADAPTOR_CLASS = spring3TaskSchedulerAdaptorClass;
+        SPRING3_TASK_SCHEDULER_ADAPTOR_CONSTRUCTOR = spring3TaskSchedulerAdpatorConstructor;
+        
+        SPRING3 = TASK_SCHEDULER_CLASS != null && 
+            SPRING3_TASK_SCHEDULER_ADAPTOR_CLASS != null && 
+            SPRING3_TASK_SCHEDULER_ADAPTOR_CONSTRUCTOR != null;
     }
     
     public static TaskSchedulerAdapter createTaskSchedulerAdapter(Object scheduler) {
