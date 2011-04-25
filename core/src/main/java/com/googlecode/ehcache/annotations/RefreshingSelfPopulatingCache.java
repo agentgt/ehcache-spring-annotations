@@ -16,6 +16,7 @@
 package com.googlecode.ehcache.annotations;
 
 import java.io.Serializable;
+import java.util.Timer;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
@@ -30,13 +31,14 @@ import net.sf.ehcache.event.CacheManagerEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.TaskScheduler;
 
 import com.google.common.collect.MapMaker;
+import com.googlecode.ehcache.annotations.support.TaskSchedulerAdapter;
+import com.googlecode.ehcache.annotations.support.TimerTaskSchedulerAdapter;
 
 /**
  * Extension of SelfPopulatingCache that schedules a periodic call of {@link #refresh()} via the specified
- * {@link TaskScheduler}. Also overrides {@link #refreshElement(Element, Ehcache, boolean)} to allow for
+ * {@link TaskSchedulerAdapter}. Also overrides {@link #refreshElement(Element, Ehcache, boolean)} to allow for
  * asynchronous refresh of elements iff an {@link Executor} was provided to the constructor.
  */
 public class RefreshingSelfPopulatingCache extends SelfPopulatingCache {
@@ -44,21 +46,31 @@ public class RefreshingSelfPopulatingCache extends SelfPopulatingCache {
     
     //Use a weak key concurrent map to track async refreshes without danger of memory leaks
     private final ConcurrentMap<Serializable, Long> refreshQueue = new MapMaker().weakKeys().makeMap();
-    private final TaskScheduler scheduler;
+    private final TaskSchedulerAdapter scheduler;
     private final TaskExecutor executer;
     private final long refreshInterval;
     
     public RefreshingSelfPopulatingCache(Ehcache cache, CacheEntryFactory cacheEntryFactory,
-            TaskScheduler scheduler, TaskExecutor executer,
+            TaskSchedulerAdapter scheduler, TaskExecutor executer,
             long refreshInterval) {
         super(cache, cacheEntryFactory);
-
-        this.scheduler = scheduler;
+        
+        final Timer timer;
+        if (scheduler == null) {
+            timer = new Timer(cache.getName() + " Cache Refresh Timer", true);
+            this.scheduler = new TimerTaskSchedulerAdapter(timer);
+        }
+        else {
+            timer = null;
+            this.scheduler = scheduler;
+        }
+        
         this.executer = executer;
         this.refreshInterval = refreshInterval;
         
         this.scheduleRefreshTask();
         
+        //Register a listener with the cache manager to make sure we clear out our timer thread cleanly
         this.getCacheManager().setCacheManagerEventListener(new CacheManagerEventListener() {
             public void notifyCacheRemoved(String cacheName) {
             }
@@ -70,7 +82,9 @@ public class RefreshingSelfPopulatingCache extends SelfPopulatingCache {
                 return null;
             }
             public void dispose() throws CacheException {
-                
+                if (timer != null) {
+                    timer.cancel();
+                }
             }
         });
     }

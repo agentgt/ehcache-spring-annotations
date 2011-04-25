@@ -98,6 +98,7 @@
     
     <modules>
         <module>core</module>
+        <module>spring25-tests</module>
     </modules>
     
     <repositories>

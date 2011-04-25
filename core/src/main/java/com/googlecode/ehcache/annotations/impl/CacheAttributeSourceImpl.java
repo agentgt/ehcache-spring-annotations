@@ -38,7 +38,6 @@ import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.scheduling.SchedulingTaskExecutor;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
@@ -68,6 +67,8 @@ import com.googlecode.ehcache.annotations.resolver.CacheResolverFactory;
 import com.googlecode.ehcache.annotations.resolver.CacheableCacheResolver;
 import com.googlecode.ehcache.annotations.resolver.DefaultCacheResolverFactory;
 import com.googlecode.ehcache.annotations.resolver.TriggersRemoveCacheResolver;
+import com.googlecode.ehcache.annotations.support.TaskSchedulerAdapter;
+import com.googlecode.ehcache.annotations.support.TaskSchedulerAdapterFactory;
     
 
 /**
@@ -101,11 +102,11 @@ public class CacheAttributeSourceImpl implements CacheAttributeSource, BeanFacto
     private ReflectionHelper reflectionHelper;
     private CacheResolverFactory cacheResolverFactory;
 
-    private TaskScheduler scheduler;
+    private TaskSchedulerAdapter scheduler;
     private SchedulingTaskExecutor executor;
     	
-    public void setScheduler(TaskScheduler scheduler) {
-    	this.scheduler = scheduler;
+    public void setScheduler(Object scheduler) {
+    	this.scheduler = TaskSchedulerAdapterFactory.createTaskSchedulerAdapter(scheduler);
     }
     
     public void setExecutor(SchedulingTaskExecutor executor) {

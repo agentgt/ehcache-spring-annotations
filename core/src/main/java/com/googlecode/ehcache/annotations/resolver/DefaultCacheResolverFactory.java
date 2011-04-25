@@ -32,7 +32,6 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.SchedulingTaskExecutor;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.util.StringUtils;
 
 import com.googlecode.ehcache.annotations.CacheNotFoundException;
@@ -42,6 +41,7 @@ import com.googlecode.ehcache.annotations.RefreshingCacheEntryFactory;
 import com.googlecode.ehcache.annotations.RefreshingSelfPopulatingCache;
 import com.googlecode.ehcache.annotations.SelfPopulatingCacheScope;
 import com.googlecode.ehcache.annotations.TriggersRemove;
+import com.googlecode.ehcache.annotations.support.TaskSchedulerAdapter;
 
 /**
  * Cache resolver that simply looks up the specified caches by name and returns {@link SingletonCacheableCacheResolver} or
@@ -61,7 +61,7 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
     private final CacheManager cacheManager;
     private boolean createCaches = false;
     private SelfPopulatingCacheScope selfPopulatingCacheScope = SelfPopulatingCacheScope.SHARED;
-    private TaskScheduler scheduler;
+    private TaskSchedulerAdapter scheduler;
     private SchedulingTaskExecutor executor;
     
     public DefaultCacheResolverFactory(CacheManager cacheManager) {
@@ -72,7 +72,7 @@ public class DefaultCacheResolverFactory implements CacheResolverFactory {
         this.badSelfPopulatingCache = version.equals("2.3.0") || version.equals("2.3.1");
     }
 
-    public void setScheduler(TaskScheduler scheduler) {
+    public void setScheduler(TaskSchedulerAdapter scheduler) {
         this.scheduler = scheduler;
     }
     
