@@ -298,21 +298,6 @@
                     <version>2.3</version>
                 </plugin>
                 <plugin>
-                    <groupId>com.mycila.maven-license-plugin</groupId>
-                    <artifactId>maven-license-plugin</artifactId>
-                    <version>1.9.0</version>
-                    <configuration>
-                        <basedir>${basedir}</basedir>
-                        <header>${esa-short-license-url}</header>
-                        <aggregate>true</aggregate>
-                        <strictCheck>true</strictCheck>
-                        <excludes>
-                            <exclude>LICENSE</exclude>
-                            <exclude>NOTICE</exclude>
-                        </excludes>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.jasig.maven</groupId>
                     <artifactId>maven-jasig-legal-plugin</artifactId>
                     <version>1.0.2</version>
@@ -437,6 +422,26 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.9.0</version>
+                <configuration>
+                    <basedir>${basedir}</basedir>
+                    <header>${esa-short-license-url}</header>
+                    <aggregate>true</aggregate>
+                    <strictCheck>true</strictCheck>
+                    <excludes>
+                        <exclude>LICENSE</exclude>
+                        <exclude>NOTICE</exclude>
+                    </excludes>
+                    <properties>
+                        <year>2011</year>
+                    </properties>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>
