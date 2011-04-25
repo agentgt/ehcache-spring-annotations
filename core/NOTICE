@@ -17,24 +17,15 @@ This project includes:
   ASM Core under Apache License, Version 2
   Code Generation Library under ASF 2.0
   Commons Codec under The Apache Software License, Version 2.0
-  Commons Logging under The Apache Software License, Version 2.0
   EasyMock under Apache 2
   Ehcache Core under The Apache Software License, Version 2.0
   Ehcache Spring Annotations - Core under Apache 2
-  Ehcache Spring Annotations - Spring 2.5 Unit Tests under Apache 2
-  Ehcache Spring Annotations Parent under Apache 2
   Guava (Google Common Libraries) under The Apache Software License, Version 2.0
   JCL 1.1.1 implemented over SLF4J under MIT License
   JUnit under Common Public License Version 1.0
   Objenesis under Apache 2
   SLF4J API Module under MIT License
   SLF4J LOG4J-12 Binding under MIT License
-  Spring Framework: AOP under The Apache Software License, Version 2.0
-  Spring Framework: Beans under The Apache Software License, Version 2.0
-  Spring Framework: Context under The Apache Software License, Version 2.0
-  Spring Framework: Context Support under The Apache Software License, Version 2.0
-  Spring Framework: Core under The Apache Software License, Version 2.0
-  Spring Framework: Test under The Apache Software License, Version 2.0
   spring-aop under Apache License, Version 2
   spring-asm under Apache License, Version 2
   spring-beans under Apache License, Version 2

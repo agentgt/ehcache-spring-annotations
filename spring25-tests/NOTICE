@@ -22,7 +22,6 @@ This project includes:
   Ehcache Core under The Apache Software License, Version 2.0
   Ehcache Spring Annotations - Core under Apache 2
   Ehcache Spring Annotations - Spring 2.5 Unit Tests under Apache 2
-  Ehcache Spring Annotations Parent under Apache 2
   Guava (Google Common Libraries) under The Apache Software License, Version 2.0
   JCL 1.1.1 implemented over SLF4J under MIT License
   JUnit under Common Public License Version 1.0
@@ -35,12 +34,4 @@ This project includes:
   Spring Framework: Context Support under The Apache Software License, Version 2.0
   Spring Framework: Core under The Apache Software License, Version 2.0
   Spring Framework: Test under The Apache Software License, Version 2.0
-  spring-aop under Apache License, Version 2
-  spring-asm under Apache License, Version 2
-  spring-beans under Apache License, Version 2
-  spring-context under Apache License, Version 2
-  spring-context-support under Apache License, Version 2
-  spring-core under Apache License, Version 2
-  spring-expression under Apache License, Version 2
-  spring-test under Apache License, Version 2
 
