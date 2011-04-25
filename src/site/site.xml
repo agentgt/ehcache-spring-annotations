@@ -20,7 +20,7 @@
     xmlns="http://maven.apache.org/POM/4.0.0" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd"
-    name="Ehcache Spring Annotations - Core - ${project.version}">
+    name="Ehcache Spring Annotations - ${project.version}">
     
     <skin>
         <groupId>com.anasoft.os</groupId>
@@ -31,7 +31,20 @@
     <publishDate position="left" format="MM-dd-yy hh:mm zz"/>
 
     <body>
+        <breadcrumbs>
+          <item name="Home" href="${project.url}"/>
+        </breadcrumbs>
+    
+        <menu name="Ehcache Spring Annotations ${project.version}">
+            <item name="Home" href="index.html"/>
+              <item name="Usage" href="usage.html"/>
+              <item name="FAQ" href="faq.html"/>
+              <item name="Credits" href="credits.html"/>
+              <item name="License" href="license.html"/>
+        </menu>
+        
         <menu ref="modules" />
         <menu ref="reports" />
+        
     </body>
 </project>
