@@ -36,7 +36,7 @@ import org.springframework.util.Assert;
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class TaskSchedulerAdapterFactory {
+public final class TaskSchedulerAdapterFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskSchedulerAdapterFactory.class);
     
     private static Class<?> TASK_SCHEDULER_CLASS = null;
@@ -93,4 +93,6 @@ public class TaskSchedulerAdapterFactory {
         
         throw new IllegalArgumentException("Provided scheduler object of type " + scheduler.getClass() + " is not supported. Please provide a TaskScheduler, Timer or TaskSchedulerAdapter");
     }
+    
+    private TaskSchedulerAdapterFactory() {}
 }

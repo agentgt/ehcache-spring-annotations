@@ -24,10 +24,12 @@ import org.springframework.scheduling.TaskScheduler;
 /**
  * Simply wraps a Spring 3 {@link TaskScheduler}
  * 
+ * Package private to prevent other classes from using this class accidentally
+ * 
  * @author Eric Dalquist
  * @version $Revision$
  */
-public class Spring3TaskSchedulerAdapter implements TaskSchedulerAdapter {
+class Spring3TaskSchedulerAdapter implements TaskSchedulerAdapter {
     private final TaskScheduler taskScheduler;
     
     public Spring3TaskSchedulerAdapter(TaskScheduler taskScheduler) {
