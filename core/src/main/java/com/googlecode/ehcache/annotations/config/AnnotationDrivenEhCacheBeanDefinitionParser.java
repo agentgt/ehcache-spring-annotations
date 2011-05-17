@@ -26,6 +26,7 @@ import org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
@@ -72,7 +73,9 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
     public static final String XSD_ATTR__EXECUTOR = "executor";
 
     static final String EHCACHE_CACHING_ADVISOR_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAdvisor";
-    
+	public static final String EHCACHE_CACHING_ASPECT_BEAN_NAME = AnnotationDrivenEhCacheBeanDefinitionParser.class.getPackage().getName() + ".internalEhCacheCachingAspect";
+	public static final String EHCACHE_CACHING_ASPECT_CLASS_NAME = "com.googlecode.ehcache.annotations.aspectj.AnnotationEhCacheAspect";
+
     static final String DEFAULT_CACHE_KEY_GENERATOR = HashCodeCacheKeyGenerator.DEFAULT_BEAN_NAME;
     static final String CACHING_REFLECTION_HELPER_BEAN_NAME = CachingReflectionHelper.class.getName();
     
@@ -81,24 +84,50 @@ public class AnnotationDrivenEhCacheBeanDefinitionParser implements BeanDefiniti
      * @see org.springframework.beans.factory.xml.BeanDefinitionParser#parse(org.w3c.dom.Element, org.springframework.beans.factory.xml.ParserContext)
      */
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
-        if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME)) {
-            final Object elementSource = parserContext.extractSource(element);
-            
-            final RuntimeBeanReference cacheAttributeSourceReference = 
-                this.setupCacheAttributeSource(element, parserContext, elementSource);
-            
-            final RuntimeBeanReference pointcutReference = 
-                this.setupPointcut(element, parserContext, elementSource, cacheAttributeSourceReference);
-            
-            final RuntimeBeanReference interceptorReference = 
-                this.setupInterceptor(element, parserContext, elementSource, cacheAttributeSourceReference);
-            
-            this.setupPointcutAdvisor(element, parserContext, elementSource, pointcutReference, interceptorReference);
-           
-        }
+		String mode = element.getAttribute("mode");
+		if ("aspectj".equals(mode)) {
+			// mode="aspectj"
+			registerAspect(element, parserContext);
+		}
+		else {
+	        registerAdvisor(element, parserContext);
+		}
         return null;
     }
+	private void registerAdvisor(Element element, ParserContext parserContext) {
+		AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
+		if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_CACHING_ADVISOR_BEAN_NAME)) {
+		    final Object elementSource = parserContext.extractSource(element);
+		    
+		    final RuntimeBeanReference cacheAttributeSourceReference = 
+		        this.setupCacheAttributeSource(element, parserContext, elementSource);
+		    
+		    final RuntimeBeanReference pointcutReference = 
+		        this.setupPointcut(element, parserContext, elementSource, cacheAttributeSourceReference);
+		    
+		    final RuntimeBeanReference interceptorReference = 
+		        this.setupInterceptor(element, parserContext, elementSource, cacheAttributeSourceReference);
+		    
+		    this.setupPointcutAdvisor(element, parserContext, elementSource, pointcutReference, interceptorReference);
+		   
+		}
+	}
+	private void registerAspect(Element element, ParserContext parserContext) {
+		if (!parserContext.getRegistry().containsBeanDefinition(EHCACHE_CACHING_ASPECT_BEAN_NAME)) {
+		    final Object elementSource = parserContext.extractSource(element);
+		    
+		    final RuntimeBeanReference cacheAttributeSourceReference = 
+		        this.setupCacheAttributeSource(element, parserContext, elementSource);
+		    
+			RootBeanDefinition def = new RootBeanDefinition();
+			def.setBeanClassName(EHCACHE_CACHING_ASPECT_CLASS_NAME);
+			def.setFactoryMethodName("aspectOf");
+			def.getPropertyValues().add("cacheAttributeSource", cacheAttributeSourceReference);
+			//registerTransactionManager(element, def);
+			parserContext.registerBeanComponent(new BeanComponentDefinition(def, EHCACHE_CACHING_ASPECT_BEAN_NAME));
+		}
+	}
+    
 
     protected RuntimeBeanReference setupCachingReflectionHelper(ParserContext parserContext, Object elementSource) {
         final RootBeanDefinition defaultKeyGenerator = new RootBeanDefinition(CachingReflectionHelper.class);

@@ -76,7 +76,33 @@ is not 'cacheManager'.
 					
 </xsd:documentation>
 </xsd:annotation>
-</xsd:attribute>                     
+</xsd:attribute>
+
+			<xsd:attribute name="mode" default="proxy">
+
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+	Should annotated beans be proxied using Spring's AOP framework,
+	or should they rather be weaved with an AspectJ cacheable aspect?
+
+	AspectJ weaving requires ehcache-annotations-aspects.jar on the classpath,
+	as well as load-time weaving (or compile-time weaving) enabled.
+
+	Note: The weaving-based aspect requires the @Cacheable annotation to be
+	defined on the concrete class. Annotations in interfaces will not work
+	in that case (they will rather only work with interface-based proxies)!
+					]]></xsd:documentation>
+				</xsd:annotation>
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:string">
+						<xsd:enumeration value="proxy"/>
+						<xsd:enumeration value="aspectj"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+
+			</xsd:attribute>
+
+                                         
                     <xsd:attribute name="create-missing-caches" type="xsd:boolean" default="false">
                         <xsd:annotation>
                             <xsd:documentation><![CDATA[
